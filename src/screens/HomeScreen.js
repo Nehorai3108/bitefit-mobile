@@ -15,20 +15,140 @@ const MEALS = [
   { key: 'EVENING_SNACK',   label: 'חטיף ע' },
 ];
 
+// Full recipe detail: ingredients in household units + nutrition + instructions
+function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
+  const n = recipe?.total_nutrition ?? {};
+  const portions = recipe?.portions ?? 1;
+  const ingredients = recipe?.ingredients ?? [];
+  return (
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <View style={styles.detailContainer}>
+        {/* Header image */}
+        {recipe?.image_url ? (
+          <Image source={{ uri: recipe.image_url }} style={styles.detailImage} resizeMode="cover" />
+        ) : (
+          <View style={[styles.detailImage, styles.imagePlaceholder]}>
+            <Text style={{ fontSize: 64 }}>🍽️</Text>
+          </View>
+        )}
+        <TouchableOpacity style={styles.detailClose} onPress={onClose}>
+          <Ionicons name="close" size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <ScrollView contentContainerStyle={styles.detailBody} showsVerticalScrollIndicator={false}>
+          <Text style={styles.detailName}>{recipe?.name_he ?? recipe?.name_en ?? 'מתכון'}</Text>
+
+          {/* Meta row */}
+          <View style={styles.detailMetaRow}>
+            <View style={styles.detailMetaItem}>
+              <Ionicons name="flame-outline" size={16} color="#4F8EF7" />
+              <Text style={styles.detailMetaTxt}>{Math.round(n.calories ?? 0)} קק"ל</Text>
+            </View>
+            {recipe?.prep_time_minutes ? (
+              <View style={styles.detailMetaItem}>
+                <Ionicons name="time-outline" size={16} color="#888" />
+                <Text style={styles.detailMetaTxt}>{recipe.prep_time_minutes} דק'</Text>
+              </View>
+            ) : null}
+            <View style={styles.detailMetaItem}>
+              <Ionicons name="people-outline" size={16} color="#888" />
+              <Text style={styles.detailMetaTxt}>{portions} מנות</Text>
+            </View>
+          </View>
+
+          {/* Macros */}
+          <View style={styles.macrosRow}>
+            <View style={[styles.macroBadge, { borderColor: '#ff6b6b' }]}>
+              <Text style={[styles.macroVal, { color: '#ff6b6b' }]}>{Math.round(n.fat ?? 0)}g</Text>
+              <Text style={styles.macroLbl}>שומן</Text>
+            </View>
+            <View style={[styles.macroBadge, { borderColor: '#ffd700' }]}>
+              <Text style={[styles.macroVal, { color: '#ffd700' }]}>{Math.round(n.carbs ?? 0)}g</Text>
+              <Text style={styles.macroLbl}>פחמ'</Text>
+            </View>
+            <View style={[styles.macroBadge, { borderColor: '#4F8EF7' }]}>
+              <Text style={[styles.macroVal, { color: '#4F8EF7' }]}>{Math.round(n.protein ?? 0)}g</Text>
+              <Text style={styles.macroLbl}>חלבון</Text>
+            </View>
+          </View>
+
+          {/* Ingredients — household units */}
+          {ingredients.length > 0 && (
+            <View style={styles.detailSection}>
+              <Text style={styles.detailSectionTitle}>מצרכים{portions > 1 ? ` (ל-${portions} מנות)` : ''}</Text>
+              {ingredients.map((ing, i) => (
+                <View key={i} style={styles.ingredientRow}>
+                  <Text style={styles.ingredientQty}>{ing.display_he ?? `${ing.quantity ?? ''}ג`}</Text>
+                  <View style={styles.ingredientBullet} />
+                  <Text style={styles.ingredientName}>{ing.food_name ?? ing.food_name_en}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Instructions */}
+          {recipe?.instructions ? (
+            <View style={styles.detailSection}>
+              <Text style={styles.detailSectionTitle}>הוראות הכנה</Text>
+              <Text style={styles.instrText}>{recipe.instructions}</Text>
+            </View>
+          ) : null}
+
+          {/* Ate button */}
+          <TouchableOpacity
+            style={[styles.detailAteBtn, ate && styles.ateBtnDone]}
+            onPress={onAte}
+          >
+            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={18} color={ate ? '#4CAF50' : '#fff'} />
+            <Text style={[styles.detailAteTxt, ate && { color: '#4CAF50' }]}>{ate ? 'נרשם ביומן!' : 'אכלתי את זה'}</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+}
+
 function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
   const [ate, setAte] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
   const n = recipe?.total_nutrition ?? {};
+
+  const handleAte = async () => {
+    if (ate) return;
+    try {
+      const nn = recipe?.total_nutrition ?? {};
+      await addFoodEntry({
+        food_id: recipe?.recipe_id ?? 'recipe',
+        food_name: recipe?.name_he ?? recipe?.name_en ?? 'מתכון',
+        grams: 100,
+        calories: Math.round(nn.calories ?? 0),
+        protein: Math.round(nn.protein ?? 0),
+        carbs: Math.round(nn.carbs ?? 0),
+        fat: Math.round(nn.fat ?? 0),
+        meal_type: mealType ?? 'LUNCH',
+        image_url: recipe?.image_url ?? null,
+      });
+      setAte(true);
+      Alert.alert('✓ נרשם!', 'הארוחה נוספה לתזונה היומית');
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
+  };
+
   return (
     <View style={styles.recipeCard}>
-      {/* Image */}
-      {recipe?.image_url ? (
-        <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
-      ) : (
-        <View style={[styles.recipeImage, styles.imagePlaceholder]}>
-          <Text style={{ fontSize: 52 }}>🍽️</Text>
+      {/* Tappable area → opens full detail */}
+      <TouchableOpacity activeOpacity={0.85} onPress={() => setShowDetail(true)}>
+        {recipe?.image_url ? (
+          <Image source={{ uri: recipe.image_url }} style={styles.recipeImage} resizeMode="cover" />
+        ) : (
+          <View style={[styles.recipeImage, styles.imagePlaceholder]}>
+            <Text style={{ fontSize: 52 }}>🍽️</Text>
+          </View>
+        )}
+        <View style={styles.tapBadge}>
+          <Ionicons name="restaurant-outline" size={12} color="#fff" />
+          <Text style={styles.tapBadgeTxt}>מצרכים והוראות</Text>
         </View>
-      )}
+      </TouchableOpacity>
 
       <View style={styles.recipeBody}>
         {/* Name + refresh */}
@@ -37,9 +157,11 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
             <Ionicons name="refresh" size={14} color="#4F8EF7" />
             <Text style={styles.refreshTxt}>רענן</Text>
           </TouchableOpacity>
-          <Text style={styles.recipeName} numberOfLines={2}>
-            {recipe?.name_he ?? recipe?.name_en ?? 'מתכון'}
-          </Text>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowDetail(true)}>
+            <Text style={styles.recipeName} numberOfLines={2}>
+              {recipe?.name_he ?? recipe?.name_en ?? 'מתכון'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Calories */}
@@ -64,64 +186,33 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
           </View>
         </View>
 
-        {/* Ingredients */}
+        {/* Ingredients preview — household units */}
         {recipe?.ingredients?.length > 0 && (
           <Text style={styles.ingredients} numberOfLines={2}>
-            {recipe.ingredients.slice(0, 4).map(i => i.food_name ?? i.food_name_en).join(' · ')}
+            {recipe.ingredients.slice(0, 4).map(i => i.display_he ?? i.food_name ?? i.food_name_en).join(' · ')}
           </Text>
         )}
 
         {/* Action buttons */}
         <View style={styles.cardActions}>
-          {recipe?.instructions && (
-            <TouchableOpacity style={styles.instrBtn} onPress={() => setShowInstructions(true)}>
-              <Ionicons name="list-outline" size={14} color="#888" />
-              <Text style={styles.instrTxt}>הוראות הכנה</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={[styles.ateBtn, ate && styles.ateBtnDone]}
-            onPress={async () => {
-              if (ate) return;
-              try {
-                const n = recipe?.total_nutrition ?? {};
-                await addFoodEntry({
-                  food_id: recipe?.recipe_id ?? 'recipe',
-                  food_name: recipe?.name_he ?? recipe?.name_en ?? 'מתכון',
-                  grams: 100,
-                  calories: Math.round(n.calories ?? 0),
-                  protein: Math.round(n.protein ?? 0),
-                  carbs: Math.round(n.carbs ?? 0),
-                  fat: Math.round(n.fat ?? 0),
-                  meal_type: mealType ?? 'LUNCH',
-                });
-                setAte(true);
-                Alert.alert('✓ נרשם!', 'הארוחה נוספה לתזונה היומית');
-              } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
-            }}
-          >
+          <TouchableOpacity style={styles.instrBtn} onPress={() => setShowDetail(true)}>
+            <Ionicons name="list-outline" size={14} color="#888" />
+            <Text style={styles.instrTxt}>פרטים</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.ateBtn, ate && styles.ateBtnDone]} onPress={handleAte}>
             <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={14} color={ate ? '#4CAF50' : '#fff'} />
             <Text style={[styles.ateTxt, ate && { color: '#4CAF50' }]}>{ate ? 'נרשם!' : 'אכלתי את זה'}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Instructions Modal */}
-      <Modal visible={showInstructions} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => setShowInstructions(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>{recipe?.name_he ?? 'הוראות הכנה'}</Text>
-            </View>
-            <ScrollView>
-              <Text style={styles.instrText}>{recipe?.instructions}</Text>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <RecipeDetailModal
+        recipe={recipe}
+        visible={showDetail}
+        onClose={() => setShowDetail(false)}
+        onAte={handleAte}
+        ate={ate}
+      />
     </View>
   );
 }
@@ -144,13 +235,22 @@ export default function HomeScreen() {
       ]);
       setPlan(planData);
       setWater(waterData ?? { total_ml: 0, goal_ml: 2000 });
-      if (planData?.plan) {
-        const recipes = {};
-        Object.entries(planData.plan).forEach(([k, v]) => {
-          recipes[k] = v.recipes ?? [];
-        });
-        setMealRecipes(recipes);
-      }
+
+      // Fetch suggestions for all meals in parallel
+      const results = await Promise.allSettled(
+        MEALS.map(({ key }) => {
+          const targetCal = planData?.plan?.[key]?.target_calories ?? 500;
+          return fetchMealSuggestions(key, targetCal, 0)
+            .then(r => ({ key, recipes: r.recipes ?? [] }));
+        })
+      );
+      const recipes = {};
+      results.forEach(r => {
+        if (r.status === 'fulfilled' && r.value.recipes.length > 0) {
+          recipes[r.value.key] = r.value.recipes;
+        }
+      });
+      setMealRecipes(recipes);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -161,18 +261,40 @@ export default function HomeScreen() {
 
   const handleGenerate = async () => {
     setGenerating(true);
-    try { await load(); }
-    catch { Alert.alert('שגיאה', 'לא ניתן להכין תפריט'); }
-    finally { setGenerating(false); }
+    setMealRecipes({});
+    try {
+      const planData = await fetchDailyPlan();
+      setPlan(planData);
+      setActiveMeal(0);
+
+      // Fetch suggestions for all 6 meals in parallel
+      const results = await Promise.allSettled(
+        MEALS.map(({ key }) => {
+          const targetCal = planData?.plan?.[key]?.target_calories ?? 500;
+          return fetchMealSuggestions(key, targetCal, 0)
+            .then(r => ({ key, recipes: r.recipes ?? [] }));
+        })
+      );
+
+      const recipes = {};
+      results.forEach(r => {
+        if (r.status === 'fulfilled' && r.value.recipes.length > 0) {
+          recipes[r.value.key] = r.value.recipes;
+        }
+      });
+      setMealRecipes(recipes);
+    } catch (e) {
+      Alert.alert('שגיאת חיבור', `לא ניתן להכין תפריט.\n${e?.message ?? e}`);
+    } finally { setGenerating(false); }
   };
 
   const handleRefreshMeal = async (mealKey) => {
     const meal = plan?.plan?.[mealKey];
-    if (!meal) return;
     const newSeed = (seeds[mealKey] ?? 0) + 1;
     setSeeds(s => ({ ...s, [mealKey]: newSeed }));
     try {
-      const res = await fetchMealSuggestions(mealKey, meal.target_calories, newSeed);
+      const targetCal = meal?.target_calories ?? 500;
+      const res = await fetchMealSuggestions(mealKey, targetCal, newSeed);
       if (res.recipes?.length > 0) {
         setMealRecipes(r => ({ ...r, [mealKey]: res.recipes }));
       }
@@ -350,7 +472,29 @@ const styles = StyleSheet.create({
   modalCard: { backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   modalTitle: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
-  instrText: { color: '#ccc', fontSize: 15, lineHeight: 26, textAlign: 'right', paddingBottom: 40 },
+  instrText: { color: '#ccc', fontSize: 15, lineHeight: 26, textAlign: 'right' },
+
+  // Tap badge on card image
+  tapBadge: { position: 'absolute', bottom: 10, right: 10, flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
+  tapBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '600' },
+
+  // Recipe detail modal
+  detailContainer: { flex: 1, backgroundColor: '#0a0a0a' },
+  detailImage: { width: '100%', height: 240 },
+  detailClose: { position: 'absolute', top: 48, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
+  detailBody: { padding: 18, paddingBottom: 48 },
+  detailName: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
+  detailMetaRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 18, marginBottom: 16 },
+  detailMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  detailMetaTxt: { color: '#aaa', fontSize: 13, fontWeight: '600' },
+  detailSection: { marginTop: 22 },
+  detailSectionTitle: { color: '#fff', fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
+  ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  ingredientName: { color: '#ddd', fontSize: 15, textAlign: 'right' },
+  ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4F8EF7' },
+  ingredientQty: { color: '#4F8EF7', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
+  detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#4F8EF7', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
+  detailAteTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
   noRecipes: { padding: 32, alignItems: 'center', gap: 12 },
   noRecipesText: { color: '#555', fontSize: 14 },
   retryBtn: { backgroundColor: '#1a1a1a', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
