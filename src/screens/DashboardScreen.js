@@ -222,14 +222,14 @@ export default function DashboardScreen() {
             <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ff6b6b' }]}>{burned.toLocaleString()}</Text><Text style={styles.calSub}>שרפת</Text></View>
           </View>
         </View>
-        <ProgressRing size={110} pct={calPct} color="#ff6b6b"
+        <ProgressRing size={110} pct={calPct} color="#4F8EF7"
           label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
       </View>
 
       {/* Macros */}
       <View style={styles.macrosRow}>
-        <MacroCard label="שומן"     eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#ffd700" />
-        <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#ff6b6b" />
+        <MacroCard label="שומן"     eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#4F8EF7" />
+        <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#4F8EF7" />
         <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#4F8EF7" />
       </View>
 
