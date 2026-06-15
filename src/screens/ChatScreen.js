@@ -14,8 +14,9 @@ function FoodDetectedCard({ foodData }) {
     setLogging(true);
     try {
       for (const food of foodData.foods) {
-        const grams = food.quantity ?? 100;
-        // Try to get nutrition from catalog
+        // The server already resolved grams + total calories/macros for the
+        // portion (with an AI fallback), so log them directly.
+        let grams = food.grams ?? 100;
         let cal = food.calories ?? 0, prot = food.protein ?? 0;
         let carbs = food.carbs ?? 0, fat = food.fat ?? 0;
         if (!cal) {
@@ -47,7 +48,7 @@ function FoodDetectedCard({ foodData }) {
     <View style={styles.foodDetected}>
       <Text style={styles.foodDetectedTitle}>זוהה אוכל:</Text>
       {foodData.foods.map((f, i) => (
-        <Text key={i} style={styles.foodItem}>• {f.name_he ?? f.name} — {f.quantity} {f.unit}</Text>
+        <Text key={i} style={styles.foodItem}>• {f.name_he ?? f.name} — {f.grams ?? f.quantity}g · {Math.round(f.calories ?? 0)} קק"ל</Text>
       ))}
       {!logged ? (
         <TouchableOpacity style={styles.logBtn} onPress={handleLog} disabled={logging}>
