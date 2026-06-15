@@ -45,10 +45,18 @@ function SelectOption({ options, value, onChange, labelKey = 'label', valueKey =
   );
 }
 
+// Snap to the step grid and strip floating-point noise (e.g. 71.19999999 → 71).
+function snap(value, step) {
+  const n = (parseFloat(value) || 0) / step;
+  return parseFloat((Math.round(n) * step).toFixed(2));
+}
+
 function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
+  const dec = (parseFloat(value) || 0) - step;
+  const inc = (parseFloat(value) || 0) + step;
   return (
     <View style={styles.numInput}>
-      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.max(min, (parseFloat(value) || 0) - step))}>
+      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.max(min, snap(dec, step)))}>
         <Text style={styles.numBtnTxt}>−</Text>
       </TouchableOpacity>
       <TextInput
@@ -58,7 +66,7 @@ function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
         keyboardType="decimal-pad"
       />
       {unit && <Text style={styles.numUnit}>{unit}</Text>}
-      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.min(max, (parseFloat(value) || 0) + step))}>
+      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.min(max, snap(inc, step)))}>
         <Text style={styles.numBtnTxt}>+</Text>
       </TouchableOpacity>
     </View>
@@ -104,10 +112,10 @@ export default function ProfileScreen() {
         setGender(p.gender ?? 'male');
         setDob(p.date_of_birth ?? '');
         setHeight(p.height_cm ?? 170);
-        setWeight(p.weight_kg ?? 70);
+        setWeight(Math.round((p.weight_kg ?? 70) * 10) / 10);
         setActivity(p.activity_level ?? 'moderately_active');
         setGoal(p.goal ?? 'maintain');
-        setTargetWeight(p.target_weight ?? p.weight_kg ?? 70);
+        setTargetWeight(Math.round((p.target_weight ?? p.weight_kg ?? 70) * 10) / 10);
         setWeeksToGoal(p.weeks_to_goal ?? 12);
         const prefs = p.meal_preferences ?? {};
         setKashrut(prefs.kashrut ?? 'ללא הגבלה');
@@ -187,7 +195,7 @@ export default function ProfileScreen() {
             <View style={styles.row3}>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>משקל נוכחי (ק"ג)</Text>
-                <NumberInput value={weight} onChange={setWeight} min={30} max={300} step={0.1} />
+                <NumberInput value={weight} onChange={setWeight} min={30} max={300} step={0.5} />
               </View>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>גובה (ס"מ)</Text>
@@ -216,7 +224,7 @@ export default function ProfileScreen() {
             <View style={styles.row3}>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>משקל יעד (ק"ג)</Text>
-                <NumberInput value={targetWeight} onChange={setTargetWeight} min={30} max={300} step={0.1} />
+                <NumberInput value={targetWeight} onChange={setTargetWeight} min={30} max={300} step={0.5} />
               </View>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>כמה שבועות עד היעד?</Text>

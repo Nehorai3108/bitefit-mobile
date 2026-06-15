@@ -1,6 +1,18 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-export const API_BASE = 'http://localhost:8000';
+// Tailscale IP of the dev machine — bypasses AP Isolation on the router.
+// Works whenever both PC and iPhone have Tailscale connected (same account).
+const TAILSCALE_IP = '100.65.59.37';
+
+function resolveDevHost() {
+  return TAILSCALE_IP;
+}
+
+export const API_BASE = Platform.OS === 'web'
+  ? 'http://localhost:8000'
+  : `http://${resolveDevHost()}:8000`;
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -58,19 +70,36 @@ export const fetchFoodLogSummary = () => {
   return api.get(`/food-log/${t}/summary`).then(r => r.data);
 };
 
+export const fetchFoodLog = () => {
+  const t = new Date().toISOString().split('T')[0];
+  return api.get(`/food-log/${t}`).then(r => r.data);
+};
+
+export const fetchFoodLogByDate = (dateIso) =>
+  api.get(`/food-log/${dateIso}`).then(r => r.data);
+
+// History — per-day calorie totals for the last N days (calendar view)
+export const fetchFoodHistory = (days = 35) =>
+  api.get('/food-log/history', { params: { days } }).then(r => r.data);
+
 export const addFoodEntry = (entry) =>
   api.post('/food-log/', entry).then(r => r.data);
 
-// Camera — multipart form upload
+export const deleteFoodEntry = (entryId) =>
+  api.delete(`/food-log/${entryId}`).then(r => r.data);
+
+// Camera — multipart form upload (cross-platform: web needs a real Blob, native uses {uri} shape)
 export const identifyFood = async (imageUri) => {
   const formData = new FormData();
-  formData.append('file', {
-    uri: imageUri,
-    name: 'food.jpg',
-    type: 'image/jpeg',
-  });
+  if (Platform.OS === 'web') {
+    const blob = await (await fetch(imageUri)).blob();
+    formData.append('file', blob, 'food.jpg');
+  } else {
+    formData.append('file', { uri: imageUri, name: 'food.jpg', type: 'image/jpeg' });
+  }
   const res = await axios.post(`${API_BASE}/camera/identify`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // On web, let the browser set the multipart boundary header automatically.
+    headers: Platform.OS === 'web' ? {} : { 'Content-Type': 'multipart/form-data' },
     timeout: 30000,
   });
   return res.data;
