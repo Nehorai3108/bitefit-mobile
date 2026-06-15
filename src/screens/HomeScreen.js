@@ -4,7 +4,7 @@ import {
   Image, ActivityIndicator, RefreshControl, Alert, Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchDailyPlan, fetchWater, addWater, fetchMealSuggestions, addFoodEntry } from '../api/client';
+import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry } from '../api/client';
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר' },
@@ -219,7 +219,6 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
 
 export default function HomeScreen() {
   const [plan, setPlan] = useState(null);
-  const [water, setWater] = useState({ total_ml: 0, goal_ml: 2000 });
   const [activeMeal, setActiveMeal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -229,12 +228,8 @@ export default function HomeScreen() {
 
   const load = useCallback(async () => {
     try {
-      const [planData, waterData] = await Promise.all([
-        fetchDailyPlan().catch(() => null),
-        fetchWater().catch(() => ({ total_ml: 0, goal_ml: 2000 })),
-      ]);
+      const planData = await fetchDailyPlan().catch(() => null);
       setPlan(planData);
-      setWater(waterData ?? { total_ml: 0, goal_ml: 2000 });
 
       // Fetch suggestions for all meals in parallel
       const results = await Promise.allSettled(
@@ -301,13 +296,6 @@ export default function HomeScreen() {
     } catch {}
   };
 
-  const handleAddWater = async () => {
-    try {
-      await addWater(250);
-      setWater(w => ({ ...w, total_ml: (w.total_ml ?? 0) + 250 }));
-    } catch {}
-  };
-
   if (loading) return (
     <View style={styles.center}>
       <ActivityIndicator size="large" color="#4F8EF7" />
@@ -315,10 +303,6 @@ export default function HomeScreen() {
   );
 
   const totalTarget = plan?.total_target ?? 2500;
-  const totalMl = water?.total_ml ?? 0;
-  const goalMl = water?.goal_ml ?? 2000;
-  const glasses = Math.round(totalMl / 250);
-  const goalGlasses = Math.round(goalMl / 250);
   const activeMealKey = MEALS[activeMeal]?.key;
   const activeMealData = plan?.plan?.[activeMealKey];
   const activeRecipes = mealRecipes[activeMealKey] ?? [];
@@ -363,20 +347,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))}
         </ScrollView>
-
-        {/* Water */}
-        <View style={styles.waterRow}>
-          <View style={styles.glassesWrap}>
-            {Array.from({ length: goalGlasses }).map((_, i) => (
-              <Ionicons key={i} name={i < glasses ? 'water' : 'water-outline'} size={20}
-                color={i < glasses ? '#4F8EF7' : '#333'} style={{ marginHorizontal: 2 }} />
-            ))}
-          </View>
-          <TouchableOpacity style={styles.waterBtn} onPress={handleAddWater}>
-            <Ionicons name="add" size={16} color="#fff" />
-            <Text style={styles.waterBtnTxt}>כוס</Text>
-          </TouchableOpacity>
-        </View>
 
         {/* Meal hint */}
         {activeMealData && (

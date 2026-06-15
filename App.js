@@ -79,6 +79,7 @@ function ManualEntryModal({ visible, onClose }) {
         carbs:     Math.round(food.carbs_per_100g    * g / 100 * 10) / 10,
         fat:       Math.round(food.fat_per_100g      * g / 100 * 10) / 10,
         meal_type: meal,
+        image_url: food.image_url ?? null,
       });
       Alert.alert('נשמר!', `${food.name_he} נוסף לתזונה`);
       close();

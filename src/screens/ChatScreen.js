@@ -34,6 +34,7 @@ function FoodDetectedCard({ foodData }) {
           food_name: food.name_he ?? food.name,
           grams, calories: cal, protein: prot, carbs, fat,
           meal_type: foodData.meal_type?.toUpperCase() ?? 'LUNCH',
+          image_url: food.image_url ?? null,
         });
       }
       setLogged(true);
