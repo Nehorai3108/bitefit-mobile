@@ -11,13 +11,13 @@ const ACTIVITY_LEVELS = [
   { key: 'lightly_active',  label: 'פעילות קלה (1-2 ימים/שבוע)' },
   { key: 'moderately_active', label: 'פעילות בינונית (3-5 ימים/שבוע)' },
   { key: 'very_active',     label: 'פעילות גבוהה (6-7 ימים/שבוע)' },
-  { key: 'extremely_active',label: 'פעילות קיצונית (פעמיים ביום)' },
+  { key: 'extra_active',    label: 'פעילות קיצונית (פעמיים ביום)' },
 ];
 
 const GOALS = [
-  { key: 'lose',     label: 'ירידה במשקל',  color: '#ff6b6b' },
-  { key: 'maintain', label: 'שמירה על משקל', color: '#4F8EF7' },
-  { key: 'gain',     label: 'עלייה במשקל',  color: '#4CAF50' },
+  { key: 'lose_weight', label: 'ירידה במשקל',  color: '#ff6b6b' },
+  { key: 'maintain',    label: 'שמירה על משקל', color: '#4F8EF7' },
+  { key: 'gain_weight', label: 'עלייה במשקל',  color: '#4CAF50' },
 ];
 
 const KASHRUT = ['ללא הגבלה', 'פרווה', 'חלבי בלבד', 'בשרי בלבד', 'כשרות מהודרת'];
@@ -108,6 +108,7 @@ export default function ProfileScreen() {
         setActivity(p.activity_level ?? 'moderately_active');
         setGoal(p.goal ?? 'maintain');
         setTargetWeight(p.target_weight ?? p.weight_kg ?? 70);
+        setWeeksToGoal(p.weeks_to_goal ?? 12);
         const prefs = p.meal_preferences ?? {};
         setKashrut(prefs.kashrut ?? 'ללא הגבלה');
         setMealsPerDay(prefs.meals_per_day ?? 5);
@@ -128,6 +129,7 @@ export default function ProfileScreen() {
         name, gender, date_of_birth: dob,
         height_cm: height, weight_kg: weight,
         activity_level: activity, goal,
+        target_weight: targetWeight, weeks_to_goal: weeksToGoal,
         meal_preferences: {
           kashrut, meals_per_day: mealsPerDay,
           allergies, preferred_foods: preferredFoods,
@@ -135,7 +137,10 @@ export default function ProfileScreen() {
           sport_type: sportType, diet_type: dietType,
         }
       });
-      Alert.alert('נשמר', 'הפרופיל עודכן בהצלחה');
+      // Re-fetch so the new calorie target shows immediately.
+      const t = await fetchProfileTargets().catch(() => null);
+      if (t) setTargets(t);
+      Alert.alert('נשמר', `הפרופיל עודכן. יעד חדש: ${t?.calories ?? '—'} קק"ל ליום`);
     } catch {
       Alert.alert('שגיאה', 'לא הצלחתי לשמור');
     } finally { setSaving(false); }
