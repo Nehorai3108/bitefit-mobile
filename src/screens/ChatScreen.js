@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
   StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { chatMessage, addFoodEntry, searchFoodNutrition } from '../api/client';
+import { useFocusEffect } from '@react-navigation/native';
+import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight } from '../api/client';
 
 function FoodDetectedCard({ foodData }) {
   const [logged, setLogged] = useState(false);
@@ -78,6 +79,23 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
+  const insightLoaded = useRef(false);
+
+  // On first focus, replace the static greeting with a personalized,
+  // data-driven insight from Biti (remaining calories/protein, nudges).
+  useFocusEffect(useCallback(() => {
+    if (insightLoaded.current) return;
+    insightLoaded.current = true;
+    fetchDailyInsight()
+      .then(r => {
+        if (r?.message) {
+          setMessages(prev => prev.map(m =>
+            m.id === '0' ? { ...m, text: r.message } : m
+          ));
+        }
+      })
+      .catch(() => {});
+  }, []));
 
   const getHistory = (msgs) =>
     msgs.slice(1).map(m => ({ role: m.role, content: m.text }));

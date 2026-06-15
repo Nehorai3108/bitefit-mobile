@@ -56,6 +56,10 @@ export const addWater = (amount_ml = 250) =>
 export const chatMessage = (message, history = []) =>
   api.post('/chat/', { message, history }).then(r => r.data);
 
+// Proactive daily insight from Biti (data-driven)
+export const fetchDailyInsight = () =>
+  api.get('/chat/insight').then(r => r.data);
+
 // Barcode
 export const lookupBarcode = (barcode) =>
   api.get(`/barcode/${barcode}`).then(r => r.data);
