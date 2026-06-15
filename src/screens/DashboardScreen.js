@@ -64,6 +64,7 @@ function MacroCard({ label, eaten, target, color }) {
 
 function FoodLogRow({ entry, onDelete }) {
   const [deleting, setDeleting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const mealColor = MEAL_COLORS[entry.meal_type] ?? '#4F8EF7';
   const mealLabel = MEAL_LABELS[entry.meal_type] ?? entry.meal_type;
   const time = entry.timestamp
@@ -88,39 +89,65 @@ function FoodLogRow({ entry, onDelete }) {
     ]);
   };
 
-  return (
-    <View style={styles.logRow}>
-      {/* Color dot */}
-      <View style={[styles.logDot, { backgroundColor: mealColor }]} />
+  const MACROS = [
+    { label: 'חלבון', val: entry.protein, color: '#4F8EF7' },
+    { label: 'פחמימות', val: entry.carbs, color: '#ffd700' },
+    { label: 'שומן', val: entry.fat, color: '#ff6b6b' },
+  ];
 
-      {/* Image or icon */}
-      {entry.image_url ? (
-        <Image source={{ uri: entry.image_url }} style={styles.logThumb} resizeMode="cover" />
-      ) : (
-        <View style={[styles.logThumb, { backgroundColor: mealColor + '22', justifyContent: 'center', alignItems: 'center' }]}>
-          <Ionicons name="restaurant-outline" size={18} color={mealColor} />
+  return (
+    <View style={styles.logItem}>
+      <View style={styles.logRow}>
+        {/* Color dot */}
+        <View style={[styles.logDot, { backgroundColor: mealColor }]} />
+
+        {/* Tappable area → toggles macro breakdown */}
+        <TouchableOpacity style={styles.logTapArea} activeOpacity={0.7} onPress={() => setExpanded(e => !e)}>
+          {entry.image_url ? (
+            <Image source={{ uri: entry.image_url }} style={styles.logThumb} resizeMode="cover" />
+          ) : (
+            <View style={[styles.logThumb, { backgroundColor: mealColor + '22', justifyContent: 'center', alignItems: 'center' }]}>
+              <Ionicons name="restaurant-outline" size={18} color={mealColor} />
+            </View>
+          )}
+
+          <View style={styles.logInfo}>
+            <Text style={styles.logName} numberOfLines={1}>{entry.food_name}</Text>
+            <Text style={[styles.logMeal, { color: mealColor }]}>{mealLabel}{time ? ` · ${time}` : ''}</Text>
+          </View>
+
+          <View style={styles.logCalWrap}>
+            <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
+            <Text style={styles.logCalLbl}>קק"ל</Text>
+          </View>
+
+          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color="#555" />
+        </TouchableOpacity>
+
+        {/* Delete button */}
+        <TouchableOpacity onPress={handleDelete} disabled={deleting} style={styles.logDeleteBtn}>
+          {deleting
+            ? <ActivityIndicator size="small" color="#ff4444" />
+            : <Ionicons name="trash-outline" size={16} color="#444" />
+          }
+        </TouchableOpacity>
+      </View>
+
+      {/* Expanded macro breakdown */}
+      {expanded && (
+        <View style={styles.macroPanel}>
+          <View style={styles.macroBox}>
+            <Text style={styles.macroVal}>{Math.round(entry.grams ?? 0)}g</Text>
+            <Text style={styles.macroLbl}>כמות</Text>
+          </View>
+          {MACROS.map(m => (
+            <View key={m.label} style={styles.macroBox}>
+              <Text style={[styles.macroVal, { color: m.color }]}>{Math.round((m.val ?? 0) * 10) / 10}g</Text>
+              <Text style={styles.macroLbl}>{m.label}</Text>
+            </View>
+          ))}
         </View>
       )}
-
-      {/* Text content */}
-      <View style={styles.logInfo}>
-        <Text style={styles.logName} numberOfLines={1}>{entry.food_name}</Text>
-        <Text style={[styles.logMeal, { color: mealColor }]}>{mealLabel}{time ? ` · ${time}` : ''}</Text>
-      </View>
-
-      {/* Calories */}
-      <View style={styles.logCalWrap}>
-        <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
-        <Text style={styles.logCalLbl}>קק"ל</Text>
-      </View>
-
-      {/* Delete button */}
-      <TouchableOpacity onPress={handleDelete} disabled={deleting} style={styles.logDeleteBtn}>
-        {deleting
-          ? <ActivityIndicator size="small" color="#ff4444" />
-          : <Ionicons name="trash-outline" size={16} color="#444" />
-        }
-      </TouchableOpacity>
     </View>
   );
 }
@@ -307,7 +334,9 @@ const styles = StyleSheet.create({
   empty: { color: '#444', fontSize: 14 },
 
   // Food log row
-  logRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#1e1e1e', gap: 10 },
+  logItem: { borderBottomWidth: 1, borderBottomColor: '#1e1e1e' },
+  logRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
+  logTapArea: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   logDot: { width: 4, height: 38, borderRadius: 2 },
   logThumb: { width: 40, height: 40, borderRadius: 10 },
   logInfo: { flex: 1 },
@@ -317,4 +346,8 @@ const styles = StyleSheet.create({
   logCal: { fontSize: 15, fontWeight: '800' },
   logCalLbl: { color: '#666', fontSize: 10 },
   logDeleteBtn: { padding: 8, marginLeft: 2 },
+  macroPanel: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#101010', borderRadius: 12, paddingVertical: 12, marginBottom: 10, marginHorizontal: 4 },
+  macroBox: { alignItems: 'center' },
+  macroVal: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  macroLbl: { color: '#777', fontSize: 11, marginTop: 3 },
 });
