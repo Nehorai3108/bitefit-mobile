@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  TextInput, Modal, Alert,
+  TextInput, Modal, Alert, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
 
 const WORKOUT_TYPES = [
   { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#4F8EF7' },
@@ -26,31 +28,76 @@ function calcCalories(durationMin, intensity) {
   return Math.round((durationMin / 60) * mult * 75);
 }
 
+// Map a backend workout_log row into the shape the UI renders.
+function decorate(row) {
+  const typeInfo = WORKOUT_TYPES.find(t => t.key === row.workout_type);
+  let time = '';
+  try { time = new Date(row.timestamp).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }); } catch {}
+  return {
+    id: row.entry_id,
+    type: row.workout_type,
+    duration: row.duration_minutes,
+    intensity: row.intensity,
+    distance: row.distance_km,
+    calories: Math.round(row.calories_burned ?? 0),
+    label: typeInfo?.label ?? row.workout_type,
+    icon: typeInfo?.icon ?? 'fitness-outline',
+    color: typeInfo?.color ?? '#4F8EF7',
+    time,
+  };
+}
+
 export default function WorkoutScreen() {
   const [workouts, setWorkouts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     type: 'running', duration: '30', intensity: 'moderate', distance: '',
   });
 
-  const totalCalories = workouts.reduce((s, w) => s + w.calories, 0);
-  const totalMinutes = workouts.reduce((s, w) => s + parseInt(w.duration), 0);
+  const load = useCallback(async () => {
+    try {
+      const r = await fetchWorkouts();
+      setWorkouts((r.workouts ?? []).map(decorate).reverse());
+    } catch { /* keep current */ }
+    finally { setLoading(false); }
+  }, []);
 
-  const handleAdd = () => {
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const totalCalories = workouts.reduce((s, w) => s + (w.calories || 0), 0);
+  const totalMinutes = workouts.reduce((s, w) => s + (parseInt(w.duration) || 0), 0);
+
+  const handleAdd = async () => {
     if (!form.duration) { Alert.alert('שגיאה', 'הכנס משך זמן'); return; }
     const calories = calcCalories(parseInt(form.duration), form.intensity);
-    const typeInfo = WORKOUT_TYPES.find(t => t.key === form.type);
-    setWorkouts(prev => [{
-      id: Date.now().toString(),
-      ...form,
-      calories,
-      label: typeInfo?.label ?? form.type,
-      icon: typeInfo?.icon ?? 'fitness-outline',
-      color: typeInfo?.color ?? '#4F8EF7',
-      time: new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
-    }, ...prev]);
-    setShowModal(false);
-    setForm({ type: 'running', duration: '30', intensity: 'moderate', distance: '' });
+    setSaving(true);
+    try {
+      await addWorkout({
+        workout_type: form.type,
+        intensity: form.intensity,
+        duration_minutes: parseInt(form.duration) || 0,
+        calories_burned: calories,
+        distance_km: form.distance ? parseFloat(form.distance) : null,
+        mode: 'type',
+      });
+      setShowModal(false);
+      setForm({ type: 'running', duration: '30', intensity: 'moderate', distance: '' });
+      await load();
+    } catch {
+      Alert.alert('שגיאה', 'לא הצלחתי לשמור את האימון');
+    } finally { setSaving(false); }
+  };
+
+  const handleDelete = (id) => {
+    Alert.alert('מחיקת אימון', 'למחוק את האימון?', [
+      { text: 'ביטול', style: 'cancel' },
+      { text: 'מחק', style: 'destructive', onPress: async () => {
+        try { await deleteWorkout(id); setWorkouts(prev => prev.filter(w => w.id !== id)); }
+        catch { Alert.alert('שגיאה', 'לא הצלחתי למחוק'); }
+      }},
+    ]);
   };
 
   return (
@@ -92,7 +139,7 @@ export default function WorkoutScreen() {
           workouts.map(w => (
             <View key={w.id} style={[styles.workoutCard, { borderLeftColor: w.color }]}>
               <View style={styles.workoutLeft}>
-                <TouchableOpacity onPress={() => setWorkouts(prev => prev.filter(x => x.id !== w.id))}>
+                <TouchableOpacity onPress={() => handleDelete(w.id)}>
                   <Ionicons name="trash-outline" size={18} color="#555" />
                 </TouchableOpacity>
               </View>
@@ -182,8 +229,8 @@ export default function WorkoutScreen() {
               </Text>
             ) : null}
 
-            <TouchableOpacity style={styles.saveBtn} onPress={handleAdd}>
-              <Text style={styles.saveTxt}>שמור אימון</Text>
+            <TouchableOpacity style={styles.saveBtn} onPress={handleAdd} disabled={saving}>
+              {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveTxt}>שמור אימון</Text>}
             </TouchableOpacity>
           </View>
         </View>

@@ -88,6 +88,23 @@ export const addFoodEntry = (entry) =>
 export const deleteFoodEntry = (entryId) =>
   api.delete(`/food-log/${entryId}`).then(r => r.data);
 
+// Workouts
+export const addWorkout = (entry) =>
+  api.post('/workout/', entry).then(r => r.data);
+
+export const fetchWorkouts = (dateIso) => {
+  const t = dateIso ?? new Date().toISOString().split('T')[0];
+  return api.get(`/workout/${t}`).then(r => r.data);
+};
+
+export const fetchWorkoutSummary = (dateIso) => {
+  const t = dateIso ?? new Date().toISOString().split('T')[0];
+  return api.get(`/workout/${t}/summary`).then(r => r.data);
+};
+
+export const deleteWorkout = (entryId) =>
+  api.delete(`/workout/${entryId}`).then(r => r.data);
+
 // Camera — multipart form upload (cross-platform: web needs a real Blob, native uses {uri} shape)
 export const identifyFood = async (imageUri) => {
   const formData = new FormData();

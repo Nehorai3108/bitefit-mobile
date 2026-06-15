@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry } from '../api/client';
+import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary } from '../api/client';
 import HistoryScreen from './HistoryScreen';
 
 const MEAL_LABELS = {
@@ -133,16 +133,18 @@ export default function DashboardScreen() {
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [burned, setBurned] = useState(0);
 
   const load = useCallback(async () => {
     try {
-      const [s, t, w, logData] = await Promise.all([
+      const [s, t, w, logData, ws] = await Promise.all([
         fetchFoodLogSummary().catch(() => ({ calories: 0, protein: 0, carbs: 0, fat: 0, entries: 0 })),
         fetchProfileTargets().catch(() => ({ calories: 2000, protein: 150, carbs: 250, fat: 67 })),
         fetchWater().catch(() => ({ total_ml: 0, goal_ml: 2000 })),
         fetchFoodLog().catch(() => ({ entries: [] })),
+        fetchWorkoutSummary().catch(() => ({ calories_burned: 0 })),
       ]);
-      setSummary(s); setTargets(t); setWater(w);
+      setSummary(s); setTargets(t); setWater(w); setBurned(ws?.calories_burned ?? 0);
       const entries = logData?.entries ?? [];
       const sorted = [...entries].sort((a, b) =>
         new Date(b.timestamp ?? 0) - new Date(a.timestamp ?? 0)
@@ -157,8 +159,10 @@ export default function DashboardScreen() {
 
   const cal      = summary?.calories ?? 0;
   const calTarget = targets?.calories ?? 2000;
-  const calLeft  = Math.max(calTarget - cal, 0);
-  const calPct   = calTarget > 0 ? Math.min(cal / calTarget, 1) : 0;
+  // Exercise adds to the daily budget (eat-back), so remaining = target + burned − eaten.
+  const adjustedTarget = calTarget + burned;
+  const calLeft  = Math.max(adjustedTarget - cal, 0);
+  const calPct   = adjustedTarget > 0 ? Math.min(cal / adjustedTarget, 1) : 0;
   const totalMl  = water?.total_ml ?? 0;
   const goalMl   = water?.goal_ml ?? 2000;
   const glasses  = Math.round(totalMl / 250);
@@ -188,7 +192,7 @@ export default function DashboardScreen() {
           <View style={styles.calRow}>
             <View style={styles.calItem}><Text style={styles.calVal}>{calTarget.toLocaleString()}</Text><Text style={styles.calSub}>יעד</Text></View>
             <View style={styles.calItem}><Text style={[styles.calVal, { color: '#4CAF50' }]}>{cal}</Text><Text style={styles.calSub}>אכלת</Text></View>
-            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ff6b6b' }]}>0</Text><Text style={styles.calSub}>שרפת</Text></View>
+            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ff6b6b' }]}>{burned.toLocaleString()}</Text><Text style={styles.calSub}>שרפת</Text></View>
           </View>
         </View>
         <ProgressRing size={110} pct={calPct} color="#ff6b6b"
