@@ -171,7 +171,6 @@ export default function ProfileScreen() {
         <View style={styles.avatarCard}>
           <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#4F8EF7" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
-          <Text style={styles.headerSub}>נתונים ביומטריים, העדפות ויעדים — של המשתמש המחובר</Text>
         </View>
       </View>
 

@@ -348,10 +348,10 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
-        {/* Meal hint */}
+        {/* Meal target */}
         {activeMealData && (
           <Text style={styles.mealHint}>
-            ארוחה קלה ומזינה · יעד:{' '}
+            יעד:{' '}
             <Text style={styles.mealHintCal}>{activeMealData.target_calories} קק"ל</Text>
           </Text>
         )}

@@ -92,9 +92,6 @@ export default function HistoryScreen({ visible, onClose }) {
               <TouchableOpacity onPress={prevMonth} style={s.navBtn}><Ionicons name="chevron-back" size={22} color="#4F8EF7" /></TouchableOpacity>
             </View>
 
-            {target && (
-              <Text style={s.legend}>יעד יומי: {target.toLocaleString()} קק"ל · ירוק=ביעד · צהוב=מתחת · אדום=מעל</Text>
-            )}
 
             {/* Weekday headers */}
             <View style={s.weekRow}>
