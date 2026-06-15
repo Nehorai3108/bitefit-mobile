@@ -276,12 +276,13 @@ function CameraPhotoModal({ visible, onClose }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'results'
   const [items, setItems] = useState([]);
+  const [photoUrl, setPhotoUrl] = useState(null);
   const [meal, setMeal]   = useState('LUNCH');
   const [saving, setSaving] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
-    if (visible) { setPhase('camera'); setItems([]); }
+    if (visible) { setPhase('camera'); setItems([]); setPhotoUrl(null); }
   }, [visible]);
 
   const takePhoto = async () => {
@@ -290,6 +291,7 @@ function CameraPhotoModal({ visible, onClose }) {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.7, base64: false });
       setPhase('processing');
       const r = await identifyFood(photo.uri);
+      setPhotoUrl(r.image_url ?? null);
       if (r.items?.length > 0) {
         setItems(r.items);
         setPhase('results');
@@ -316,6 +318,7 @@ function CameraPhotoModal({ visible, onClose }) {
           carbs:     item.carbs ?? 0,
           fat:       item.fat ?? 0,
           meal_type: meal,
+          image_url: photoUrl,
         });
       }
       Alert.alert('נוסף!', 'הארוחה נוספה לתזונה');
