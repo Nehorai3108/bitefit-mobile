@@ -123,6 +123,12 @@ export const addInventoryItem = (item) =>
 export const deleteInventoryItem = (itemId) =>
   api.delete(`/inventory/${itemId}`).then(r => r.data);
 
+export const addInventoryBulk = (items) =>
+  api.post('/inventory/bulk', { items }).then(r => r.data);
+
+export const fetchCookSuggestions = () =>
+  api.get('/inventory/cook').then(r => r.data);
+
 export const scanReceipt = async (imageUri) => {
   const formData = new FormData();
   if (Platform.OS === 'web') {

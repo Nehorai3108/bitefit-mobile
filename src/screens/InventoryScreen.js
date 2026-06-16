@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import {
   fetchInventory, addInventoryItem, deleteInventoryItem, scanReceipt,
+  addInventoryBulk, fetchCookSuggestions,
 } from '../api/client';
 
 const CATEGORIES = {
@@ -28,6 +29,7 @@ export default function InventoryScreen({ visible, onClose }) {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
+  const [showCook, setShowCook] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -74,6 +76,13 @@ export default function InventoryScreen({ visible, onClose }) {
           </TouchableOpacity>
         </View>
 
+        {items.length > 0 && (
+          <TouchableOpacity style={s.cookBtn} onPress={() => setShowCook(true)}>
+            <Ionicons name="sparkles-outline" size={18} color="#fff" />
+            <Text style={s.cookBtnTxt}>מה אפשר להכין ממה שיש לי?</Text>
+          </TouchableOpacity>
+        )}
+
         {loading ? (
           <View style={s.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>
         ) : items.length === 0 ? (
@@ -116,6 +125,7 @@ export default function InventoryScreen({ visible, onClose }) {
           onClose={() => setShowCamera(false)}
           onDone={() => { setShowCamera(false); load(); }}
         />
+        <CookModal visible={showCook} onClose={() => setShowCook(false)} />
       </View>
     </Modal>
   );
@@ -197,8 +207,9 @@ function ManualAddModal({ visible, onClose, onAdded }) {
 // ─── Receipt scan ────────────────────────────────────────────────────────────────
 function ReceiptScanModal({ visible, onClose, onDone }) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'result'
+  const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'review'
   const [result, setResult] = useState([]);
+  const [saving, setSaving] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => { if (visible) { setPhase('camera'); setResult([]); } }, [visible]);
@@ -209,9 +220,22 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.6, base64: false });
       setPhase('processing');
       const r = await scanReceipt(photo.uri);
-      if (r.items?.length > 0) { setResult(r.items); setPhase('result'); }
+      if (r.items?.length > 0) { setResult(r.items); setPhase('review'); }
       else { Alert.alert('לא זוהו מוצרים', r.error ?? 'נסה לצלם את הקבלה בתאורה טובה'); setPhase('camera'); }
     } catch { Alert.alert('שגיאה', 'לא ניתן לסרוק את הקבלה'); setPhase('camera'); }
+  };
+
+  const removeRow = (i) => setResult(prev => prev.filter((_, idx) => idx !== i));
+  const adjustQty = (i, delta) =>
+    setResult(prev => prev.map((it, idx) =>
+      idx === i ? { ...it, quantity: Math.max(0.5, Math.round(((it.quantity || 1) + delta) * 10) / 10) } : it));
+
+  const confirm = async () => {
+    if (result.length === 0) { onClose(); return; }
+    setSaving(true);
+    try { await addInventoryBulk(result); onDone(); }
+    catch { Alert.alert('שגיאה', 'לא הצלחתי לשמור'); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -242,19 +266,94 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
           </View>
         )}
 
-        {phase === 'result' && (
+        {phase === 'review' && (
           <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
-            <Text style={s.resultTitle}>נוספו {result.length} מוצרים למלאי</Text>
+            <Text style={s.reviewTitle}>זוהו {result.length} מוצרים</Text>
+            <Text style={s.reviewSub}>ערוך כמויות או הסר פריטים, ואז אשר</Text>
             {result.map((it, i) => (
               <View key={i} style={s.itemRow}>
-                <Ionicons name={(CATEGORIES[it.category] || CATEGORIES.other).icon} size={18} color="#888" />
+                <TouchableOpacity onPress={() => removeRow(i)} style={{ padding: 4 }}>
+                  <Ionicons name="trash-outline" size={18} color="#ff6b6b" />
+                </TouchableOpacity>
+                <View style={s.qtyStepperSm}>
+                  <TouchableOpacity onPress={() => adjustQty(i, 1)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
+                  <Text style={s.stepValSm}>{formatQty(it.quantity)}</Text>
+                  <TouchableOpacity onPress={() => adjustQty(i, -1)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
+                </View>
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <Text style={s.itemName}>{it.name_he}</Text>
-                  <Text style={s.itemQty}>{formatQty(it.quantity)} {it.unit}</Text>
+                  <Text style={s.itemQty}>{it.unit}</Text>
                 </View>
+                <Ionicons name={(CATEGORIES[it.category] || CATEGORIES.other).icon} size={18} color="#666" />
               </View>
             ))}
-            <TouchableOpacity style={s.saveBtn} onPress={onDone}><Text style={s.saveBtnTxt}>סיום</Text></TouchableOpacity>
+            <TouchableOpacity style={s.saveBtn} onPress={confirm} disabled={saving}>
+              {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>אשר והוסף {result.length} למלאי</Text>}
+            </TouchableOpacity>
+            <TouchableOpacity style={s.cancelBtn} onPress={onClose}><Text style={s.cancelTxt}>ביטול</Text></TouchableOpacity>
+          </ScrollView>
+        )}
+      </View>
+    </Modal>
+  );
+}
+
+// ─── Cook from inventory ─────────────────────────────────────────────────────────
+function CookModal({ visible, onClose }) {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!visible) return;
+    setLoading(true);
+    fetchCookSuggestions()
+      .then(r => setRecipes(r.recipes ?? []))
+      .catch(() => setRecipes([]))
+      .finally(() => setLoading(false));
+  }, [visible]);
+
+  const matchColor = (pct) => pct >= 80 ? '#4CAF50' : pct >= 50 ? '#ffd700' : '#ff9800';
+
+  return (
+    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <View style={s.container}>
+        <View style={s.header}>
+          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color="#fff" /></TouchableOpacity>
+          <Text style={s.title}>מה אפשר להכין</Text>
+        </View>
+
+        {loading ? (
+          <View style={s.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>
+        ) : recipes.length === 0 ? (
+          <View style={s.center}>
+            <Ionicons name="restaurant-outline" size={52} color="#333" />
+            <Text style={s.emptyTitle}>לא נמצאו מתכונים</Text>
+            <Text style={s.emptyText}>הוסף עוד מוצרים למלאי{'\n'}כדי לקבל הצעות</Text>
+          </View>
+        ) : (
+          <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+            {recipes.map((r, i) => {
+              const total = (r.available?.length ?? 0) + (r.missing?.length ?? 0);
+              return (
+                <View key={r.recipe_id ?? i} style={s.cookCard}>
+                  {r.image_url
+                    ? <Image source={{ uri: r.image_url }} style={s.cookImg} resizeMode="cover" />
+                    : <View style={[s.cookImg, s.cookImgEmpty]}><Ionicons name="restaurant-outline" size={36} color="#444" /></View>}
+                  <View style={s.cookBody}>
+                    <Text style={s.cookName}>{r.name_he ?? r.name_en}</Text>
+                    <View style={s.cookMatch}>
+                      <Ionicons name="checkmark-circle" size={16} color={matchColor(r.match_pct)} />
+                      <Text style={[s.cookMatchTxt, { color: matchColor(r.match_pct) }]}>
+                        יש לך {r.available?.length ?? 0} מתוך {total} מרכיבים
+                      </Text>
+                    </View>
+                    {r.missing?.length > 0 && (
+                      <Text style={s.cookMissing}>חסר: {r.missing.join(' · ')}</Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
           </ScrollView>
         )}
       </View>
@@ -272,6 +371,8 @@ const s = StyleSheet.create({
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 12, paddingVertical: 13 },
   actionBtnAlt: { backgroundColor: '#141414', borderWidth: 1, borderColor: '#1e2a44' },
   actionTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  cookBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginHorizontal: 16, marginBottom: 8, backgroundColor: '#1a2e1a', borderWidth: 1, borderColor: '#2e5a2e', borderRadius: 12, paddingVertical: 13 },
+  cookBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   emptyTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginTop: 8 },
   emptyText: { color: '#666', fontSize: 14, textAlign: 'center', lineHeight: 22 },
   catBlock: { marginBottom: 18 },
@@ -303,5 +404,20 @@ const s = StyleSheet.create({
   shutter: { position: 'absolute', bottom: 48, alignSelf: 'center', width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff' },
   hint: { position: 'absolute', bottom: 130, alignSelf: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 13 },
-  resultTitle: { color: '#4CAF50', fontSize: 17, fontWeight: '800', textAlign: 'center', marginBottom: 16 },
+  reviewTitle: { color: '#fff', fontSize: 19, fontWeight: '800', textAlign: 'center' },
+  reviewSub: { color: '#777', fontSize: 13, textAlign: 'center', marginTop: 4, marginBottom: 16 },
+  qtyStepperSm: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1a1a1a', borderRadius: 8 },
+  stepValSm: { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 28, textAlign: 'center' },
+  cancelBtn: { paddingVertical: 12, alignItems: 'center', marginTop: 6 },
+  cancelTxt: { color: '#888', fontSize: 14 },
+
+  // Cook suggestions
+  cookCard: { backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden', marginBottom: 14 },
+  cookImg: { width: '100%', height: 130 },
+  cookImgEmpty: { backgroundColor: '#1e1e1e', alignItems: 'center', justifyContent: 'center' },
+  cookBody: { padding: 14 },
+  cookName: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  cookMatch: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 6 },
+  cookMatchTxt: { fontSize: 13, fontWeight: '700' },
+  cookMissing: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 6 },
 });
