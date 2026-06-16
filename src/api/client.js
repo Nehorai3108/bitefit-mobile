@@ -113,6 +113,31 @@ export const fetchWorkoutSummary = (dateIso) => {
 export const deleteWorkout = (entryId) =>
   api.delete(`/workout/${entryId}`).then(r => r.data);
 
+// Inventory
+export const fetchInventory = () =>
+  api.get('/inventory/').then(r => r.data);
+
+export const addInventoryItem = (item) =>
+  api.post('/inventory/', item).then(r => r.data);
+
+export const deleteInventoryItem = (itemId) =>
+  api.delete(`/inventory/${itemId}`).then(r => r.data);
+
+export const scanReceipt = async (imageUri) => {
+  const formData = new FormData();
+  if (Platform.OS === 'web') {
+    const blob = await (await fetch(imageUri)).blob();
+    formData.append('file', blob, 'receipt.jpg');
+  } else {
+    formData.append('file', { uri: imageUri, name: 'receipt.jpg', type: 'image/jpeg' });
+  }
+  const res = await axios.post(`${API_BASE}/inventory/scan-receipt`, formData, {
+    headers: Platform.OS === 'web' ? {} : { 'Content-Type': 'multipart/form-data' },
+    timeout: 60000,
+  });
+  return res.data;
+};
+
 // Camera — multipart form upload (cross-platform: web needs a real Blob, native uses {uri} shape)
 export const identifyFood = async (imageUri) => {
   const formData = new FormData();

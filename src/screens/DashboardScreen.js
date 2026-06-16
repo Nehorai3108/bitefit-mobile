@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary } from '../api/client';
 import HistoryScreen from './HistoryScreen';
+import InventoryScreen from './InventoryScreen';
 
 const MEAL_LABELS = {
   BREAKFAST:       'ארוחת בוקר',   breakfast: 'ארוחת בוקר',
@@ -160,6 +161,7 @@ export default function DashboardScreen() {
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showInventory, setShowInventory] = useState(false);
   const [burned, setBurned] = useState(0);
 
   const load = useCallback(async () => {
@@ -201,15 +203,22 @@ export default function DashboardScreen() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#4F8EF7" />}>
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
-          <Ionicons name="calendar-outline" size={20} color="#4F8EF7" />
-          <Text style={styles.histBtnTxt}>היסטוריה</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
+            <Ionicons name="calendar-outline" size={18} color="#4F8EF7" />
+            <Text style={styles.histBtnTxt}>היסטוריה</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.histBtn} onPress={() => setShowInventory(true)}>
+            <Ionicons name="cart-outline" size={18} color="#4F8EF7" />
+            <Text style={styles.histBtnTxt}>מלאי</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={styles.logo}>BiteFit</Text>
       </View>
       <Text style={styles.dateSub}>{date}</Text>
 
       <HistoryScreen visible={showHistory} onClose={() => setShowHistory(false)} />
+      <InventoryScreen visible={showInventory} onClose={() => setShowInventory(false)} />
 
       {/* Calorie card */}
       <View style={styles.calCard}>
