@@ -14,7 +14,7 @@ import HomeScreen      from './src/screens/HomeScreen';
 import ChatScreen      from './src/screens/ChatScreen';
 import WorkoutScreen   from './src/screens/WorkoutScreen';
 import ProfileScreen   from './src/screens/ProfileScreen';
-import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode } from './src/api/client';
+import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode, fetchRecentFoods } from './src/api/client';
 
 const Tab = createBottomTabNavigator();
 
@@ -414,12 +414,59 @@ function CameraPhotoModal({ visible, onClose }) {
 
 // ─── Add Food Sheet ────────────────────────────────────────────────────────────
 function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
+  const [recents, setRecents] = useState([]);
+  const [reloggingId, setReloggingId] = useState(null);
+
+  useEffect(() => {
+    if (visible) {
+      fetchRecentFoods(12).then(r => setRecents(r.foods ?? [])).catch(() => setRecents([]));
+    }
+  }, [visible]);
+
+  const relog = async (food) => {
+    setReloggingId(food.food_name);
+    try {
+      await addFoodEntry({
+        food_id:   food.food_id ?? 'recent',
+        food_name: food.food_name,
+        grams:     food.grams ?? 100,
+        calories:  Math.round(food.calories ?? 0),
+        protein:   food.protein ?? 0,
+        carbs:     food.carbs ?? 0,
+        fat:       food.fat ?? 0,
+        meal_type: food.meal_type ?? 'LUNCH',
+        image_url: food.image_url ?? null,
+      });
+      Alert.alert('נוסף!', `${food.food_name} נוסף ליומן`);
+      onClose();
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
+    finally { setReloggingId(null); }
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={s.overlay} onPress={onClose} />
       <View style={s.actionSheet}>
         <View style={s.sheetHandle} />
         <Text style={s.sheetTitle}>הוסף מזון</Text>
+
+        {recents.length > 0 && (
+          <View style={s.recentsWrap}>
+            <Text style={s.recentsTitle}>האוכל שלי · לחיצה אחת</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.recentsRow}>
+              {recents.map((f, i) => (
+                <TouchableOpacity key={i} style={s.recentChip} onPress={() => relog(f)} disabled={!!reloggingId}>
+                  {f.image_url
+                    ? <Image source={{ uri: f.image_url }} style={s.recentThumb} />
+                    : <View style={[s.recentThumb, s.recentThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color="#555" /></View>}
+                  <Text style={s.recentName} numberOfLines={1}>{f.food_name}</Text>
+                  <Text style={s.recentCal}>{Math.round(f.calories ?? 0)} קק"ל</Text>
+                  {reloggingId === f.food_name && <ActivityIndicator size="small" color="#4F8EF7" style={s.recentSpinner} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
         <TouchableOpacity style={s.actionRow2} onPress={onCamera}>
           <View style={[s.actionIcon, { backgroundColor: '#1a3a1a' }]}>
@@ -575,6 +622,16 @@ const s = StyleSheet.create({
   },
   sheetHandle: { width: 36, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 16 },
   sheetTitle:  { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right', marginBottom: 20 },
+
+  recentsWrap:  { marginBottom: 18 },
+  recentsTitle: { color: '#888', fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: 10 },
+  recentsRow:   { gap: 10, flexDirection: 'row-reverse', paddingLeft: 4 },
+  recentChip:   { width: 96, backgroundColor: '#141414', borderRadius: 14, padding: 8, alignItems: 'center', borderWidth: 1, borderColor: '#1f1f1f' },
+  recentThumb:  { width: 64, height: 64, borderRadius: 10, marginBottom: 6 },
+  recentThumbEmpty: { backgroundColor: '#1e1e1e', alignItems: 'center', justifyContent: 'center' },
+  recentName:   { color: '#fff', fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  recentCal:    { color: '#4F8EF7', fontSize: 11, fontWeight: '700', marginTop: 2 },
+  recentSpinner:{ position: 'absolute', top: 30, alignSelf: 'center' },
 
   actionRow2: {
     flexDirection: 'row', alignItems: 'center', gap: 14,

@@ -92,6 +92,10 @@ export const addFoodEntry = (entry) =>
 export const deleteFoodEntry = (entryId) =>
   api.delete(`/food-log/${entryId}`).then(r => r.data);
 
+// Recently logged foods (for one-tap re-logging)
+export const fetchRecentFoods = (limit = 12) =>
+  api.get('/food-log/recents', { params: { limit } }).then(r => r.data);
+
 // Workouts
 export const addWorkout = (entry) =>
   api.post('/workout/', entry).then(r => r.data);
