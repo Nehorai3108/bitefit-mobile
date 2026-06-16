@@ -294,7 +294,15 @@ function CameraPhotoModal({ visible, onClose }) {
       const r = await identifyFood(photo.uri);
       setPhotoUrl(r.image_url ?? null);
       if (r.items?.length > 0) {
-        setItems(r.items);
+        // Keep the AI's original values as a base so editing grams scales cleanly.
+        setItems(r.items.map(it => {
+          const g = Math.max(5, Math.round(it.grams ?? 100));
+          return {
+            ...it, grams: g,
+            baseGrams: g, baseCal: it.calories ?? 0,
+            baseProt: it.protein ?? 0, baseCarbs: it.carbs ?? 0, baseFat: it.fat ?? 0,
+          };
+        }));
         setPhase('results');
       } else {
         Alert.alert('לא זוהה', r.error ?? 'לא נמצאו פריטי מזון בתמונה');
@@ -327,6 +335,20 @@ function CameraPhotoModal({ visible, onClose }) {
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setSaving(false); }
   };
+
+  const scaleItem = (it, g) => {
+    const f = g / (it.baseGrams || 100);
+    return {
+      ...it, grams: g,
+      calories: Math.round((it.baseCal || 0) * f),
+      protein:  Math.round((it.baseProt || 0) * f * 10) / 10,
+      carbs:    Math.round((it.baseCarbs || 0) * f * 10) / 10,
+      fat:      Math.round((it.baseFat || 0) * f * 10) / 10,
+    };
+  };
+  const adjustGrams = (i, delta) =>
+    setItems(prev => prev.map((it, idx) => idx === i ? scaleItem(it, Math.max(5, (it.grams || 0) + delta)) : it));
+  const removeItem = (i) => setItems(prev => prev.filter((_, idx) => idx !== i));
 
   const total = items.reduce((s, i) => s + (i.calories ?? 0), 0);
 
@@ -386,23 +408,37 @@ function CameraPhotoModal({ visible, onClose }) {
 
             {items.map((item, i) => (
               <View key={i} style={s.foodRow}>
-                <View>
-                  <Text style={[s.foodMeta, { color: '#4F8EF7' }]}>{item.calories ?? 0} קק"ל</Text>
-                  <Text style={s.foodMeta}>
-                    ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g
-                  </Text>
+                {/* Delete item */}
+                <TouchableOpacity onPress={() => removeItem(i)} style={{ padding: 4 }}>
+                  <Ionicons name="trash-outline" size={18} color="#ff6b6b" />
+                </TouchableOpacity>
+
+                {/* Grams stepper */}
+                <View style={s.gramsStepper}>
+                  <TouchableOpacity onPress={() => adjustGrams(i, 10)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
+                  <Text style={s.stepVal}>{item.grams}g</Text>
+                  <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={s.foodName}>{item.name_he ?? item.name}</Text>
-                  <Text style={s.foodMeta}>{item.grams ?? 0}g</Text>
+
+                {/* Name + nutrition */}
+                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                  <Text style={s.foodName} numberOfLines={1}>{item.name_he ?? item.name}</Text>
+                  <Text style={[s.foodMeta, { color: '#4F8EF7' }]}>{item.calories ?? 0} קק"ל</Text>
+                  <Text style={s.foodMeta}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
                 </View>
               </View>
             ))}
 
+            {items.length === 0 && (
+              <Text style={{ color: '#666', textAlign: 'center', marginVertical: 20 }}>
+                אין פריטים. צלם שוב.
+              </Text>
+            )}
+
             <View style={{ marginTop: 16 }}>
               <MealChips value={meal} onChange={setMeal} />
             </View>
-            <TouchableOpacity style={s.saveBtn} onPress={handleAddAll} disabled={saving}>
+            <TouchableOpacity style={s.saveBtn} onPress={handleAddAll} disabled={saving || items.length === 0}>
               {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>הוסף הכל לתזונה</Text>}
             </TouchableOpacity>
           </ScrollView>
@@ -687,7 +723,11 @@ const s = StyleSheet.create({
 
   // Camera result
   modalHeader:   { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, paddingTop: 52 },
-  foodRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  foodRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1a1a1a', gap: 10 },
+  gramsStepper:  { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: '#222' },
+  stepBtn:       { paddingHorizontal: 10, paddingVertical: 6 },
+  stepTxt:       { color: '#4F8EF7', fontSize: 18, fontWeight: '800' },
+  stepVal:       { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 44, textAlign: 'center' },
 
   // Camera photo shutter
   shutterBtn:   { position: 'absolute', bottom: 48, alignSelf: 'center', width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
