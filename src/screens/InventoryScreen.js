@@ -10,15 +10,15 @@ import {
 } from '../api/client';
 
 const CATEGORIES = {
-  produce:   { emoji: '🥦', label: 'פירות וירקות' },
-  meat:      { emoji: '🍗', label: 'בשר ודגים' },
-  dairy:     { emoji: '🧀', label: 'חלב וביצים' },
-  bakery:    { emoji: '🍞', label: 'מאפים' },
-  pantry:    { emoji: '🥫', label: 'יבש ושימורים' },
-  frozen:    { emoji: '🧊', label: 'קפואים' },
-  beverages: { emoji: '🥤', label: 'משקאות' },
-  snacks:    { emoji: '🍫', label: 'חטיפים' },
-  other:     { emoji: '🛒', label: 'שונות' },
+  produce:   { icon: 'leaf-outline',       label: 'פירות וירקות' },
+  meat:      { icon: 'fish-outline',       label: 'בשר ודגים' },
+  dairy:     { icon: 'egg-outline',        label: 'חלב וביצים' },
+  bakery:    { icon: 'cafe-outline',       label: 'מאפים' },
+  pantry:    { icon: 'cube-outline',       label: 'יבש ושימורים' },
+  frozen:    { icon: 'snow-outline',       label: 'קפואים' },
+  beverages: { icon: 'wine-outline',       label: 'משקאות' },
+  snacks:    { icon: 'fast-food-outline',  label: 'חטיפים' },
+  other:     { icon: 'cart-outline',       label: 'שונות' },
 };
 const CAT_ORDER = ['produce', 'meat', 'dairy', 'bakery', 'pantry', 'frozen', 'beverages', 'snacks', 'other'];
 const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
@@ -78,7 +78,7 @@ export default function InventoryScreen({ visible, onClose }) {
           <View style={s.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>
         ) : items.length === 0 ? (
           <View style={s.center}>
-            <Text style={{ fontSize: 52 }}>🛒</Text>
+            <Ionicons name="cart-outline" size={56} color="#333" />
             <Text style={s.emptyTitle}>המלאי ריק</Text>
             <Text style={s.emptyText}>סרוק קבלה או הוסף מוצרים ידנית{'\n'}כדי לדעת מה יש לך בבית</Text>
           </View>
@@ -86,7 +86,10 @@ export default function InventoryScreen({ visible, onClose }) {
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
             {cats.map(cat => (
               <View key={cat} style={s.catBlock}>
-                <Text style={s.catTitle}>{CATEGORIES[cat].emoji}  {CATEGORIES[cat].label}</Text>
+                <View style={s.catTitleRow}>
+                  <Text style={s.catTitle}>{CATEGORIES[cat].label}</Text>
+                  <Ionicons name={CATEGORIES[cat].icon} size={16} color="#888" />
+                </View>
                 {grouped[cat].map(it => (
                   <View key={it.item_id} style={s.itemRow}>
                     <TouchableOpacity onPress={() => handleDelete(it)} style={{ padding: 6 }}>
@@ -178,7 +181,7 @@ function ManualAddModal({ visible, onClose, onAdded }) {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, flexDirection: 'row-reverse', paddingBottom: 4 }}>
           {CAT_ORDER.map(c => (
             <TouchableOpacity key={c} style={[s.chip, category === c && s.chipActive]} onPress={() => setCategory(c)}>
-              <Text style={[s.chipTxt, category === c && s.chipTxtActive]}>{CATEGORIES[c].emoji} {CATEGORIES[c].label}</Text>
+              <Text style={[s.chipTxt, category === c && s.chipTxtActive]}>{CATEGORIES[c].label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -241,10 +244,10 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
 
         {phase === 'result' && (
           <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
-            <Text style={s.resultTitle}>✓ נוספו {result.length} מוצרים למלאי</Text>
+            <Text style={s.resultTitle}>נוספו {result.length} מוצרים למלאי</Text>
             {result.map((it, i) => (
               <View key={i} style={s.itemRow}>
-                <Text style={{ fontSize: 18 }}>{(CATEGORIES[it.category] || CATEGORIES.other).emoji}</Text>
+                <Ionicons name={(CATEGORIES[it.category] || CATEGORIES.other).icon} size={18} color="#888" />
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <Text style={s.itemName}>{it.name_he}</Text>
                   <Text style={s.itemQty}>{formatQty(it.quantity)} {it.unit}</Text>
@@ -272,7 +275,8 @@ const s = StyleSheet.create({
   emptyTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginTop: 8 },
   emptyText: { color: '#666', fontSize: 14, textAlign: 'center', lineHeight: 22 },
   catBlock: { marginBottom: 18 },
-  catTitle: { color: '#888', fontSize: 14, fontWeight: '700', textAlign: 'right', marginBottom: 8 },
+  catTitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginBottom: 8 },
+  catTitle: { color: '#888', fontSize: 14, fontWeight: '700', textAlign: 'right' },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#161616' },
   itemName: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
   itemQty: { color: '#4F8EF7', fontSize: 12, fontWeight: '600', marginTop: 2 },
