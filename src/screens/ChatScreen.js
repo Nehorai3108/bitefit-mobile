@@ -147,11 +147,6 @@ export default function ChatScreen() {
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
         renderItem={({ item }) => (
           <View style={[styles.bubbleWrap, item.role === 'user' ? styles.userWrap : styles.aiWrap]}>
-            {item.role === 'assistant' && (
-              <View style={styles.avatar}>
-                <Text style={styles.avatarTxt}>🥗</Text>
-              </View>
-            )}
             <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}>
               <Text style={styles.bubbleText}>{item.text}</Text>
               {item.foodData?.foods?.length > 0 && (

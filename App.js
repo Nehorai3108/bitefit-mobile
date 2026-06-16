@@ -568,19 +568,19 @@ function TabNavigator() {
           const tab = TABS.find(t => t.name === route.name);
           return {
             headerShown: false,
+            tabBarShowLabel: false,
             tabBarStyle: {
               backgroundColor: '#0e0e0e',
               borderTopColor: '#1a1a1a',
               borderTopWidth: 1,
-              height: 64,
-              paddingBottom: 10,
-              paddingTop: 6,
+              height: 62,
+              paddingBottom: 8,
+              paddingTop: 8,
             },
             tabBarActiveTintColor: '#4F8EF7',
             tabBarInactiveTintColor: '#444',
-            tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
             tabBarIcon: ({ color, focused }) =>
-              tab ? <Ionicons name={focused ? tab.activeIcon : tab.icon} size={23} color={color} /> : null,
+              tab ? <Ionicons name={focused ? tab.activeIcon : tab.icon} size={26} color={color} /> : null,
           };
         }}
       >
@@ -599,10 +599,11 @@ function TabNavigator() {
               <TouchableOpacity
                 style={s.plusWrap}
                 onPress={() => setShowAdd(true)}
-                activeOpacity={0.7}
+                activeOpacity={0.85}
               >
-                <Ionicons name="add-circle-outline" size={23} color="#444" />
-                <Text style={s.plusLabel}>הוסף</Text>
+                <View style={s.plusCircle}>
+                  <Ionicons name="add" size={28} color="#fff" />
+                </View>
               </TouchableOpacity>
             ),
           }}
@@ -640,8 +641,8 @@ export default function App() {
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  plusWrap:  { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 10, paddingTop: 6 },
-  plusLabel: { color: '#444', fontSize: 10, fontWeight: '600', marginTop: 2 },
+  plusWrap:  { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  plusCircle: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#4F8EF7', alignItems: 'center', justifyContent: 'center' },
   center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
   overlay:   { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
 

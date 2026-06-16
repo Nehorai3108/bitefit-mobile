@@ -7,8 +7,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import {
   fetchInventory, addInventoryItem, deleteInventoryItem, scanReceipt,
-  addInventoryBulk, fetchCookSuggestions,
+  addInventoryBulk, fetchCookSuggestions, addFoodEntry,
 } from '../api/client';
+
+const MEAL_BY_HOUR = () => {
+  const h = new Date().getHours();
+  if (h < 11) return 'BREAKFAST';
+  if (h < 16) return 'LUNCH';
+  return 'DINNER';
+};
 
 const CATEGORIES = {
   produce:   { icon: 'leaf-outline',       label: 'פירות וירקות' },
@@ -332,32 +339,80 @@ function CookModal({ visible, onClose }) {
           </View>
         ) : (
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-            {recipes.map((r, i) => {
-              const total = (r.available?.length ?? 0) + (r.missing?.length ?? 0);
-              return (
-                <View key={r.recipe_id ?? i} style={s.cookCard}>
-                  {r.image_url
-                    ? <Image source={{ uri: r.image_url }} style={s.cookImg} resizeMode="cover" />
-                    : <View style={[s.cookImg, s.cookImgEmpty]}><Ionicons name="restaurant-outline" size={36} color="#444" /></View>}
-                  <View style={s.cookBody}>
-                    <Text style={s.cookName}>{r.name_he ?? r.name_en}</Text>
-                    <View style={s.cookMatch}>
-                      <Ionicons name="checkmark-circle" size={16} color={matchColor(r.match_pct)} />
-                      <Text style={[s.cookMatchTxt, { color: matchColor(r.match_pct) }]}>
-                        יש לך {r.available?.length ?? 0} מתוך {total} מרכיבים
-                      </Text>
-                    </View>
-                    {r.missing?.length > 0 && (
-                      <Text style={s.cookMissing}>חסר: {r.missing.join(' · ')}</Text>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
+            {recipes.map((r, i) => (
+              <CookCard key={r.recipe_id ?? i} recipe={r} matchColor={matchColor} />
+            ))}
           </ScrollView>
         )}
       </View>
     </Modal>
+  );
+}
+
+function CookCard({ recipe: r, matchColor }) {
+  const [ate, setAte] = useState(false);
+  const [open, setOpen] = useState(false);
+  const total = (r.available?.length ?? 0) + (r.missing?.length ?? 0);
+  const n = r.total_nutrition ?? {};
+
+  const logIt = async () => {
+    if (ate) return;
+    try {
+      await addFoodEntry({
+        food_id: r.recipe_id ?? 'recipe',
+        food_name: r.name_he ?? r.name_en ?? 'מתכון',
+        grams: 100,
+        calories: Math.round(n.calories ?? 0),
+        protein: Math.round(n.protein ?? 0),
+        carbs: Math.round(n.carbs ?? 0),
+        fat: Math.round(n.fat ?? 0),
+        meal_type: MEAL_BY_HOUR(),
+        image_url: r.image_url ?? null,
+      });
+      setAte(true);
+      Alert.alert('✓ נרשם!', `${r.name_he ?? 'המתכון'} נוסף ליומן`);
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
+  };
+
+  return (
+    <View style={s.cookCard}>
+      <TouchableOpacity activeOpacity={0.85} onPress={() => setOpen(o => !o)}>
+        {r.image_url
+          ? <Image source={{ uri: r.image_url }} style={s.cookImg} resizeMode="cover" />
+          : <View style={[s.cookImg, s.cookImgEmpty]}><Ionicons name="restaurant-outline" size={36} color="#444" /></View>}
+      </TouchableOpacity>
+      <View style={s.cookBody}>
+        <Text style={s.cookName}>{r.name_he ?? r.name_en}</Text>
+        <View style={s.cookMatch}>
+          <Ionicons name="checkmark-circle" size={16} color={matchColor(r.match_pct)} />
+          <Text style={[s.cookMatchTxt, { color: matchColor(r.match_pct) }]}>
+            יש לך {r.available?.length ?? 0} מתוך {total} מרכיבים · {Math.round(n.calories ?? 0)} קק"ל
+          </Text>
+        </View>
+        {r.missing?.length > 0 && (
+          <Text style={s.cookMissing}>חסר: {r.missing.join(' · ')}</Text>
+        )}
+
+        {open && r.ingredients?.length > 0 && (
+          <View style={s.ingList}>
+            {r.ingredients.map((ing, j) => (
+              <Text key={j} style={s.ingLine}>• {ing.display_he ?? ing.food_name}</Text>
+            ))}
+            {r.instructions ? <Text style={s.instr}>{r.instructions}</Text> : null}
+          </View>
+        )}
+
+        <View style={s.cookActions}>
+          <TouchableOpacity style={s.cookDetailBtn} onPress={() => setOpen(o => !o)}>
+            <Text style={s.cookDetailTxt}>{open ? 'הסתר' : 'מצרכים והוראות'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[s.cookAddBtn, ate && s.cookAddBtnDone]} onPress={logIt}>
+            <Ionicons name={ate ? 'checkmark-circle' : 'add'} size={16} color={ate ? '#4CAF50' : '#fff'} />
+            <Text style={[s.cookAddTxt, ate && { color: '#4CAF50' }]}>{ate ? 'נרשם' : 'הוסף ליומן'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -420,4 +475,13 @@ const s = StyleSheet.create({
   cookMatch: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 6 },
   cookMatchTxt: { fontSize: 13, fontWeight: '700' },
   cookMissing: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 6 },
+  ingList: { marginTop: 10, borderTopWidth: 1, borderTopColor: '#1e1e1e', paddingTop: 10 },
+  ingLine: { color: '#ccc', fontSize: 13, textAlign: 'right', paddingVertical: 2 },
+  instr: { color: '#999', fontSize: 13, lineHeight: 22, textAlign: 'right', marginTop: 8 },
+  cookActions: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  cookDetailBtn: { backgroundColor: '#1e1e1e', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#2a2a2a' },
+  cookDetailTxt: { color: '#888', fontSize: 13 },
+  cookAddBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#4F8EF7', borderRadius: 10, paddingVertical: 9 },
+  cookAddBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#4CAF50' },
+  cookAddTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });
