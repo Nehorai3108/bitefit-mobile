@@ -599,11 +599,9 @@ function TabNavigator() {
               <TouchableOpacity
                 style={s.plusWrap}
                 onPress={() => setShowAdd(true)}
-                activeOpacity={0.85}
+                activeOpacity={0.7}
               >
-                <View style={s.plusCircle}>
-                  <Ionicons name="add" size={28} color="#fff" />
-                </View>
+                <Ionicons name="add-circle-outline" size={26} color="#444" />
               </TouchableOpacity>
             ),
           }}
@@ -642,7 +640,6 @@ export default function App() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   plusWrap:  { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  plusCircle: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#4F8EF7', alignItems: 'center', justifyContent: 'center' },
   center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
   overlay:   { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
 
