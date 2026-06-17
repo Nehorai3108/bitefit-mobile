@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Image, ActivityIndicator, RefreshControl, Alert, Modal,
+  Image, ActivityIndicator, RefreshControl, Alert, Modal, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry } from '../api/client';
+import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry, searchMealRecipes } from '../api/client';
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר' },
@@ -225,6 +225,9 @@ export default function HomeScreen() {
   const [generating, setGenerating] = useState(false);
   const [seeds, setSeeds] = useState({});
   const [mealRecipes, setMealRecipes] = useState({});
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState(null); // null = not searching
+  const [searching, setSearching] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -296,6 +299,22 @@ export default function HomeScreen() {
     } catch {}
   };
 
+  const handleSearch = async () => {
+    const q = searchText.trim();
+    if (!q) { setSearchResults(null); return; }
+    setSearching(true);
+    try {
+      const targetCal = plan?.plan?.[MEALS[activeMeal]?.key]?.target_calories ?? 500;
+      const res = await searchMealRecipes(q, targetCal);
+      setSearchResults(res.recipes ?? []);
+    } catch {
+      Alert.alert('שגיאה', 'החיפוש נכשל');
+      setSearchResults([]);
+    } finally { setSearching(false); }
+  };
+
+  const clearSearch = () => { setSearchText(''); setSearchResults(null); };
+
   if (loading) return (
     <View style={styles.center}>
       <ActivityIndicator size="large" color="#4F8EF7" />
@@ -356,8 +375,52 @@ export default function HomeScreen() {
           </Text>
         )}
 
-        {/* 3 recipe cards */}
-        {activeRecipes.length > 0 ? (
+        {/* Recipe search — pick any dish, scaled to this meal's target */}
+        <View style={styles.searchRow}>
+          {searchResults !== null && (
+            <TouchableOpacity style={styles.searchClear} onPress={clearSearch}>
+              <Ionicons name="close" size={18} color="#888" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+            {searching
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Ionicons name="search" size={18} color="#fff" />}
+          </TouchableOpacity>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="חפש מתכון (למשל: שקשוקה)..."
+            placeholderTextColor="#555"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+            textAlign="right"
+          />
+        </View>
+
+        {/* Search results (scaled to meal target) */}
+        {searchResults !== null ? (
+          searchResults.length > 0 ? (
+            <View style={styles.cardsList}>
+              {searchResults.map((recipe, idx) => (
+                <RecipeCard
+                  key={recipe?.recipe_id ?? idx}
+                  recipe={recipe}
+                  targetCal={activeMealData?.target_calories ?? 0}
+                  index={idx}
+                  total={searchResults.length}
+                  mealType={activeMealKey}
+                  onRefresh={() => handleRefreshMeal(activeMealKey)}
+                />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.noRecipes}>
+              <Text style={styles.noRecipesText}>לא נמצאו מתכונים ל"{searchText}"</Text>
+            </View>
+          )
+        ) : activeRecipes.length > 0 ? (
           <View style={styles.cardsList}>
             {activeRecipes.map((recipe, idx) => (
               <RecipeCard
@@ -410,6 +473,10 @@ const styles = StyleSheet.create({
   tabTextActive: { color: '#4F8EF7', fontWeight: '700' },
   tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#4F8EF7', borderRadius: 1 },
   mealHint: { color: '#888', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 8 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 10 },
+  searchInput: { flex: 1, backgroundColor: '#141414', color: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: '#1e1e1e' },
+  searchBtn: { backgroundColor: '#4F8EF7', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
+  searchClear: { backgroundColor: '#1a1a1a', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
   mealHintCal: { color: '#ffd700', fontWeight: '700' },
   cardsList: { paddingHorizontal: 16, gap: 14, paddingBottom: 28 },
   recipeCard: { backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden' },

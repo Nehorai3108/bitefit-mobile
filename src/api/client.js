@@ -31,6 +31,12 @@ export const fetchMealSuggestions = (mealType, targetCalories, seed = 0) =>
     params: { target_calories: targetCalories, seed }
   }).then(r => r.data);
 
+// Search any recipe by name, scaled to a meal's calorie target
+export const searchMealRecipes = (q, targetCalories) =>
+  api.get('/daily-menu/search', {
+    params: { q, target_calories: targetCalories }
+  }).then(r => r.data);
+
 // Recipes
 export const fetchRecipes = (search = '') =>
   api.get('/recipes/', { params: search ? { q: search } : {} }).then(r => r.data);
