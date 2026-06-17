@@ -20,6 +20,7 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
   const n = recipe?.total_nutrition ?? {};
   const portions = recipe?.portions ?? 1;
   const ingredients = recipe?.ingredients ?? [];
+  const scaled = !!recipe?.scaled_to_calories;  // searched & adjusted to the meal target
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.detailContainer}>
@@ -51,8 +52,8 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
               </View>
             ) : null}
             <View style={styles.detailMetaItem}>
-              <Ionicons name="people-outline" size={16} color="#888" />
-              <Text style={styles.detailMetaTxt}>{portions} מנות</Text>
+              <Ionicons name="person-outline" size={16} color="#888" />
+              <Text style={styles.detailMetaTxt}>{scaled ? 'מנה אחת' : `${portions} מנות`}</Text>
             </View>
           </View>
 
@@ -75,7 +76,7 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
           {/* Ingredients — household units */}
           {ingredients.length > 0 && (
             <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>מצרכים{portions > 1 ? ` (ל-${portions} מנות)` : ''}</Text>
+              <Text style={styles.detailSectionTitle}>מצרכים{scaled ? ' (מותאם ליעד שלך)' : (portions > 1 ? ` (ל-${portions} מנות)` : '')}</Text>
               {ingredients.map((ing, i) => (
                 <View key={i} style={styles.ingredientRow}>
                   <Text style={styles.ingredientQty}>{ing.display_he ?? `${ing.quantity ?? ''}ג`}</Text>
