@@ -179,6 +179,16 @@ export const addInventoryBulk = (items) =>
 export const fetchCookSuggestions = () =>
   api.get('/inventory/cook').then(r => r.data);
 
+// בניית headers ל-multipart כולל ה-token. בלי זה השרת (Supabase) מחזיר 401.
+function _multipartHeaders() {
+  const h = {};
+  const auth = api.defaults.headers.common['Authorization'];
+  if (auth) h['Authorization'] = auth;
+  // ב-native צריך לציין content-type; ב-web נותנים לדפדפן לקבוע את ה-boundary
+  if (Platform.OS !== 'web') h['Content-Type'] = 'multipart/form-data';
+  return h;
+}
+
 export const scanReceipt = async (imageUri) => {
   const formData = new FormData();
   if (Platform.OS === 'web') {
@@ -188,8 +198,8 @@ export const scanReceipt = async (imageUri) => {
     formData.append('file', { uri: imageUri, name: 'receipt.jpg', type: 'image/jpeg' });
   }
   const res = await axios.post(`${API_BASE}/inventory/scan-receipt`, formData, {
-    headers: Platform.OS === 'web' ? {} : { 'Content-Type': 'multipart/form-data' },
-    timeout: 60000,
+    headers: _multipartHeaders(),
+    timeout: 90000,
   });
   return res.data;
 };
@@ -204,9 +214,8 @@ export const identifyFood = async (imageUri) => {
     formData.append('file', { uri: imageUri, name: 'food.jpg', type: 'image/jpeg' });
   }
   const res = await axios.post(`${API_BASE}/camera/identify`, formData, {
-    // On web, let the browser set the multipart boundary header automatically.
-    headers: Platform.OS === 'web' ? {} : { 'Content-Type': 'multipart/form-data' },
-    timeout: 30000,
+    headers: _multipartHeaders(),
+    timeout: 90000,  // cold start + Groq vision
   });
   return res.data;
 };
