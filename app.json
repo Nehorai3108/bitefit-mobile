@@ -23,7 +23,11 @@
         "backgroundColor": "#0a0a0a",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -32,9 +36,17 @@
     "plugins": [
       [
         "expo-camera",
-        { "cameraPermission": "האפליקציה משתמשת במצלמה לסריקת ברקוד וצילום אוכל" }
+        {
+          "cameraPermission": "האפליקציה משתמשת במצלמה לסריקת ברקוד וצילום אוכל"
+        }
       ],
-      "expo-image-picker"
-    ]
+      "expo-image-picker",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cad4d55a-f90b-400c-b7f0-9e5c26ecea25"
+      }
+    }
   }
 }
