@@ -130,7 +130,6 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
         image_url: recipe?.image_url ?? null,
       });
       setAte(true);
-      Alert.alert('✓ נרשם!', 'הארוחה נוספה לתזונה היומית');
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
   };
 

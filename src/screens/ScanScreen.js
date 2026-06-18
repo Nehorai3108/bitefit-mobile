@@ -3,22 +3,27 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ActivityIndicator,
   Image, ScrollView, Alert,
 } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { lookupBarcode, identifyFood, addFoodEntry } from '../api/client';
 
 // ─── Barcode Tab ────────────────────────────────────────────────────────────
 function BarcodeTab() {
-  const [hasPermission, setHasPermission] = useState(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scanning, setScanning] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const lastScan = useRef(0);
+  const hasPermission = permission?.granted;
 
-  useEffect(() => {
-    BarCodeScanner.requestPermissionsAsync().then(({ status }) => setHasPermission(status === 'granted'));
-  }, []);
+  const startScan = async () => {
+    if (!permission?.granted) {
+      const res = await requestPermission();
+      if (!res.granted) { Alert.alert('אין הרשאה', 'צריך הרשאת מצלמה כדי לסרוק ברקוד'); return; }
+    }
+    setResult(null); setScanning(true);
+  };
 
   const handleScan = async ({ data }) => {
     const now = Date.now();
@@ -35,7 +40,11 @@ function BarcodeTab() {
 
   if (scanning) return (
     <View style={{ flex: 1 }}>
-      <BarCodeScanner onBarCodeScanned={handleScan} style={StyleSheet.absoluteFillObject} />
+      <CameraView
+        style={StyleSheet.absoluteFillObject}
+        onBarcodeScanned={handleScan}
+        barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'qr'] }}
+      />
       <View style={styles.scanOverlay}>
         <View style={styles.scanFrame} />
         <Text style={styles.scanHint}>כוון את המצלמה לברקוד</Text>
@@ -70,12 +79,11 @@ function BarcodeTab() {
           <TouchableOpacity style={styles.primaryBtn} onPress={async () => {
             try {
               await addFoodEntry({ food_id: result.food_id ?? result.barcode, food_name: result.name_he ?? result.name_en, grams: result.serving_g ?? 100, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, meal_type: 'LUNCH' });
-              Alert.alert('נוסף!', 'המוצר נוסף לתזונה היומית');
             } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
           }}>
             <Text style={styles.primaryBtnTxt}>הוסף לתזונה היומית</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.secondaryBtn} onPress={() => { setResult(null); setScanning(true); }}>
+          <TouchableOpacity style={styles.secondaryBtn} onPress={startScan}>
             <Text style={styles.secondaryBtnTxt}>סרוק שוב</Text>
           </TouchableOpacity>
         </View>
@@ -84,9 +92,7 @@ function BarcodeTab() {
           <Ionicons name="barcode-outline" size={80} color="#222" />
           <Text style={styles.emptyTitle}>סריקת ברקוד</Text>
           <Text style={styles.emptyText}>סרוק ברקוד של מוצר מזון וקבל מידע תזונתי מיידי</Text>
-          {hasPermission
-            ? <TouchableOpacity style={styles.primaryBtn} onPress={() => setScanning(true)}><Text style={styles.primaryBtnTxt}>התחל סריקה</Text></TouchableOpacity>
-            : <Text style={styles.noPermission}>אין הרשאת מצלמה</Text>}
+          <TouchableOpacity style={styles.primaryBtn} onPress={startScan}><Text style={styles.primaryBtnTxt}>התחל סריקה</Text></TouchableOpacity>
         </View>
       )}
     </ScrollView>
@@ -169,7 +175,6 @@ function CameraTab() {
               for (const item of items) {
                 await addFoodEntry({ food_id: item.name ?? 'camera_food', food_name: item.name_he ?? item.name, grams: item.grams ?? 100, calories: item.calories ?? 0, protein: item.protein ?? 0, carbs: item.carbs ?? 0, fat: item.fat ?? 0, meal_type: 'LUNCH' });
               }
-              Alert.alert('נוסף!', 'הארוחה נוספה לתזונה היומית');
             } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
           }}>
             <Text style={styles.primaryBtnTxt}>הוסף הכל לתזונה</Text>
@@ -189,8 +194,8 @@ function CameraTab() {
 }
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-export default function ScanScreen() {
-  const [tab, setTab] = useState(0);
+export default function ScanScreen({ route }) {
+  const [tab, setTab] = useState(route?.params?.initialTab ?? 0);
   return (
     <View style={styles.container}>
       <View style={styles.header}>

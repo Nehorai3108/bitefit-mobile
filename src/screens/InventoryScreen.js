@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView,
   ActivityIndicator, TextInput, Alert, Pressable, Image,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -165,6 +166,7 @@ function ManualAddModal({ visible, onClose, onAdded }) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, justifyContent: 'flex-end' }}>
       <Pressable style={s.overlay} onPress={onClose} />
       <View style={s.sheet}>
         <View style={s.sheetHandle} />
@@ -207,6 +209,7 @@ function ManualAddModal({ visible, onClose, onAdded }) {
           {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>הוסף למלאי</Text>}
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -370,7 +373,6 @@ function CookCard({ recipe: r, matchColor }) {
         image_url: r.image_url ?? null,
       });
       setAte(true);
-      Alert.alert('✓ נרשם!', `${r.name_he ?? 'המתכון'} נוסף ליומן`);
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
   };
 
@@ -438,7 +440,7 @@ const s = StyleSheet.create({
   itemQty: { color: '#4F8EF7', fontSize: 12, fontWeight: '600', marginTop: 2 },
 
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
-  sheet: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  sheet: { backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#333', alignSelf: 'center', marginBottom: 16 },
   sheetTitle: { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right', marginBottom: 16 },
   input: { backgroundColor: '#1a1a1a', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, marginBottom: 12 },

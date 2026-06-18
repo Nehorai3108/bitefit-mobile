@@ -87,7 +87,6 @@ function ManualEntryModal({ visible, onClose }) {
         meal_type: meal,
         image_url: food.image_url ?? null,
       });
-      Alert.alert('נשמר!', `${food.name_he} נוסף לתזונה`);
       close();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לשמור'); }
     finally { setSaving(false); }
@@ -98,7 +97,7 @@ function ManualEntryModal({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={close}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable style={s.overlay} onPress={close} />
         <View style={s.sheet}>
           <View style={s.sheetHandle} />
@@ -193,7 +192,6 @@ function BarcodeScanModal({ visible, onClose }) {
         fat:       result.fat,
         meal_type: meal,
       });
-      Alert.alert('נוסף!', 'המוצר נוסף לתזונה');
       onClose();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setSaving(false); }
@@ -336,7 +334,6 @@ function CameraPhotoModal({ visible, onClose }) {
           image_url: photoUrl,
         });
       }
-      Alert.alert('נוסף!', 'הארוחה נוספה לתזונה');
       onClose();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setSaving(false); }
@@ -479,7 +476,6 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
         meal_type: food.meal_type ?? 'LUNCH',
         image_url: food.image_url ?? null,
       });
-      Alert.alert('נוסף!', `${food.food_name} נוסף ליומן`);
       onClose();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setReloggingId(null); }
@@ -684,7 +680,6 @@ const s = StyleSheet.create({
     paddingHorizontal: 20, paddingBottom: 40, paddingTop: 12,
   },
   sheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingBottom: 40, paddingTop: 12,
     maxHeight: '85%',
