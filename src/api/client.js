@@ -2,6 +2,10 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { notifyDataChanged } from '../refreshBus';
+
+// עוטף תוצאה של פעולת כתיבה — מודיע למסכים שהנתונים השתנו (רענון אוטומטי)
+const _notify = (data) => { notifyDataChanged(); return data; };
 
 // Production API — מתארח ב-Render (24/7, לא תלוי במחשב המקומי).
 // להרצה מול שרת מקומי בפיתוח: שנה ל-'http://localhost:8000' או ל-Tailscale IP.
@@ -100,11 +104,11 @@ export const fetchWater = () =>
   api.get(`/water/${today()}`).then(r => r.data);
 
 export const addWater = (amount_ml = 250) =>
-  api.post('/water/', { amount_ml, date: today() }).then(r => r.data);
+  api.post('/water/', { amount_ml, date: today() }).then(r => r.data).then(_notify);
 
 // Chat — includes history array
 export const chatMessage = (message, history = []) =>
-  api.post('/chat/', { message, history }).then(r => r.data);
+  api.post('/chat/', { message, history }).then(r => r.data).then(_notify);
 
 // Proactive daily insight from Biti (data-driven)
 export const fetchDailyInsight = () =>
@@ -137,10 +141,10 @@ export const fetchFoodHistory = (days = 35) =>
   api.get('/food-log/history', { params: { days } }).then(r => r.data);
 
 export const addFoodEntry = (entry) =>
-  api.post('/food-log/', entry).then(r => r.data);
+  api.post('/food-log/', entry).then(r => r.data).then(_notify);
 
 export const deleteFoodEntry = (entryId) =>
-  api.delete(`/food-log/${entryId}`).then(r => r.data);
+  api.delete(`/food-log/${entryId}`).then(r => r.data).then(_notify);
 
 // Recently logged foods (for one-tap re-logging)
 export const fetchRecentFoods = (limit = 12) =>
@@ -148,7 +152,7 @@ export const fetchRecentFoods = (limit = 12) =>
 
 // Workouts
 export const addWorkout = (entry) =>
-  api.post('/workout/', entry).then(r => r.data);
+  api.post('/workout/', entry).then(r => r.data).then(_notify);
 
 export const fetchWorkouts = (dateIso) => {
   const t = dateIso ?? new Date().toISOString().split('T')[0];
@@ -161,20 +165,20 @@ export const fetchWorkoutSummary = (dateIso) => {
 };
 
 export const deleteWorkout = (entryId) =>
-  api.delete(`/workout/${entryId}`).then(r => r.data);
+  api.delete(`/workout/${entryId}`).then(r => r.data).then(_notify);
 
 // Inventory
 export const fetchInventory = () =>
   api.get('/inventory/').then(r => r.data);
 
 export const addInventoryItem = (item) =>
-  api.post('/inventory/', item).then(r => r.data);
+  api.post('/inventory/', item).then(r => r.data).then(_notify);
 
 export const deleteInventoryItem = (itemId) =>
-  api.delete(`/inventory/${itemId}`).then(r => r.data);
+  api.delete(`/inventory/${itemId}`).then(r => r.data).then(_notify);
 
 export const addInventoryBulk = (items) =>
-  api.post('/inventory/bulk', { items }).then(r => r.data);
+  api.post('/inventory/bulk', { items }).then(r => r.data).then(_notify);
 
 export const fetchCookSuggestions = () =>
   api.get('/inventory/cook').then(r => r.data);

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   ActivityIndicator, RefreshControl, Image, Alert,
@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary } from '../api/client';
+import { onDataChanged } from '../refreshBus';
 import HistoryScreen from './HistoryScreen';
 import InventoryScreen from './InventoryScreen';
 
@@ -183,6 +184,9 @@ export default function DashboardScreen() {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  // רענון אוטומטי כשמשהו נוסף/נמחק מכל מקום באפליקציה (מודאל הוספה, צ'אט וכו')
+  useEffect(() => onDataChanged(load), [load]);
 
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>;
 
