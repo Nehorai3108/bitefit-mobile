@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { notifyDataChanged } from '../refreshBus';
+import { setWaking } from '../serverWaking';
 
 // עוטף תוצאה של פעולת כתיבה — מודיע למסכים שהנתונים השתנו (רענון אוטומטי)
 const _notify = (data) => { notifyDataChanged(); return data; };
@@ -50,9 +51,28 @@ async function refreshAccessToken() {
   finally { _refreshing = null; }
 }
 
+// ─── זיהוי "השרת מתעורר" (cold start) ────────────────────────────────────────
+// סופרים בקשות פעילות; אם בקשה כלשהי נמשכת >4 שניות מניחים שהשרת מתעורר ומציגים
+// באנר. כשכל הבקשות הסתיימו — מורידים אותו.
+let _inflight = 0;
+let _wakeTimer = null;
+function _reqStart() {
+  _inflight++;
+  if (!_wakeTimer) _wakeTimer = setTimeout(() => setWaking(true), 4000);
+}
+function _reqEnd() {
+  _inflight = Math.max(0, _inflight - 1);
+  if (_inflight === 0) {
+    if (_wakeTimer) { clearTimeout(_wakeTimer); _wakeTimer = null; }
+    setWaking(false);
+  }
+}
+api.interceptors.request.use((cfg) => { _reqStart(); return cfg; });
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => { _reqEnd(); return response; },
   async (error) => {
+    _reqEnd();
     const original = error.config;
     if (error.response?.status === 401 && original && !original._retry) {
       original._retry = true;

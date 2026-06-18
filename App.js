@@ -20,6 +20,7 @@ import HomeScreen      from './src/screens/HomeScreen';
 import ChatScreen      from './src/screens/ChatScreen';
 import WorkoutScreen   from './src/screens/WorkoutScreen';
 import ProfileScreen   from './src/screens/ProfileScreen';
+import { isWaking, onWakingChange } from './src/serverWaking';
 import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode, fetchRecentFoods } from './src/api/client';
 
 const Tab = createBottomTabNavigator();
@@ -353,6 +354,36 @@ function CameraPhotoModal({ visible, onClose }) {
     setItems(prev => prev.map((it, idx) => idx === i ? scaleItem(it, Math.max(5, (it.grams || 0) + delta)) : it));
   const removeItem = (i) => setItems(prev => prev.filter((_, idx) => idx !== i));
 
+  // עריכת שם מאכל שזוהה לא נכון (למשל מלפפון שזוהה כמלון)
+  const editName = (i, text) =>
+    setItems(prev => prev.map((it, idx) => idx === i ? { ...it, name_he: text } : it));
+
+  // אחרי תיקון שם — מביא ערכים תזונתיים מתאימים לשם החדש ומחשב לפי הגרמים
+  const relookupNutrition = async (i) => {
+    const it = items[i];
+    const name = (it?.name_he || '').trim();
+    if (!name) return;
+    try {
+      const res = await searchFoodNutrition(name);
+      if (!res?.found) return;
+      const g = it.grams || 100;
+      setItems(prev => prev.map((x, idx) => idx === i ? {
+        ...x,
+        name_he: res.name_he || name,
+        baseGrams: 100,
+        baseCal:  res.calories_per_100g || 0,
+        baseProt: res.protein_per_100g  || 0,
+        baseCarbs:res.carbs_per_100g    || 0,
+        baseFat:  res.fat_per_100g      || 0,
+        grams: g,
+        calories: Math.round((res.calories_per_100g || 0) * g / 100),
+        protein:  Math.round((res.protein_per_100g  || 0) * g / 100 * 10) / 10,
+        carbs:    Math.round((res.carbs_per_100g    || 0) * g / 100 * 10) / 10,
+        fat:      Math.round((res.fat_per_100g      || 0) * g / 100 * 10) / 10,
+      } : x));
+    } catch (_) {}
+  };
+
   const total = items.reduce((s, i) => s + (i.calories ?? 0), 0);
 
   return (
@@ -423,11 +454,22 @@ function CameraPhotoModal({ visible, onClose }) {
                   <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 </View>
 
-                {/* Name + nutrition */}
+                {/* Name (editable) + nutrition */}
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                  <Text style={s.foodName} numberOfLines={1}>{item.name_he ?? item.name}</Text>
+                  <TextInput
+                    style={[s.foodName, s.foodNameEdit]}
+                    value={item.name_he ?? item.name ?? ''}
+                    onChangeText={(t) => editName(i, t)}
+                    onEndEditing={() => relookupNutrition(i)}
+                    returnKeyType="done"
+                    onSubmitEditing={() => relookupNutrition(i)}
+                    textAlign="right"
+                    placeholder="שם המאכל"
+                    placeholderTextColor="#555"
+                  />
                   <Text style={[s.foodMeta, { color: '#4F8EF7' }]}>{item.calories ?? 0} קק"ל</Text>
                   <Text style={s.foodMeta}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
+                  <Text style={[s.foodMeta, { fontSize: 10, color: '#555' }]}>הקש לתיקון השם</Text>
                 </View>
               </View>
             ))}
@@ -658,11 +700,25 @@ function RootNavigator() {
   return <TabNavigator />;
 }
 
+// באנר "השרת מתעורר" — מופיע כשבקשה נמשכת מעבר ל-4 שניות (cold start של Render)
+function WakingBanner() {
+  const [waking, setWakingState] = useState(isWaking());
+  useEffect(() => onWakingChange(setWakingState), []);
+  if (!waking) return null;
+  return (
+    <View style={s.wakingBanner} pointerEvents="none">
+      <ActivityIndicator color="#0a0a0a" size="small" />
+      <Text style={s.wakingTxt}>מתחבר לשרת… (עד דקה בפתיחה ראשונה)</Text>
+    </View>
+  );
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
         <RootNavigator />
+        <WakingBanner />
       </NavigationContainer>
     </AuthProvider>
   );
@@ -717,6 +773,14 @@ const s = StyleSheet.create({
   searchBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   foodCard:  { backgroundColor: '#1a1a1a', borderRadius: 16, padding: 16, gap: 12 },
   foodName:  { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right' },
+  foodNameEdit: { borderBottomWidth: 1, borderBottomColor: '#333', paddingVertical: 2, minWidth: 120, alignSelf: 'stretch' },
+  wakingBanner: {
+    position: 'absolute', top: 0, left: 0, right: 0,
+    backgroundColor: '#A8E063', flexDirection: 'row', gap: 8,
+    alignItems: 'center', justifyContent: 'center',
+    paddingTop: 52, paddingBottom: 10, paddingHorizontal: 16,
+  },
+  wakingTxt: { color: '#0a0a0a', fontSize: 13, fontWeight: '700' },
   foodMeta:  { color: '#666', fontSize: 13, textAlign: 'right' },
   gramsRow:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   calBig:    { color: '#4F8EF7', fontSize: 26, fontWeight: '800' },
