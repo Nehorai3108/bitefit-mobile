@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary } from '../api/client';
 import { onDataChanged } from '../refreshBus';
+import MealBalanceCard from '../components/MealBalanceCard';
 import HistoryScreen from './HistoryScreen';
 import InventoryScreen from './InventoryScreen';
 
@@ -245,6 +246,9 @@ export default function DashboardScreen() {
         <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#4F8EF7" />
         <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#4F8EF7" />
       </View>
+
+      {/* מאזן יומי חכם — יעד/נאכל לכל ארוחה + איזון בין ארוחות */}
+      <MealBalanceCard />
 
       {/* Water */}
       <View style={styles.card}>

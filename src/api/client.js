@@ -203,6 +203,23 @@ export const addInventoryBulk = (items) =>
 export const fetchCookSuggestions = () =>
   api.get('/inventory/cook').then(r => r.data);
 
+// Meal balance — מאזן קלורי חכם פר-ארוחה
+export const fetchMealBalance = (dateIso) => {
+  const t = dateIso ?? new Date().toISOString().split('T')[0];
+  return api.get(`/meal-balance/${t}`).then(r => r.data);
+};
+
+export const moveMealCalories = (fromMeal, toMeal, amount, dateIso) => {
+  const t = dateIso ?? new Date().toISOString().split('T')[0];
+  return api.post(`/meal-balance/${t}/move`, { from_meal: fromMeal, to_meal: toMeal, amount })
+    .then(r => r.data).then(_notify);
+};
+
+export const resetMealBalance = (dateIso) => {
+  const t = dateIso ?? new Date().toISOString().split('T')[0];
+  return api.delete(`/meal-balance/${t}`).then(r => r.data).then(_notify);
+};
+
 // בניית headers ל-multipart כולל ה-token. בלי זה השרת (Supabase) מחזיר 401.
 function _multipartHeaders() {
   const h = {};
