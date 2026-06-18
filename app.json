@@ -30,13 +30,11 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-barcode-scanner",
+      [
+        "expo-camera",
+        { "cameraPermission": "האפליקציה משתמשת במצלמה לסריקת ברקוד וצילום אוכל" }
+      ],
       "expo-image-picker"
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "bitefit-mobile"
-      }
-    }
+    ]
   }
 }

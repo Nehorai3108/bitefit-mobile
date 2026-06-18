@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProfile, saveProfile, fetchProfileTargets } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
 const ACTIVITY_LEVELS = [
   { key: 'sedentary',       label: 'יושבני (ללא פעילות)' },
@@ -160,6 +161,15 @@ export default function ProfileScreen() {
     if (t && !list.includes(t)) { setList([...list, t]); setVal(''); }
   };
 
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert('התנתקות', 'האם אתה בטוח שברצונך להתנתק?', [
+      { text: 'ביטול', style: 'cancel' },
+      { text: 'התנתק', style: 'destructive', onPress: logout },
+    ]);
+  };
+
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>;
 
   const tabs = ['פרטים אישיים', 'העדפות תזונה', 'יעדים'];
@@ -168,6 +178,9 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
+          <Ionicons name="log-out-outline" size={22} color="#ff6b6b" />
+        </TouchableOpacity>
         <View style={styles.avatarCard}>
           <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#4F8EF7" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
@@ -231,9 +244,14 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            {weeksToGoal > 0 && (
+            {weeksToGoal > 0 && targetWeight !== weight && (
               <Text style={styles.paceText}>
-                קצב: {Math.abs((targetWeight - weight) / weeksToGoal).toFixed(2)} ק"ג/שבוע · עודף: {Math.round(((targetWeight - weight) / weeksToGoal) * 1000)} קק"ל/יום
+                קצב: {Math.abs((targetWeight - weight) / weeksToGoal).toFixed(2)} ק"ג/שבוע · {(targetWeight - weight) < 0 ? 'גירעון' : 'עודף'}: {Math.abs(Math.round(((targetWeight - weight) / weeksToGoal) * 1000))} קק"ל/יום
+              </Text>
+            )}
+            {targetWeight === weight && (
+              <Text style={styles.paceHint}>
+                כדי שמספר השבועות ישפיע על הקלוריות — קבע משקל יעד שונה מהמשקל הנוכחי ({weight} ק"ג)
               </Text>
             )}
           </View>
@@ -391,6 +409,7 @@ const styles = StyleSheet.create({
   optTxt: { color: '#666', fontSize: 13 },
   optTxtActive: { color: '#4F8EF7', fontWeight: '700' },
   paceText: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 8 },
+  paceHint: { color: '#e0a030', fontSize: 12, textAlign: 'right', marginTop: 8, lineHeight: 17 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
   chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#141414', borderWidth: 1, borderColor: '#2a2a2a' },
   chipActive: { backgroundColor: '#2a1a4a', borderColor: '#8a6aff' },

@@ -1,24 +1,68 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Tailscale IP of the dev machine — bypasses AP Isolation on the router.
-// Works whenever both PC and iPhone have Tailscale connected (same account).
-const TAILSCALE_IP = '100.65.59.37';
-
-function resolveDevHost() {
-  return TAILSCALE_IP;
-}
-
-export const API_BASE = Platform.OS === 'web'
-  ? 'http://localhost:8000'
-  : `http://${resolveDevHost()}:8000`;
+// Production API — מתארח ב-Render (24/7, לא תלוי במחשב המקומי).
+// להרצה מול שרת מקומי בפיתוח: שנה ל-'http://localhost:8000' או ל-Tailscale IP.
+export const API_BASE = 'https://bitefit-api.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 20000,
+  // Render free tier "נרדם" אחרי חוסר פעילות ומתעורר ב-~50 שניות (cold start).
+  // timeout גבוה כדי שהבקשה הראשונה אחרי שינה לא תיכשל לפני שהשרת מתעורר.
+  timeout: 60000,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// ─── Auto token-refresh on 401 ──────────────────────────────────────────────
+// ה-JWT של Supabase פג אחרי שעה. כשהאפליקציה נפתחת אחרי כמה שעות, ה-token פג
+// וכל בקשה מחזירה 401. ה-interceptor הזה מרענן את ה-token אוטומטית ומריץ
+// מחדש את הבקשה — בלי שהמשתמש ירגיש. אם גם ה-refresh נכשל → מנקה ומחזיר ל-login.
+const TOKEN_KEY   = '@bitefit_token';
+const REFRESH_KEY = '@bitefit_refresh';
+
+// callback שמוגדר מ-AuthContext כדי לאלץ logout כשה-refresh נכשל
+let _onAuthFailure = null;
+export const setAuthFailureHandler = (fn) => { _onAuthFailure = fn; };
+
+let _refreshing = null;  // מונע מספר רענונים במקביל
+
+async function refreshAccessToken() {
+  if (_refreshing) return _refreshing;
+  _refreshing = (async () => {
+    const refreshToken = await AsyncStorage.getItem(REFRESH_KEY);
+    if (!refreshToken) throw new Error('no refresh token');
+    // קריאה נקייה (לא דרך api) כדי לא להיתפס שוב ב-interceptor
+    const res = await axios.post(`${API_BASE}/auth/refresh`,
+      { refresh_token: refreshToken }, { timeout: 20000 });
+    const newToken = res.data.access_token;
+    const newRefresh = res.data.refresh_token || refreshToken;
+    await AsyncStorage.multiSet([[TOKEN_KEY, newToken], [REFRESH_KEY, newRefresh]]);
+    api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+    return newToken;
+  })();
+  try { return await _refreshing; }
+  finally { _refreshing = null; }
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+    if (error.response?.status === 401 && original && !original._retry) {
+      original._retry = true;
+      try {
+        const newToken = await refreshAccessToken();
+        original.headers['Authorization'] = `Bearer ${newToken}`;
+        return api(original);  // הרץ מחדש את הבקשה המקורית
+      } catch (e) {
+        if (_onAuthFailure) await _onAuthFailure();  // הוצא את המשתמש למסך login
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 const today = () => new Date().toISOString().split('T')[0];
 

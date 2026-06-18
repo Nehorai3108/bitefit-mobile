@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import {
   TouchableOpacity, View, Modal, Text, StyleSheet,
@@ -8,6 +9,11 @@ import {
   ScrollView, KeyboardAvoidingView, Platform, Image,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import LoginScreen      from './src/screens/auth/LoginScreen';
+import SignupScreen     from './src/screens/auth/SignupScreen';
+import OnboardingScreen from './src/screens/onboarding/OnboardingScreen';
 
 import DashboardScreen from './src/screens/DashboardScreen';
 import HomeScreen      from './src/screens/HomeScreen';
@@ -629,11 +635,40 @@ function TabNavigator() {
   );
 }
 
+const AuthStack = createNativeStackNavigator();
+
+function AuthNavigator() {
+  return (
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Login"  component={LoginScreen} />
+      <AuthStack.Screen name="Signup" component={SignupScreen} />
+    </AuthStack.Navigator>
+  );
+}
+
+function RootNavigator() {
+  const { token, onboarded, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0f0f0f', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#A8E063" />
+      </View>
+    );
+  }
+
+  if (!token)      return <AuthNavigator />;
+  if (!onboarded)  return <OnboardingScreen />;
+  return <TabNavigator />;
+}
+
 export default function App() {
   return (
-    <NavigationContainer>
-      <TabNavigator />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
 
