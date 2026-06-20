@@ -34,7 +34,7 @@ export default function MealBalanceCard() {
   };
 
   if (loading) {
-    return <View style={s.card}><ActivityIndicator color="#4F8EF7" /></View>;
+    return <View style={s.card}><ActivityIndicator color="#5b9bdc" /></View>;
   }
   if (!data?.meals) return null;
 
@@ -55,7 +55,7 @@ export default function MealBalanceCard() {
         const pct = m.target > 0 ? Math.min(100, Math.round((m.eaten / m.target) * 100)) : 0;
         const short = m.remaining > 0 && m.eaten > 0;   // אכל אבל חסר
         const over  = m.remaining < 0;                   // אכל יותר מהיעד
-        const barColor = over ? '#ff6b6b' : (m.eaten >= m.target && m.target > 0 ? '#4CAF50' : '#4F8EF7');
+        const barColor = over ? '#ef7d6c' : (m.eaten >= m.target && m.target > 0 ? '#56bd6b' : '#5b9bdc');
         return (
           <View key={m.meal} style={s.row}>
             <View style={s.rowTop}>
@@ -109,7 +109,7 @@ export default function MealBalanceCard() {
 }
 
 const s = StyleSheet.create({
-  card: { backgroundColor: '#141414', borderRadius: 16, padding: 16, marginBottom: 16 },
+  card: { backgroundColor: '#14212f', borderRadius: 16, padding: 16, marginBottom: 16 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   title: { color: '#fff', fontSize: 17, fontWeight: '800', textAlign: 'right' },
   resetBtn: { paddingVertical: 2 },
@@ -118,18 +118,18 @@ const s = StyleSheet.create({
   row: { marginBottom: 14 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   mealName: { color: '#fff', fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  adjTag: { color: '#A8E063', fontSize: 12, fontWeight: '700' },
-  balanceLink: { color: '#4F8EF7', fontSize: 13, fontWeight: '700' },
+  adjTag: { color: '#56bd6b', fontSize: 12, fontWeight: '700' },
+  balanceLink: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
-  barWrap: { height: 8, backgroundColor: '#1e1e1e', borderRadius: 4, overflow: 'hidden', marginBottom: 4 },
+  barWrap: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 4 },
   bar: { height: '100%', borderRadius: 4 },
   nums: { color: '#888', fontSize: 12, textAlign: 'right' },
 
-  picker: { marginTop: 8, backgroundColor: '#1a1a1a', borderRadius: 10, padding: 10 },
+  picker: { marginTop: 8, backgroundColor: '#1b2c3d', borderRadius: 10, padding: 10 },
   pickerHint: { color: '#aaa', fontSize: 12, textAlign: 'right', marginBottom: 8 },
   pickerRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
-  pickChip: { backgroundColor: '#2a2a2a', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 7 },
-  pickChipTxt: { color: '#4F8EF7', fontSize: 13, fontWeight: '600' },
+  pickChip: { backgroundColor: '#2e455c', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 7 },
+  pickChipTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '600' },
 
   footer: { color: '#aaa', fontSize: 13, textAlign: 'right', marginTop: 4, fontWeight: '600' },
 });

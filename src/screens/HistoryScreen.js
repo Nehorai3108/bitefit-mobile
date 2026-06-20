@@ -66,9 +66,9 @@ export default function HistoryScreen({ visible, onClose }) {
   const todayIso = iso(now.getFullYear(), now.getMonth(), now.getDate());
 
   const colorFor = (cal) => {
-    if (!target) return '#4F8EF7';
-    if (cal > target * 1.1) return '#ff6b6b';   // well over goal
-    if (cal >= target * 0.85) return '#4CAF50'; // on target
+    if (!target) return '#5b9bdc';
+    if (cal > target * 1.1) return '#ef7d6c';   // well over goal
+    if (cal >= target * 0.85) return '#56bd6b'; // on target
     return '#ffd700';                            // under goal
   };
 
@@ -82,14 +82,14 @@ export default function HistoryScreen({ visible, onClose }) {
         </View>
 
         {loading ? (
-          <View style={s.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>
+          <View style={s.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>
         ) : (
           <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
             {/* Month nav */}
             <View style={s.monthNav}>
-              <TouchableOpacity onPress={nextMonth} style={s.navBtn}><Ionicons name="chevron-forward" size={22} color="#4F8EF7" /></TouchableOpacity>
+              <TouchableOpacity onPress={nextMonth} style={s.navBtn}><Ionicons name="chevron-forward" size={22} color="#5b9bdc" /></TouchableOpacity>
               <Text style={s.monthLabel}>{MONTHS_HE[month]} {year}</Text>
-              <TouchableOpacity onPress={prevMonth} style={s.navBtn}><Ionicons name="chevron-back" size={22} color="#4F8EF7" /></TouchableOpacity>
+              <TouchableOpacity onPress={prevMonth} style={s.navBtn}><Ionicons name="chevron-back" size={22} color="#5b9bdc" /></TouchableOpacity>
             </View>
 
 
@@ -113,7 +113,7 @@ export default function HistoryScreen({ visible, onClose }) {
                       onPress={() => openDay(dateStr)}
                       activeOpacity={day ? 0.6 : 1}
                     >
-                      <Text style={[s.dayNum, isToday && { color: '#4F8EF7', fontWeight: '800' }]}>{d}</Text>
+                      <Text style={[s.dayNum, isToday && { color: '#5b9bdc', fontWeight: '800' }]}>{d}</Text>
                       {day && <Text style={[s.dayCal, { color: colorFor(day.calories) }]}>{day.calories}</Text>}
                     </TouchableOpacity>
                   );
@@ -159,7 +159,7 @@ function DayDetail({ selected, onClose }) {
 
           <ScrollView style={{ maxHeight: 360 }} contentContainerStyle={{ paddingBottom: 20 }}>
             {entries === null ? (
-              <ActivityIndicator color="#4F8EF7" style={{ marginTop: 20 }} />
+              <ActivityIndicator color="#5b9bdc" style={{ marginTop: 20 }} />
             ) : entries.length === 0 ? (
               <Text style={s.empty}>אין פירוט ארוחות ליום זה</Text>
             ) : entries.map((e, i) => (
@@ -182,33 +182,33 @@ function DayDetail({ selected, onClose }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   title: { color: '#fff', fontSize: 20, fontWeight: '800' },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  navBtn: { padding: 8, backgroundColor: '#141414', borderRadius: 10 },
+  navBtn: { padding: 8, backgroundColor: '#14212f', borderRadius: 10 },
   monthLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
   legend: { color: '#777', fontSize: 11, textAlign: 'center', marginBottom: 12 },
   weekRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 6 },
   dowCell: { width: '13.5%', textAlign: 'center', color: '#666', fontSize: 13, fontWeight: '600' },
   dayCell: { width: '13.5%', aspectRatio: 0.85, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
-  dayCellActive: { backgroundColor: '#141414' },
-  dayCellToday: { borderWidth: 1, borderColor: '#4F8EF7' },
+  dayCellActive: { backgroundColor: '#14212f' },
+  dayCellToday: { borderWidth: 1, borderColor: '#5b9bdc' },
   dayNum: { color: '#ccc', fontSize: 14 },
   dayCal: { fontSize: 10, fontWeight: '700', marginTop: 2 },
   empty: { color: '#666', fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 22 },
   detailOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  detailSheet: { backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  detailSheet: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   detailHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#333', alignSelf: 'center', marginBottom: 14 },
   detailHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   detailTitle: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right', marginLeft: 12 },
-  totalsRow: { backgroundColor: '#1a1a1a', borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
-  totalsCal: { color: '#4F8EF7', fontSize: 26, fontWeight: '800' },
+  totalsRow: { backgroundColor: '#1b2c3d', borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
+  totalsCal: { color: '#5b9bdc', fontSize: 26, fontWeight: '800' },
   totalsMacros: { color: '#888', fontSize: 13, marginTop: 4 },
   entryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#1f1f1f' },
   entryThumb: { width: 40, height: 40, borderRadius: 8 },
-  entryThumbEmpty: { backgroundColor: '#1e1e1e', alignItems: 'center', justifyContent: 'center' },
+  entryThumbEmpty: { backgroundColor: '#23384c', alignItems: 'center', justifyContent: 'center' },
   entryName: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
   entryMeta: { color: '#666', fontSize: 12, textAlign: 'right' },
   entryCal: { color: '#ffd700', fontSize: 15, fontWeight: '700', minWidth: 44 },

@@ -171,7 +171,7 @@ export default function ChatScreen() {
 
       {loading && (
         <View style={styles.typingRow}>
-          <ActivityIndicator size="small" color="#4F8EF7" />
+          <ActivityIndicator size="small" color="#5b9bdc" />
           <Text style={styles.typingTxt}>מקליד...</Text>
         </View>
       )}
@@ -196,32 +196,32 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, gap: 8 },
   title: { color: '#fff', fontSize: 20, fontWeight: '800' },
-  onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#4CAF50' },
+  onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#56bd6b' },
   listContent: { padding: 12, paddingBottom: 8 },
   bubbleWrap: { flexDirection: 'row', marginVertical: 4, alignItems: 'flex-end' },
   userWrap: { justifyContent: 'flex-end' },
   aiWrap: { justifyContent: 'flex-start' },
-  avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#1a1a1a', justifyContent: 'center', alignItems: 'center', marginRight: 6 },
+  avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#1b2c3d', justifyContent: 'center', alignItems: 'center', marginRight: 6 },
   avatarTxt: { fontSize: 16 },
   bubble: { maxWidth: '78%', borderRadius: 16, padding: 12 },
-  userBubble: { backgroundColor: '#4F8EF7', borderBottomRightRadius: 4 },
-  aiBubble: { backgroundColor: '#1a1a1a', borderBottomLeftRadius: 4 },
+  userBubble: { backgroundColor: '#5b9bdc', borderBottomRightRadius: 4 },
+  aiBubble: { backgroundColor: '#1b2c3d', borderBottomLeftRadius: 4 },
   bubbleText: { color: '#fff', fontSize: 15, lineHeight: 22, textAlign: 'right' },
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
-  foodDetectedTitle: { color: '#4CAF50', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  foodDetectedTitle: { color: '#56bd6b', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
   suggestions: { paddingHorizontal: 12, paddingBottom: 4, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  suggestionChip: { backgroundColor: '#141414', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#2a2a2a' },
+  suggestionChip: { backgroundColor: '#14212f', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#2e455c' },
   suggestionTxt: { color: '#888', fontSize: 13 },
   typingRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 6, gap: 6 },
   typingTxt: { color: '#555', fontSize: 13 },
-  inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: '#141414' },
-  input: { flex: 1, backgroundColor: '#141414', color: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
-  sendBtn: { backgroundColor: '#4F8EF7', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  logBtn: { backgroundColor: '#4F8EF7', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
+  inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: '#14212f' },
+  input: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
+  sendBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+  logBtn: { backgroundColor: '#5b9bdc', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  loggedTxt: { color: '#4CAF50', fontSize: 13, fontWeight: '700', marginTop: 8 },
+  loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8 },
 });

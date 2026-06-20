@@ -42,7 +42,7 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
           {/* Meta row */}
           <View style={styles.detailMetaRow}>
             <View style={styles.detailMetaItem}>
-              <Ionicons name="flame-outline" size={16} color="#4F8EF7" />
+              <Ionicons name="flame-outline" size={16} color="#5b9bdc" />
               <Text style={styles.detailMetaTxt}>{Math.round(n.calories ?? 0)} קק"ל</Text>
             </View>
             {recipe?.prep_time_minutes ? (
@@ -59,16 +59,16 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
 
           {/* Macros */}
           <View style={styles.macrosRow}>
-            <View style={[styles.macroBadge, { borderColor: '#ff6b6b' }]}>
-              <Text style={[styles.macroVal, { color: '#ff6b6b' }]}>{Math.round(n.fat ?? 0)}g</Text>
+            <View style={[styles.macroBadge, { borderColor: '#ef7d6c' }]}>
+              <Text style={[styles.macroVal, { color: '#ef7d6c' }]}>{Math.round(n.fat ?? 0)}g</Text>
               <Text style={styles.macroLbl}>שומן</Text>
             </View>
             <View style={[styles.macroBadge, { borderColor: '#ffd700' }]}>
               <Text style={[styles.macroVal, { color: '#ffd700' }]}>{Math.round(n.carbs ?? 0)}g</Text>
               <Text style={styles.macroLbl}>פחמ'</Text>
             </View>
-            <View style={[styles.macroBadge, { borderColor: '#4F8EF7' }]}>
-              <Text style={[styles.macroVal, { color: '#4F8EF7' }]}>{Math.round(n.protein ?? 0)}g</Text>
+            <View style={[styles.macroBadge, { borderColor: '#5b9bdc' }]}>
+              <Text style={[styles.macroVal, { color: '#5b9bdc' }]}>{Math.round(n.protein ?? 0)}g</Text>
               <Text style={styles.macroLbl}>חלבון</Text>
             </View>
           </View>
@@ -100,8 +100,8 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
             style={[styles.detailAteBtn, ate && styles.ateBtnDone]}
             onPress={onAte}
           >
-            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={18} color={ate ? '#4CAF50' : '#fff'} />
-            <Text style={[styles.detailAteTxt, ate && { color: '#4CAF50' }]}>{ate ? 'נרשם ביומן!' : 'אכלתי את זה'}</Text>
+            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={18} color={ate ? '#56bd6b' : '#fff'} />
+            <Text style={[styles.detailAteTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן!' : 'אכלתי את זה'}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -154,7 +154,7 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
         {/* Name + refresh */}
         <View style={styles.recipeTopRow}>
           <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
-            <Ionicons name="refresh" size={14} color="#4F8EF7" />
+            <Ionicons name="refresh" size={14} color="#5b9bdc" />
             <Text style={styles.refreshTxt}>רענן</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowDetail(true)}>
@@ -172,16 +172,16 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
 
         {/* Macros */}
         <View style={styles.macrosRow}>
-          <View style={[styles.macroBadge, { borderColor: '#ff6b6b' }]}>
-            <Text style={[styles.macroVal, { color: '#ff6b6b' }]}>{Math.round(n.fat ?? 0)}g</Text>
+          <View style={[styles.macroBadge, { borderColor: '#ef7d6c' }]}>
+            <Text style={[styles.macroVal, { color: '#ef7d6c' }]}>{Math.round(n.fat ?? 0)}g</Text>
             <Text style={styles.macroLbl}>שומן</Text>
           </View>
           <View style={[styles.macroBadge, { borderColor: '#ffd700' }]}>
             <Text style={[styles.macroVal, { color: '#ffd700' }]}>{Math.round(n.carbs ?? 0)}g</Text>
             <Text style={styles.macroLbl}>פחמ'</Text>
           </View>
-          <View style={[styles.macroBadge, { borderColor: '#4F8EF7' }]}>
-            <Text style={[styles.macroVal, { color: '#4F8EF7' }]}>{Math.round(n.protein ?? 0)}g</Text>
+          <View style={[styles.macroBadge, { borderColor: '#5b9bdc' }]}>
+            <Text style={[styles.macroVal, { color: '#5b9bdc' }]}>{Math.round(n.protein ?? 0)}g</Text>
             <Text style={styles.macroLbl}>חלבון</Text>
           </View>
         </View>
@@ -200,8 +200,8 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
             <Text style={styles.instrTxt}>פרטים</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.ateBtn, ate && styles.ateBtnDone]} onPress={handleAte}>
-            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={14} color={ate ? '#4CAF50' : '#fff'} />
-            <Text style={[styles.ateTxt, ate && { color: '#4CAF50' }]}>{ate ? 'נרשם!' : 'אכלתי את זה'}</Text>
+            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={14} color={ate ? '#56bd6b' : '#fff'} />
+            <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם!' : 'אכלתי את זה'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -317,7 +317,7 @@ export default function HomeScreen() {
 
   if (loading) return (
     <View style={styles.center}>
-      <ActivityIndicator size="large" color="#4F8EF7" />
+      <ActivityIndicator size="large" color="#5b9bdc" />
     </View>
   );
 
@@ -330,11 +330,11 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.dateText}>{new Date().toLocaleDateString('he-IL')}</Text>
-        <Text style={styles.logo}>BiteFit</Text>
+        <Text style={styles.logo}>NutriSmart</Text>
       </View>
 
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#4F8EF7" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#5b9bdc" />}
         showsVerticalScrollIndicator={false}
       >
         {/* Title */}
@@ -453,42 +453,42 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 52, paddingBottom: 8 },
   dateText: { color: '#555', fontSize: 13 },
-  logo: { fontSize: 20, fontWeight: '800', color: '#4F8EF7' },
+  logo: { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
   titleSection: { paddingHorizontal: 16, paddingBottom: 10 },
   pageTitle: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'right' },
   pageSub: { color: '#888', fontSize: 13, textAlign: 'right', marginTop: 2 },
   actionRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 10 },
-  generateBtn: { flex: 1, backgroundColor: '#4F8EF7', borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
+  generateBtn: { flex: 1, backgroundColor: '#5b9bdc', borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
   generateTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  clearBtn: { backgroundColor: '#1a1a1a', borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: '#2a2a2a' },
+  clearBtn: { backgroundColor: '#1b2c3d', borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: '#2e455c' },
   clearTxt: { color: '#aaa', fontSize: 15 },
-  divider: { height: 1, backgroundColor: '#1a1a1a', marginHorizontal: 16, marginBottom: 10 },
+  divider: { height: 1, backgroundColor: '#1b2c3d', marginHorizontal: 16, marginBottom: 10 },
   tabsContent: { paddingHorizontal: 16, gap: 4 },
   tabWrap: { paddingHorizontal: 12, paddingBottom: 10, alignItems: 'center' },
   tabText: { color: '#555', fontSize: 14 },
-  tabTextActive: { color: '#4F8EF7', fontWeight: '700' },
-  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#4F8EF7', borderRadius: 1 },
+  tabTextActive: { color: '#5b9bdc', fontWeight: '700' },
+  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc', borderRadius: 1 },
   mealHint: { color: '#888', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 8 },
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 10 },
-  searchInput: { flex: 1, backgroundColor: '#141414', color: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: '#1e1e1e' },
-  searchBtn: { backgroundColor: '#4F8EF7', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
-  searchClear: { backgroundColor: '#1a1a1a', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
+  searchInput: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: '#23384c' },
+  searchBtn: { backgroundColor: '#5b9bdc', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
+  searchClear: { backgroundColor: '#1b2c3d', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
   mealHintCal: { color: '#ffd700', fontWeight: '700' },
   cardsList: { paddingHorizontal: 16, gap: 14, paddingBottom: 28 },
-  recipeCard: { backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden' },
+  recipeCard: { backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
   recipeImage: { width: '100%', height: 200 },
-  imagePlaceholder: { backgroundColor: '#1e1e1e', justifyContent: 'center', alignItems: 'center' },
+  imagePlaceholder: { backgroundColor: '#23384c', justifyContent: 'center', alignItems: 'center' },
   recipeBody: { padding: 14 },
   recipeTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
   recipeName: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
   refreshBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 8 },
-  refreshTxt: { color: '#4F8EF7', fontSize: 13 },
+  refreshTxt: { color: '#5b9bdc', fontSize: 13 },
   calorieRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  calorieActual: { color: '#4F8EF7', fontSize: 15, fontWeight: '700' },
+  calorieActual: { color: '#5b9bdc', fontSize: 15, fontWeight: '700' },
   calorieTarget: { color: '#666', fontSize: 13 },
   macrosRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   macroBadge: { flex: 1, borderRadius: 10, borderWidth: 1, padding: 10, alignItems: 'center' },
@@ -496,13 +496,13 @@ const styles = StyleSheet.create({
   macroLbl: { color: '#888', fontSize: 11, marginTop: 3 },
   ingredients: { color: '#555', fontSize: 12, textAlign: 'right', marginTop: 4 },
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  instrBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#1e1e1e', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: '#2a2a2a' },
+  instrBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#23384c', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: '#2e455c' },
   instrTxt: { color: '#888', fontSize: 12 },
-  ateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#4F8EF7', borderRadius: 8, paddingVertical: 9 },
-  ateBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#4CAF50' },
+  ateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#5b9bdc', borderRadius: 8, paddingVertical: 9 },
+  ateBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
   ateTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
+  modalCard: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
   modalTitle: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
   instrText: { color: '#ccc', fontSize: 15, lineHeight: 26, textAlign: 'right' },
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   tapBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '600' },
 
   // Recipe detail modal
-  detailContainer: { flex: 1, backgroundColor: '#0a0a0a' },
+  detailContainer: { flex: 1, backgroundColor: '#0c1622' },
   detailImage: { width: '100%', height: 240 },
   detailClose: { position: 'absolute', top: 48, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
   detailBody: { padding: 18, paddingBottom: 48 },
@@ -522,16 +522,16 @@ const styles = StyleSheet.create({
   detailMetaTxt: { color: '#aaa', fontSize: 13, fontWeight: '600' },
   detailSection: { marginTop: 22 },
   detailSectionTitle: { color: '#fff', fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
-  ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   ingredientName: { color: '#ddd', fontSize: 15, textAlign: 'right' },
-  ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4F8EF7' },
-  ingredientQty: { color: '#4F8EF7', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
-  detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#4F8EF7', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
+  ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#5b9bdc' },
+  ingredientQty: { color: '#5b9bdc', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
+  detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5b9bdc', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
   detailAteTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
   noRecipes: { padding: 32, alignItems: 'center', gap: 12 },
   noRecipesText: { color: '#555', fontSize: 14 },
-  retryBtn: { backgroundColor: '#1a1a1a', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
-  retryTxt: { color: '#4F8EF7', fontSize: 14 },
+  retryBtn: { backgroundColor: '#1b2c3d', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  retryTxt: { color: '#5b9bdc', fontSize: 14 },
   emptyState: { paddingTop: 48, alignItems: 'center', gap: 14, paddingBottom: 24 },
   emptyText: { color: '#555', fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
 });

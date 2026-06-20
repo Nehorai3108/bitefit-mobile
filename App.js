@@ -200,7 +200,7 @@ function BarcodeScanModal({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+      <View style={{ flex: 1, backgroundColor: '#0c1622' }}>
 
         {/* Camera scan phase */}
         {phase === 'scan' && (
@@ -232,7 +232,7 @@ function BarcodeScanModal({ visible, onClose }) {
         {/* Loading phase */}
         {phase === 'loading' && (
           <View style={s.center}>
-            <ActivityIndicator size="large" color="#4F8EF7" />
+            <ActivityIndicator size="large" color="#5b9bdc" />
             <Text style={{ color: '#888', marginTop: 12 }}>מחפש מוצר...</Text>
           </View>
         )}
@@ -250,9 +250,9 @@ function BarcodeScanModal({ visible, onClose }) {
             <View style={s.macrosGrid}>
               {[
                 { label: 'קק"ל', val: result.calories,         color: '#ffd700' },
-                { label: 'חלבון', val: `${result.protein}g`,   color: '#4F8EF7' },
-                { label: "פחמ'",  val: `${result.carbs}g`,     color: '#4CAF50' },
-                { label: 'שומן',  val: `${result.fat}g`,       color: '#ff6b6b' },
+                { label: 'חלבון', val: `${result.protein}g`,   color: '#5b9bdc' },
+                { label: "פחמ'",  val: `${result.carbs}g`,     color: '#56bd6b' },
+                { label: 'שומן',  val: `${result.fat}g`,       color: '#ef7d6c' },
               ].map(m => (
                 <View key={m.label} style={s.macroBox}>
                   <Text style={[s.macroNum, { color: m.color }]}>{m.val}</Text>
@@ -266,7 +266,7 @@ function BarcodeScanModal({ visible, onClose }) {
             <TouchableOpacity style={s.saveBtn} onPress={handleAdd} disabled={saving}>
               {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>הוסף לתזונה</Text>}
             </TouchableOpacity>
-            <TouchableOpacity style={[s.saveBtn, { backgroundColor: '#1e1e1e', marginTop: 10 }]}
+            <TouchableOpacity style={[s.saveBtn, { backgroundColor: '#23384c', marginTop: 10 }]}
               onPress={() => setPhase('scan')}>
               <Text style={[s.saveBtnTxt, { color: '#888' }]}>סרוק שוב</Text>
             </TouchableOpacity>
@@ -388,7 +388,7 @@ function CameraPhotoModal({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#0a0a0a' }}>
+      <View style={{ flex: 1, backgroundColor: '#0c1622' }}>
 
         {/* Camera phase */}
         {phase === 'camera' && (
@@ -420,7 +420,7 @@ function CameraPhotoModal({ visible, onClose }) {
         {/* Processing phase */}
         {phase === 'processing' && (
           <View style={s.center}>
-            <ActivityIndicator size="large" color="#4F8EF7" />
+            <ActivityIndicator size="large" color="#5b9bdc" />
             <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>מזהה מזון בתמונה...</Text>
           </View>
         )}
@@ -430,7 +430,7 @@ function CameraPhotoModal({ visible, onClose }) {
           <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
             <View style={s.modalHeader}>
               <TouchableOpacity onPress={() => setPhase('camera')}>
-                <Ionicons name="camera-outline" size={22} color="#4F8EF7" />
+                <Ionicons name="camera-outline" size={22} color="#5b9bdc" />
               </TouchableOpacity>
               <Text style={[s.sheetTitle, { marginBottom: 0 }]}>
                 זוהו {items.length} פריטים · {total} קק"ל
@@ -444,7 +444,7 @@ function CameraPhotoModal({ visible, onClose }) {
               <View key={i} style={s.foodRow}>
                 {/* Delete item */}
                 <TouchableOpacity onPress={() => removeItem(i)} style={{ padding: 4 }}>
-                  <Ionicons name="trash-outline" size={18} color="#ff6b6b" />
+                  <Ionicons name="trash-outline" size={18} color="#ef7d6c" />
                 </TouchableOpacity>
 
                 {/* Grams stepper */}
@@ -467,7 +467,7 @@ function CameraPhotoModal({ visible, onClose }) {
                     placeholder="שם המאכל"
                     placeholderTextColor="#555"
                   />
-                  <Text style={[s.foodMeta, { color: '#4F8EF7' }]}>{item.calories ?? 0} קק"ל</Text>
+                  <Text style={[s.foodMeta, { color: '#5b9bdc' }]}>{item.calories ?? 0} קק"ל</Text>
                   <Text style={s.foodMeta}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
                   <Text style={[s.foodMeta, { fontSize: 10, color: '#555' }]}>הקש לתיקון השם</Text>
                 </View>
@@ -541,7 +541,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
                     : <View style={[s.recentThumb, s.recentThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color="#555" /></View>}
                   <Text style={s.recentName} numberOfLines={1}>{f.food_name}</Text>
                   <Text style={s.recentCal}>{Math.round(f.calories ?? 0)} קק"ל</Text>
-                  {reloggingId === f.food_name && <ActivityIndicator size="small" color="#4F8EF7" style={s.recentSpinner} />}
+                  {reloggingId === f.food_name && <ActivityIndicator size="small" color="#5b9bdc" style={s.recentSpinner} />}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -550,7 +550,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 
         <TouchableOpacity style={s.actionRow2} onPress={onCamera}>
           <View style={[s.actionIcon, { backgroundColor: '#1a3a1a' }]}>
-            <Ionicons name="camera" size={26} color="#4CAF50" />
+            <Ionicons name="camera" size={26} color="#56bd6b" />
           </View>
           <View style={s.actionText}>
             <Text style={s.actionLabel}>צלם ארוחה</Text>
@@ -561,7 +561,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 
         <TouchableOpacity style={s.actionRow2} onPress={onBarcode}>
           <View style={[s.actionIcon, { backgroundColor: '#1a2a3a' }]}>
-            <Ionicons name="barcode-outline" size={26} color="#4F8EF7" />
+            <Ionicons name="barcode-outline" size={26} color="#5b9bdc" />
           </View>
           <View style={s.actionText}>
             <Text style={s.actionLabel}>סריקת ברקוד</Text>
@@ -615,13 +615,13 @@ function TabNavigator() {
             tabBarShowLabel: false,
             tabBarStyle: {
               backgroundColor: '#0e0e0e',
-              borderTopColor: '#1a1a1a',
+              borderTopColor: '#1b2c3d',
               borderTopWidth: 1,
               height: 62,
               paddingBottom: 8,
               paddingTop: 8,
             },
-            tabBarActiveTintColor: '#4F8EF7',
+            tabBarActiveTintColor: '#5b9bdc',
             tabBarInactiveTintColor: '#444',
             tabBarIcon: ({ color, focused }) =>
               tab ? <Ionicons name={focused ? tab.activeIcon : tab.icon} size={26} color={color} /> : null,
@@ -689,8 +689,8 @@ function RootNavigator() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0f0f0f', justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#A8E063" />
+      <View style={{ flex: 1, backgroundColor: '#0c1622', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#56bd6b" />
       </View>
     );
   }
@@ -707,7 +707,7 @@ function WakingBanner() {
   if (!waking) return null;
   return (
     <View style={s.wakingBanner} pointerEvents="none">
-      <ActivityIndicator color="#0a0a0a" size="small" />
+      <ActivityIndicator color="#0c1622" size="small" />
       <Text style={s.wakingTxt}>מתחבר לשרת… (עד דקה בפתיחה ראשונה)</Text>
     </View>
   );
@@ -727,16 +727,16 @@ export default function App() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   plusWrap:  { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
   overlay:   { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
 
   actionSheet: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingBottom: 40, paddingTop: 12,
   },
   sheet: {
-    backgroundColor: '#141414', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingBottom: 40, paddingTop: 12,
     maxHeight: '85%',
   },
@@ -746,16 +746,16 @@ const s = StyleSheet.create({
   recentsWrap:  { marginBottom: 18 },
   recentsTitle: { color: '#888', fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: 10 },
   recentsRow:   { gap: 10, flexDirection: 'row-reverse', paddingLeft: 4 },
-  recentChip:   { width: 96, backgroundColor: '#141414', borderRadius: 14, padding: 8, alignItems: 'center', borderWidth: 1, borderColor: '#1f1f1f' },
+  recentChip:   { width: 96, backgroundColor: '#14212f', borderRadius: 14, padding: 8, alignItems: 'center', borderWidth: 1, borderColor: '#1f1f1f' },
   recentThumb:  { width: 64, height: 64, borderRadius: 10, marginBottom: 6 },
-  recentThumbEmpty: { backgroundColor: '#1e1e1e', alignItems: 'center', justifyContent: 'center' },
+  recentThumbEmpty: { backgroundColor: '#23384c', alignItems: 'center', justifyContent: 'center' },
   recentName:   { color: '#fff', fontSize: 12, fontWeight: '600', textAlign: 'center' },
-  recentCal:    { color: '#4F8EF7', fontSize: 11, fontWeight: '700', marginTop: 2 },
+  recentCal:    { color: '#5b9bdc', fontSize: 11, fontWeight: '700', marginTop: 2 },
   recentSpinner:{ position: 'absolute', top: 30, alignSelf: 'center' },
 
   actionRow2: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#1e1e1e',
+    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#23384c',
   },
   actionIcon:  { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   actionText:  { flex: 1, alignItems: 'flex-end' },
@@ -765,60 +765,60 @@ const s = StyleSheet.create({
   // Manual
   searchRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   input: {
-    flex: 1, backgroundColor: '#1e1e1e', borderRadius: 12,
+    flex: 1, backgroundColor: '#23384c', borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 12,
-    color: '#fff', fontSize: 15, borderWidth: 1, borderColor: '#2a2a2a',
+    color: '#fff', fontSize: 15, borderWidth: 1, borderColor: '#2e455c',
   },
-  searchBtn:    { backgroundColor: '#4F8EF7', borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' },
+  searchBtn:    { backgroundColor: '#5b9bdc', borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' },
   searchBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  foodCard:  { backgroundColor: '#1a1a1a', borderRadius: 16, padding: 16, gap: 12 },
+  foodCard:  { backgroundColor: '#1b2c3d', borderRadius: 16, padding: 16, gap: 12 },
   foodName:  { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right' },
   foodNameEdit: { borderBottomWidth: 1, borderBottomColor: '#333', paddingVertical: 2, minWidth: 120, alignSelf: 'stretch' },
   wakingBanner: {
     position: 'absolute', top: 0, left: 0, right: 0,
-    backgroundColor: '#A8E063', flexDirection: 'row', gap: 8,
+    backgroundColor: '#56bd6b', flexDirection: 'row', gap: 8,
     alignItems: 'center', justifyContent: 'center',
     paddingTop: 52, paddingBottom: 10, paddingHorizontal: 16,
   },
-  wakingTxt: { color: '#0a0a0a', fontSize: 13, fontWeight: '700' },
+  wakingTxt: { color: '#0c1622', fontSize: 13, fontWeight: '700' },
   foodMeta:  { color: '#666', fontSize: 13, textAlign: 'right' },
   gramsRow:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  calBig:    { color: '#4F8EF7', fontSize: 26, fontWeight: '800' },
+  calBig:    { color: '#5b9bdc', fontSize: 26, fontWeight: '800' },
   gramsInput: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   gramsField: {
-    backgroundColor: '#2a2a2a', borderRadius: 10, width: 70,
+    backgroundColor: '#2e455c', borderRadius: 10, width: 70,
     paddingVertical: 8, color: '#fff', fontSize: 16, fontWeight: '700',
     borderWidth: 1, borderColor: '#333',
   },
   gramsLbl: { color: '#888', fontSize: 14 },
   mealChip: {
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
-    backgroundColor: '#1e1e1e', marginRight: 8, borderWidth: 1, borderColor: '#2a2a2a',
+    backgroundColor: '#23384c', marginRight: 8, borderWidth: 1, borderColor: '#2e455c',
   },
-  mealChipActive:    { backgroundColor: '#4F8EF7', borderColor: '#4F8EF7' },
+  mealChipActive:    { backgroundColor: '#5b9bdc', borderColor: '#5b9bdc' },
   mealChipTxt:       { color: '#666', fontSize: 13 },
   mealChipTxtActive: { color: '#fff', fontWeight: '700' },
-  saveBtn:    { backgroundColor: '#4F8EF7', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  saveBtn:    { backgroundColor: '#5b9bdc', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   saveBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   // Barcode
   scanOverlay:    { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  scanFrame:      { width: 260, height: 160, borderWidth: 2, borderColor: '#4F8EF7', borderRadius: 12 },
+  scanFrame:      { width: 260, height: 160, borderWidth: 2, borderColor: '#5b9bdc', borderRadius: 12 },
   scanHint:       { color: '#fff', marginTop: 16, fontSize: 14 },
   closeOverlayBtn: { position: 'absolute', top: 52, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
   backBtn:        { position: 'absolute', top: 12, right: 12, padding: 8 },
   productName:    { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'right', marginBottom: 4 },
   macrosGrid:     { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  macroBox:       { flex: 1, backgroundColor: '#1e1e1e', borderRadius: 10, padding: 10, alignItems: 'center' },
+  macroBox:       { flex: 1, backgroundColor: '#23384c', borderRadius: 10, padding: 10, alignItems: 'center' },
   macroNum:       { fontSize: 16, fontWeight: '800' },
   macroLbl:       { color: '#666', fontSize: 11, marginTop: 3 },
 
   // Camera result
   modalHeader:   { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, paddingTop: 52 },
-  foodRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1a1a1a', gap: 10 },
-  gramsStepper:  { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: '#222' },
+  foodRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1b2c3d', gap: 10 },
+  gramsStepper:  { flexDirection: 'row', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 10, borderWidth: 1, borderColor: '#222' },
   stepBtn:       { paddingHorizontal: 10, paddingVertical: 6 },
-  stepTxt:       { color: '#4F8EF7', fontSize: 18, fontWeight: '800' },
+  stepTxt:       { color: '#5b9bdc', fontSize: 18, fontWeight: '800' },
   stepVal:       { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 44, textAlign: 'center' },
 
   // Camera photo shutter

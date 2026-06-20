@@ -62,11 +62,11 @@ export default function CameraScreen() {
       {/* Action buttons */}
       <View style={styles.btnRow}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => pickImage(true)}>
-          <Ionicons name="camera" size={28} color="#4F8EF7" />
+          <Ionicons name="camera" size={28} color="#5b9bdc" />
           <Text style={styles.actionLbl}>צלם</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn} onPress={() => pickImage(false)}>
-          <Ionicons name="images" size={28} color="#4F8EF7" />
+          <Ionicons name="images" size={28} color="#5b9bdc" />
           <Text style={styles.actionLbl}>גלריה</Text>
         </TouchableOpacity>
       </View>
@@ -79,7 +79,7 @@ export default function CameraScreen() {
       {/* Loading */}
       {loading && (
         <View style={styles.loadingCard}>
-          <ActivityIndicator color="#4F8EF7" size="large" />
+          <ActivityIndicator color="#5b9bdc" size="large" />
           <Text style={styles.loadingTxt}>מזהה אוכל בתמונה...</Text>
           <Text style={styles.loadingHint}>AI מנתח את הארוחה שלך</Text>
         </View>
@@ -121,28 +121,28 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
   content: { padding: 16, paddingTop: 52 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'right', marginBottom: 4 },
   subtitle: { color: '#666', fontSize: 14, textAlign: 'right', marginBottom: 20 },
   btnRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  actionBtn: { flex: 1, backgroundColor: '#141414', borderRadius: 16, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#2a2a2a' },
+  actionBtn: { flex: 1, backgroundColor: '#14212f', borderRadius: 16, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#2e455c' },
   actionLbl: { color: '#fff', fontSize: 14, fontWeight: '600' },
   preview: { width: '100%', height: 220, borderRadius: 16, marginBottom: 16 },
-  loadingCard: { backgroundColor: '#141414', borderRadius: 16, padding: 24, alignItems: 'center', gap: 10 },
+  loadingCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 24, alignItems: 'center', gap: 10 },
   loadingTxt: { color: '#fff', fontSize: 15, fontWeight: '600' },
   loadingHint: { color: '#666', fontSize: 13 },
-  resultsCard: { backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden' },
-  resultsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1e1e1e' },
+  resultsCard: { backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
+  resultsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#23384c' },
   resultsTitle: { color: '#fff', fontSize: 16, fontWeight: '700' },
   totalCalories: { color: '#ffd700', fontSize: 22, fontWeight: '800' },
-  foodRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  foodRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 14, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   foodInfo: { alignItems: 'flex-end' },
   foodName: { color: '#fff', fontSize: 15, fontWeight: '600' },
   foodGrams: { color: '#666', fontSize: 12, marginTop: 2 },
   foodMacros: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   foodMacro: { color: '#555', fontSize: 12 },
-  foodKcal: { color: '#4F8EF7', fontSize: 13, fontWeight: '700' },
+  foodKcal: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
   emptyState: { paddingTop: 60, alignItems: 'center', gap: 12 },
   emptyText: { color: '#444', fontSize: 14, textAlign: 'center' },
 });

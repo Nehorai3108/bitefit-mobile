@@ -1,0 +1,565 @@
+Starting project at C:\Users\User\Documents\bitefit-mobile
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS .\index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 96.4% ( 977/1003)
+iOS Bundled 3982ms index.js (1040 modules)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 2412ms index.js (1028 modules)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 874ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 339ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ ERROR  [ReferenceError: Property 'water' doesn't exist]
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 505ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 865ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 899ms index.js (1 module)
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web .\index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (249/368)
+Web .\index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (633/634)
+Web Bundled 8488ms index.js (689 modules)
+ LOG  [web] Logs will appear in the browser console
+iOS Bundled 1360ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 410ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 229ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 73ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 72ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 122ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1231ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 608ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 453ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 122ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 286ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 463ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 591ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 321ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 95ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 296ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 433ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 223ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 393ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 477ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 96ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ ERROR  [ReferenceError: Property 'Image' doesn't exist]
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 127ms index.js (1 module)
+ ERROR  [ReferenceError: Property 'Image' doesn't exist]
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 429ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 236ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 68ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 873ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 85ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 633ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 117ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 329ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 123ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 310ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 351ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 298ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 199ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 96ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 88ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 2320ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 987ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 872ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 400ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 346ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 96ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 144ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 109ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 92ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1024ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 174ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 104ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 131ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 102ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 102ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 6072ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 179ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 76ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 95ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 79ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 181ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 81ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 73ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 229ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 201ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 329ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 799ms index.js (1 module)
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+ WARN  Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundled 236ms index.js (1 module)
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundling failed 5106ms index.js (1 module)
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundling failed 5184ms index.js (1 module)
+Web .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\Icons.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+
+iOS .\index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS Bundling failed 1386ms index.js (1 module)
+Unable to resolve "expo-font" from "node_modules\@expo\vector-icons\build\createIconSet.js"
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mFont[39m [36mfrom[39m [32m'expo-font'[39m[33m;[39m
+ [90m   |[39m                        [31m[1m^[22m[39m
+ [90m 2 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m
+ [90m 3 |[39m [36mimport[39m { [33mText[39m[33m,[39m [33mPixelRatio[39m[33m,[39m } [36mfrom[39m [32m'react-native'[39m[33m;[39m
+ [90m 4 |[39m [36mimport[39m createIconSet [36mfrom[39m [32m'./vendor/react-native-vector-icons/lib/create-icon-set'[39m[33m;[39m[0m
+
+Import stack:
+
+ node_modules\@expo\vector-icons\build\createIconSet.js
+ | import "expo-font"
+
+ node_modules\@expo\vector-icons\build\IconsLazy.js
+ | import "./createIconSet"
+
+ App.js
+ | import "@expo/vector-icons"
+
+ index.js
+ | import "./App"
+
+ 
+ | import "./index"
+

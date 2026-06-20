@@ -58,7 +58,7 @@ function BarcodeTab() {
   return (
     <ScrollView contentContainerStyle={styles.tabContent}>
       {loading ? (
-        <View style={styles.center}><ActivityIndicator color="#4F8EF7" size="large" /><Text style={styles.loadingTxt}>מחפש מוצר...</Text></View>
+        <View style={styles.center}><ActivityIndicator color="#5b9bdc" size="large" /><Text style={styles.loadingTxt}>מחפש מוצר...</Text></View>
       ) : result ? (
         <View style={styles.resultCard}>
           <Text style={styles.productName}>{result.name_he ?? result.name_en}</Text>
@@ -66,9 +66,9 @@ function BarcodeTab() {
           <View style={styles.macrosGrid}>
             {[
               { label: 'קק"ל', val: result.calories, color: '#ffd700' },
-              { label: 'חלבון', val: `${result.protein}g`, color: '#4F8EF7' },
-              { label: "פחמ'", val: `${result.carbs}g`, color: '#4CAF50' },
-              { label: 'שומן', val: `${result.fat}g`, color: '#ff6b6b' },
+              { label: 'חלבון', val: `${result.protein}g`, color: '#5b9bdc' },
+              { label: "פחמ'", val: `${result.carbs}g`, color: '#56bd6b' },
+              { label: 'שומן', val: `${result.fat}g`, color: '#ef7d6c' },
             ].map(m => (
               <View key={m.label} style={styles.macroBox}>
                 <Text style={[styles.macroNum, { color: m.color }]}>{m.val}</Text>
@@ -132,11 +132,11 @@ function CameraTab() {
     <ScrollView contentContainerStyle={styles.tabContent}>
       <View style={styles.pickRow}>
         <TouchableOpacity style={styles.pickBtn} onPress={() => pick(true)}>
-          <Ionicons name="camera" size={28} color="#4F8EF7" />
+          <Ionicons name="camera" size={28} color="#5b9bdc" />
           <Text style={styles.pickLbl}>צלם</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.pickBtn} onPress={() => pick(false)}>
-          <Ionicons name="images" size={28} color="#4F8EF7" />
+          <Ionicons name="images" size={28} color="#5b9bdc" />
           <Text style={styles.pickLbl}>גלריה</Text>
         </TouchableOpacity>
       </View>
@@ -145,7 +145,7 @@ function CameraTab() {
 
       {loading && (
         <View style={styles.loadingCard}>
-          <ActivityIndicator color="#4F8EF7" size="large" />
+          <ActivityIndicator color="#5b9bdc" size="large" />
           <Text style={styles.loadingTxt}>מזהה אוכל בתמונה...</Text>
         </View>
       )}
@@ -162,7 +162,7 @@ function CameraTab() {
                 <Text style={styles.foodMacro}>ח: {item.protein ?? 0}g</Text>
                 <Text style={styles.foodMacro}>פ: {item.carbs ?? 0}g</Text>
                 <Text style={styles.foodMacro}>ש: {item.fat ?? 0}g</Text>
-                <Text style={[styles.foodMacro, { color: '#4F8EF7' }]}>{item.calories ?? 0} קק"ל</Text>
+                <Text style={[styles.foodMacro, { color: '#5b9bdc' }]}>{item.calories ?? 0} קק"ל</Text>
               </View>
               <View style={styles.foodInfo}>
                 <Text style={styles.foodName}>{item.name_he ?? item.name}</Text>
@@ -215,50 +215,50 @@ export default function ScanScreen({ route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
   header: { paddingHorizontal: 16, paddingTop: 52, paddingBottom: 8 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800' },
-  tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#1a1a1a', paddingHorizontal: 16 },
+  tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#1b2c3d', paddingHorizontal: 16 },
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
   tabTxt: { color: '#555', fontSize: 15 },
-  tabTxtActive: { color: '#4F8EF7', fontWeight: '700' },
-  tabLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#4F8EF7' },
+  tabTxtActive: { color: '#5b9bdc', fontWeight: '700' },
+  tabLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc' },
   tabContent: { padding: 16, paddingBottom: 40 },
   center: { alignItems: 'center', gap: 12, paddingTop: 40 },
-  loadingCard: { backgroundColor: '#141414', borderRadius: 16, padding: 24, alignItems: 'center', gap: 10 },
+  loadingCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 24, alignItems: 'center', gap: 10 },
   loadingTxt: { color: '#888', fontSize: 14 },
   scanOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  scanFrame: { width: 240, height: 160, borderWidth: 2, borderColor: '#4F8EF7', borderRadius: 12 },
+  scanFrame: { width: 240, height: 160, borderWidth: 2, borderColor: '#5b9bdc', borderRadius: 12 },
   scanHint: { color: '#fff', marginTop: 16, fontSize: 14 },
-  cancelBtn: { position: 'absolute', bottom: 40, alignSelf: 'center', backgroundColor: '#1a1a1a', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
+  cancelBtn: { position: 'absolute', bottom: 40, alignSelf: 'center', backgroundColor: '#1b2c3d', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   cancelTxt: { color: '#fff', fontSize: 15 },
-  resultCard: { backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden' },
+  resultCard: { backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
   productName: { color: '#fff', fontSize: 20, fontWeight: '800', textAlign: 'right', padding: 16, paddingBottom: 4 },
   per100: { color: '#888', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, marginBottom: 12 },
   macrosGrid: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 16 },
-  macroBox: { flex: 1, backgroundColor: '#1e1e1e', borderRadius: 10, padding: 10, alignItems: 'center' },
+  macroBox: { flex: 1, backgroundColor: '#23384c', borderRadius: 10, padding: 10, alignItems: 'center' },
   macroNum: { fontSize: 16, fontWeight: '800' },
   macroLbl: { color: '#666', fontSize: 11, marginTop: 3 },
-  resultHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#1e1e1e' },
+  resultHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#23384c' },
   totalCal: { color: '#ffd700', fontSize: 22, fontWeight: '800' },
   itemCount: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  foodRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 14, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  foodRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 14, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   foodInfo: { alignItems: 'flex-end' },
   foodName: { color: '#fff', fontSize: 15, fontWeight: '600' },
   foodGrams: { color: '#666', fontSize: 12 },
   foodMacros: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   foodMacro: { color: '#555', fontSize: 12 },
-  primaryBtn: { margin: 16, backgroundColor: '#4F8EF7', borderRadius: 12, padding: 14, alignItems: 'center' },
+  primaryBtn: { margin: 16, backgroundColor: '#5b9bdc', borderRadius: 12, padding: 14, alignItems: 'center' },
   primaryBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  secondaryBtn: { marginHorizontal: 16, marginBottom: 16, backgroundColor: '#1e1e1e', borderRadius: 12, padding: 12, alignItems: 'center' },
+  secondaryBtn: { marginHorizontal: 16, marginBottom: 16, backgroundColor: '#23384c', borderRadius: 12, padding: 12, alignItems: 'center' },
   secondaryBtnTxt: { color: '#888', fontSize: 14 },
   pickRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  pickBtn: { flex: 1, backgroundColor: '#141414', borderRadius: 14, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#2a2a2a' },
+  pickBtn: { flex: 1, backgroundColor: '#14212f', borderRadius: 14, padding: 20, alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#2e455c' },
   pickLbl: { color: '#fff', fontSize: 14, fontWeight: '600' },
   preview: { width: '100%', height: 200, borderRadius: 14, marginBottom: 16 },
   emptyState: { paddingTop: 40, alignItems: 'center', gap: 12 },
   emptyTitle: { color: '#fff', fontSize: 20, fontWeight: '700' },
   emptyText: { color: '#666', fontSize: 14, textAlign: 'center', lineHeight: 22 },
-  noPermission: { color: '#ff6b6b', fontSize: 14 },
+  noPermission: { color: '#ef7d6c', fontSize: 14 },
 });

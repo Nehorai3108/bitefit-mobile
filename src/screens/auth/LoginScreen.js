@@ -35,7 +35,9 @@ export default function LoginScreen({ navigation }) {
 
         {/* Logo / Brand */}
         <View style={s.hero}>
-          <Text style={s.appName}>BiteFit</Text>
+          <Image source={require('../../../assets/nutrismart-logo.png')}
+            style={s.logoImg} resizeMode="contain" />
+          <Text style={s.appName}>NutriSmart</Text>
           <Text style={s.tagline}>תזונה חכמה, חיים בריאים</Text>
         </View>
 
@@ -92,26 +94,27 @@ export default function LoginScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  root:       { flex: 1, backgroundColor: '#0f0f0f' },
+  root:       { flex: 1, backgroundColor: '#0c1622' },
   scroll:     { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
 
   hero:       { alignItems: 'center', marginBottom: 36 },
+  logoImg:    { width: 120, height: 120, borderRadius: 24, marginBottom: 4 },
   logo:       { fontSize: 64 },
   appName:    { fontSize: 34, fontWeight: '800', color: '#fff', marginTop: 8 },
   tagline:    { fontSize: 15, color: '#888', marginTop: 4 },
 
-  card:       { backgroundColor: '#1a1a1a', borderRadius: 20, padding: 24, marginBottom: 24 },
+  card:       { backgroundColor: '#1b2c3d', borderRadius: 20, padding: 24, marginBottom: 24 },
   cardTitle:  { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20, textAlign: 'right' },
 
   label:      { fontSize: 13, color: '#aaa', marginBottom: 6, textAlign: 'right' },
   input:      {
-    backgroundColor: '#2a2a2a', borderRadius: 12, paddingHorizontal: 16,
+    backgroundColor: '#2e455c', borderRadius: 12, paddingHorizontal: 16,
     paddingVertical: 14, color: '#fff', fontSize: 15, marginBottom: 16,
     textAlign: 'right',
   },
 
   btn:        {
-    backgroundColor: '#A8E063', borderRadius: 14, paddingVertical: 16,
+    backgroundColor: '#56bd6b', borderRadius: 14, paddingVertical: 16,
     alignItems: 'center', marginTop: 8,
   },
   btnDisabled: { opacity: 0.6 },
@@ -119,5 +122,5 @@ const s = StyleSheet.create({
 
   switchRow:  { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   switchText: { color: '#888', fontSize: 14 },
-  switchLink: { color: '#A8E063', fontSize: 14, fontWeight: '600' },
+  switchLink: { color: '#56bd6b', fontSize: 14, fontWeight: '600' },
 });

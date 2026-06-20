@@ -51,7 +51,7 @@ export default function RecipesScreen() {
 
   if (loading) return (
     <View style={styles.center}>
-      <ActivityIndicator size="large" color="#4F8EF7" />
+      <ActivityIndicator size="large" color="#5b9bdc" />
     </View>
   );
 
@@ -144,29 +144,29 @@ export default function RecipesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
   title: { color: '#fff', fontSize: 22, fontWeight: '800', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 12, marginHorizontal: 16, marginBottom: 12, paddingHorizontal: 12 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 12, marginHorizontal: 16, marginBottom: 12, paddingHorizontal: 12 },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, color: '#fff', fontSize: 15, paddingVertical: 12 },
   tagsList: { marginBottom: 4 },
   tagsRow: { paddingHorizontal: 16, gap: 8 },
-  tag: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#141414', borderWidth: 1, borderColor: '#222' },
-  tagActive: { backgroundColor: '#1a2a4a', borderColor: '#4F8EF7' },
+  tag: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#222' },
+  tagActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
   tagText: { color: '#666', fontSize: 13 },
-  tagTextActive: { color: '#4F8EF7', fontWeight: '700' },
+  tagTextActive: { color: '#5b9bdc', fontWeight: '700' },
   countText: { color: '#555', fontSize: 12, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4, textAlign: 'right' },
   row: { justifyContent: 'space-between', marginBottom: 12 },
-  card: { width: CARD_WIDTH, backgroundColor: '#141414', borderRadius: 16, overflow: 'hidden' },
+  card: { width: CARD_WIDTH, backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
   img: { width: '100%', height: 120 },
-  imgPlaceholder: { backgroundColor: '#1e1e1e', justifyContent: 'center', alignItems: 'center' },
+  imgPlaceholder: { backgroundColor: '#23384c', justifyContent: 'center', alignItems: 'center' },
   cardBody: { padding: 10 },
   cardName: { color: '#fff', fontSize: 13, fontWeight: '600', textAlign: 'right', marginBottom: 6, lineHeight: 18 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardKcal: { color: '#ffd700', fontSize: 12, fontWeight: '600' },
   cardTime: { color: '#666', fontSize: 11 },
-  addToLogBtn: { backgroundColor: '#1a2a4a', borderRadius: 8, paddingVertical: 6, alignItems: 'center', marginTop: 6, borderWidth: 1, borderColor: '#4F8EF7' },
-  addToLogTxt: { color: '#4F8EF7', fontSize: 12, fontWeight: '700' },
+  addToLogBtn: { backgroundColor: '#1a2a4a', borderRadius: 8, paddingVertical: 6, alignItems: 'center', marginTop: 6, borderWidth: 1, borderColor: '#5b9bdc' },
+  addToLogTxt: { color: '#5b9bdc', fontSize: 12, fontWeight: '700' },
   loadMore: { color: '#555', fontSize: 12, textAlign: 'center', marginVertical: 16 },
 });

@@ -269,10 +269,10 @@ export default function OnboardingScreen() {
   );
 }
 
-const GREEN = '#A8E063';
+const GREEN = '#56bd6b';
 
 const s = StyleSheet.create({
-  root:    { flex: 1, backgroundColor: '#0f0f0f' },
+  root:    { flex: 1, backgroundColor: '#0c1622' },
   scroll:  { flexGrow: 1, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 120 },
 
   progressBar: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingTop: 56, paddingBottom: 8 },
@@ -284,7 +284,7 @@ const s = StyleSheet.create({
 
   label:  { fontSize: 13, color: '#aaa', marginBottom: 6, textAlign: 'right' },
   input:  {
-    backgroundColor: '#1e1e1e', borderRadius: 12, paddingHorizontal: 16,
+    backgroundColor: '#23384c', borderRadius: 12, paddingHorizontal: 16,
     paddingVertical: 14, color: '#fff', fontSize: 15, marginBottom: 16, textAlign: 'right',
   },
 
@@ -292,13 +292,13 @@ const s = StyleSheet.create({
   halfWrap: { flex: 1 },
 
   chipRow:     { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  chip:        { flex: 1, backgroundColor: '#1e1e1e', borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
+  chip:        { flex: 1, backgroundColor: '#23384c', borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
   chipActive:  { backgroundColor: GREEN },
   chipTxt:     { color: '#888', fontWeight: '600', fontSize: 14 },
   chipTxtActive: { color: '#000' },
 
   optionCard:       {
-    backgroundColor: '#1a1a1a', borderRadius: 14, padding: 16,
+    backgroundColor: '#1b2c3d', borderRadius: 14, padding: 16,
     marginBottom: 10, borderWidth: 2, borderColor: 'transparent',
   },
   optionCardActive:  { borderColor: GREEN, backgroundColor: '#1e2a14' },
@@ -307,7 +307,7 @@ const s = StyleSheet.create({
   optionSub:         { fontSize: 12, color: '#666', textAlign: 'right', marginTop: 3 },
 
   tagGrid:        { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  tagChip:        { backgroundColor: '#1e1e1e', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10 },
+  tagChip:        { backgroundColor: '#23384c', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10 },
   tagChipActive:  { backgroundColor: '#2a1e1e', borderWidth: 1.5, borderColor: '#e05252' },
   tagTxt:         { color: '#888', fontSize: 14 },
   tagTxtActive:   { color: '#e05252' },
@@ -315,9 +315,9 @@ const s = StyleSheet.create({
 
   bottom:     {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: '#0f0f0f', paddingHorizontal: 24,
+    backgroundColor: '#0c1622', paddingHorizontal: 24,
     paddingTop: 12, paddingBottom: Platform.OS === 'ios' ? 36 : 20,
-    borderTopWidth: 1, borderTopColor: '#1e1e1e',
+    borderTopWidth: 1, borderTopColor: '#23384c',
   },
   nextBtn:     {
     backgroundColor: GREEN, borderRadius: 14, paddingVertical: 16,

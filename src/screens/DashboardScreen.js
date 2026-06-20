@@ -23,17 +23,17 @@ const MEAL_LABELS = {
 const MEAL_COLORS = {
   BREAKFAST:       '#f97316',   breakfast: '#f97316',
   MORNING_SNACK:   '#84cc16',   morning_snack: '#84cc16',
-  LUNCH:           '#4F8EF7',   lunch: '#4F8EF7',
+  LUNCH:           '#5b9bdc',   lunch: '#5b9bdc',
   AFTERNOON_SNACK: '#a855f7',   afternoon_snack: '#a855f7',
   DINNER:          '#ec4899',   dinner: '#ec4899',
   EVENING_SNACK:   '#14b8a6',   evening_snack: '#14b8a6',
 };
 
-function ProgressRing({ size = 90, pct = 0, color = '#4F8EF7', label, sub }) {
+function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
   const filled = Math.round(pct * 100);
   return (
     <View style={[styles.ringWrap, { width: size, height: size }]}>
-      <View style={[styles.ringBg, { width: size, height: size, borderRadius: size / 2, borderColor: '#1e1e1e' }]} />
+      <View style={[styles.ringBg, { width: size, height: size, borderRadius: size / 2, borderColor: '#23384c' }]} />
       <View style={[styles.ringFg, {
         width: size - 14, height: size - 14,
         borderRadius: (size - 14) / 2,
@@ -68,7 +68,7 @@ function MacroCard({ label, eaten, target, color }) {
 function FoodLogRow({ entry, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const mealColor = MEAL_COLORS[entry.meal_type] ?? '#4F8EF7';
+  const mealColor = MEAL_COLORS[entry.meal_type] ?? '#5b9bdc';
   const mealLabel = MEAL_LABELS[entry.meal_type] ?? entry.meal_type;
   const time = entry.timestamp
     ? new Date(entry.timestamp).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
@@ -93,9 +93,9 @@ function FoodLogRow({ entry, onDelete }) {
   };
 
   const MACROS = [
-    { label: 'חלבון', val: entry.protein, color: '#4F8EF7' },
+    { label: 'חלבון', val: entry.protein, color: '#5b9bdc' },
     { label: 'פחמימות', val: entry.carbs, color: '#ffd700' },
-    { label: 'שומן', val: entry.fat, color: '#ff6b6b' },
+    { label: 'שומן', val: entry.fat, color: '#ef7d6c' },
   ];
 
   return (
@@ -189,7 +189,7 @@ export default function DashboardScreen() {
   // רענון אוטומטי כשמשהו נוסף/נמחק מכל מקום באפליקציה (מודאל הוספה, צ'אט וכו')
   useEffect(() => onDataChanged(load), [load]);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>;
 
   const cal      = summary?.calories ?? 0;
   const calTarget = targets?.calories ?? 2000;
@@ -205,20 +205,20 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#4F8EF7" />}>
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#5b9bdc" />}>
 
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
-            <Ionicons name="calendar-outline" size={18} color="#4F8EF7" />
+            <Ionicons name="calendar-outline" size={18} color="#5b9bdc" />
             <Text style={styles.histBtnTxt}>היסטוריה</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.histBtn} onPress={() => setShowInventory(true)}>
-            <Ionicons name="cart-outline" size={18} color="#4F8EF7" />
+            <Ionicons name="cart-outline" size={18} color="#5b9bdc" />
             <Text style={styles.histBtnTxt}>מלאי</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.logo}>BiteFit</Text>
+        <Text style={styles.logo}>NutriSmart</Text>
       </View>
       <Text style={styles.dateSub}>{date}</Text>
 
@@ -232,19 +232,19 @@ export default function DashboardScreen() {
           <Text style={styles.calLbl}>קלוריות נותרות</Text>
           <View style={styles.calRow}>
             <View style={styles.calItem}><Text style={styles.calVal}>{calTarget.toLocaleString()}</Text><Text style={styles.calSub}>יעד</Text></View>
-            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#4CAF50' }]}>{cal}</Text><Text style={styles.calSub}>אכלת</Text></View>
-            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ff6b6b' }]}>{burned.toLocaleString()}</Text><Text style={styles.calSub}>שרפת</Text></View>
+            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#56bd6b' }]}>{cal}</Text><Text style={styles.calSub}>אכלת</Text></View>
+            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ef7d6c' }]}>{burned.toLocaleString()}</Text><Text style={styles.calSub}>שרפת</Text></View>
           </View>
         </View>
-        <ProgressRing size={110} pct={calPct} color="#4F8EF7"
+        <ProgressRing size={110} pct={calPct} color="#5b9bdc"
           label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
       </View>
 
       {/* Macros */}
       <View style={styles.macrosRow}>
-        <MacroCard label="שומן"     eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#4F8EF7" />
-        <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#4F8EF7" />
-        <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#4F8EF7" />
+        <MacroCard label="שומן"     eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#56bd6b" />
+        <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#f0935f" />
+        <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#5b9bdc" />
       </View>
 
       {/* מאזן יומי חכם — יעד/נאכל לכל ארוחה + איזון בין ארוחות */}
@@ -259,7 +259,7 @@ export default function DashboardScreen() {
         <View style={styles.glassesRow}>
           {Array.from({ length: goalGlasses }).map((_, i) => (
             <Ionicons key={i} name={i < glasses ? 'water' : 'water-outline'} size={22}
-              color={i < glasses ? '#4F8EF7' : '#2a2a2a'} style={{ marginHorizontal: 2 }} />
+              color={i < glasses ? '#5b9bdc' : '#2e455c'} style={{ marginHorizontal: 2 }} />
           ))}
         </View>
         <View style={styles.waterBtns}>
@@ -309,16 +309,16 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 2 },
   date: { color: '#666', fontSize: 13 },
   dateSub: { color: '#666', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
-  logo: { fontSize: 20, fontWeight: '800', color: '#4F8EF7' },
-  histBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
-  histBtnTxt: { color: '#4F8EF7', fontSize: 13, fontWeight: '700' },
+  logo: { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
+  histBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#14212f', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
+  histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
-  calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#141414', borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
+  calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
   calInfo: { flex: 1, paddingRight: 12 },
   calNum: { color: '#fff', fontSize: 38, fontWeight: '800' },
   calLbl: { color: '#888', fontSize: 13, marginBottom: 14 },
@@ -335,23 +335,23 @@ const styles = StyleSheet.create({
   ringSub: { color: '#888', fontSize: 10 },
 
   macrosRow: { flexDirection: 'row', marginHorizontal: 16, gap: 10, marginBottom: 12 },
-  macroCard: { flex: 1, backgroundColor: '#141414', borderRadius: 16, padding: 12, alignItems: 'center', gap: 3 },
+  macroCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 16, padding: 12, alignItems: 'center', gap: 3 },
   macroVal: { color: '#fff', fontSize: 15, fontWeight: '700' },
   macroSub: { color: '#666', fontSize: 10 },
   macroName: { fontSize: 12, fontWeight: '700' },
 
-  card: { backgroundColor: '#141414', borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
+  card: { backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   cardTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
   waterMl: { color: '#666', fontSize: 12 },
   glassesRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
   waterBtns: { flexDirection: 'row', gap: 8 },
-  waterBtn: { flex: 1, backgroundColor: '#1e1e1e', borderRadius: 10, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: '#2a2a2a' },
-  waterBtnTxt: { color: '#4F8EF7', fontSize: 13, fontWeight: '700' },
+  waterBtn: { flex: 1, backgroundColor: '#23384c', borderRadius: 10, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: '#2e455c' },
+  waterBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
   empty: { color: '#444', fontSize: 14 },
 
   // Food log row
-  logItem: { borderBottomWidth: 1, borderBottomColor: '#1e1e1e' },
+  logItem: { borderBottomWidth: 1, borderBottomColor: '#23384c' },
   logRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
   logTapArea: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   logDot: { width: 4, height: 38, borderRadius: 2 },

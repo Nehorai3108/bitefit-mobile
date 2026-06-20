@@ -83,14 +83,14 @@ export default function CalendarScreen() {
         {/* Month navigation */}
         <View style={styles.monthNav}>
           <TouchableOpacity onPress={nextMonth}>
-            <Ionicons name="chevron-forward" size={24} color="#4F8EF7" />
+            <Ionicons name="chevron-forward" size={24} color="#5b9bdc" />
           </TouchableOpacity>
           <View style={styles.monthCenter}>
             <Text style={styles.monthName}>{MONTH_NAMES[month]}</Text>
             <Text style={styles.yearTxt}>{year}</Text>
           </View>
           <TouchableOpacity onPress={prevMonth}>
-            <Ionicons name="chevron-back" size={24} color="#4F8EF7" />
+            <Ionicons name="chevron-back" size={24} color="#5b9bdc" />
           </TouchableOpacity>
         </View>
 
@@ -110,7 +110,7 @@ export default function CalendarScreen() {
                 <Text style={[styles.dayNum, sel && styles.dayNumSel, tod && !sel && styles.dayNumToday]}>{day}</Text>
                 {/* Indicators placeholder */}
                 <View style={styles.indicators}>
-                  <View style={[styles.dot, { backgroundColor: tod ? '#4CAF50' : '#1a1a1a' }]} />
+                  <View style={[styles.dot, { backgroundColor: tod ? '#56bd6b' : '#1b2c3d' }]} />
                 </View>
               </TouchableOpacity>
             );
@@ -124,7 +124,7 @@ export default function CalendarScreen() {
           </Text>
 
           {loading ? (
-            <ActivityIndicator color="#4F8EF7" style={{ marginTop: 20 }} />
+            <ActivityIndicator color="#5b9bdc" style={{ marginTop: 20 }} />
           ) : (
             <>
               {/* Summary cards */}
@@ -136,7 +136,7 @@ export default function CalendarScreen() {
                 <View style={styles.summaryCard}>
                   <View style={styles.glassesRow}>
                     {Array.from({ length: Math.min(waterGlasses, 8) }).map((_, i) => (
-                      <Ionicons key={i} name="water" size={14} color="#4F8EF7" />
+                      <Ionicons key={i} name="water" size={14} color="#5b9bdc" />
                     ))}
                   </View>
                   <Text style={styles.summaryLbl}>{waterMl}ml מים</Text>
@@ -187,7 +187,7 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
   header: { paddingHorizontal: 16, paddingTop: 52, paddingBottom: 8 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800' },
   monthNav: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 12 },
@@ -199,32 +199,32 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12 },
   emptyCell: { width: '14.28%', height: 52 },
   dayCell: { width: '14.28%', height: 52, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
-  dayCellSel: { backgroundColor: '#4F8EF7' },
-  dayCellToday: { borderWidth: 1, borderColor: '#4F8EF7' },
+  dayCellSel: { backgroundColor: '#5b9bdc' },
+  dayCellToday: { borderWidth: 1, borderColor: '#5b9bdc' },
   dayNum: { color: '#aaa', fontSize: 14, fontWeight: '600' },
   dayNumSel: { color: '#fff', fontWeight: '800' },
-  dayNumToday: { color: '#4F8EF7', fontWeight: '800' },
+  dayNumToday: { color: '#5b9bdc', fontWeight: '800' },
   indicators: { flexDirection: 'row', gap: 2, marginTop: 2 },
   dot: { width: 4, height: 4, borderRadius: 2 },
   detailSection: { paddingHorizontal: 16, paddingTop: 8 },
   detailTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
   summaryRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
-  summaryCard: { flex: 1, backgroundColor: '#141414', borderRadius: 14, padding: 14, alignItems: 'center', gap: 4 },
+  summaryCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 14, padding: 14, alignItems: 'center', gap: 4 },
   summaryVal: { color: '#fff', fontSize: 22, fontWeight: '800' },
   summaryLbl: { color: '#888', fontSize: 12 },
   glassesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 2, justifyContent: 'center' },
-  card: { backgroundColor: '#141414', borderRadius: 14, padding: 14, marginBottom: 10 },
+  card: { backgroundColor: '#14212f', borderRadius: 14, padding: 14, marginBottom: 10 },
   cardTitle: { color: '#fff', fontSize: 14, fontWeight: '700', textAlign: 'right', marginBottom: 10 },
   empty: { color: '#444', fontSize: 13, textAlign: 'center', paddingVertical: 10 },
-  entryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  entryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   entryLeft: { alignItems: 'flex-end' },
   entryName: { color: '#fff', fontSize: 13 },
   entryMeal: { color: '#666', fontSize: 11, marginTop: 1 },
   entryCal: { color: '#ffd700', fontSize: 13, fontWeight: '700' },
   waterHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  waterPct: { color: '#4F8EF7', fontSize: 14, fontWeight: '700' },
-  waterBar: { height: 8, backgroundColor: '#1e1e1e', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
-  waterFill: { height: '100%', backgroundColor: '#4F8EF7', borderRadius: 4 },
+  waterPct: { color: '#5b9bdc', fontSize: 14, fontWeight: '700' },
+  waterBar: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
+  waterFill: { height: '100%', backgroundColor: '#5b9bdc', borderRadius: 4 },
   waterStats: { flexDirection: 'row', justifyContent: 'space-between' },
   waterStat: { color: '#666', fontSize: 12 },
 });

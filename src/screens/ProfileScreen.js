@@ -16,9 +16,9 @@ const ACTIVITY_LEVELS = [
 ];
 
 const GOALS = [
-  { key: 'lose_weight', label: 'ירידה במשקל',  color: '#ff6b6b' },
-  { key: 'maintain',    label: 'שמירה על משקל', color: '#4F8EF7' },
-  { key: 'gain_weight', label: 'עלייה במשקל',  color: '#4CAF50' },
+  { key: 'lose_weight', label: 'ירידה במשקל',  color: '#ef7d6c' },
+  { key: 'maintain',    label: 'שמירה על משקל', color: '#5b9bdc' },
+  { key: 'gain_weight', label: 'עלייה במשקל',  color: '#56bd6b' },
 ];
 
 const KASHRUT = ['ללא הגבלה', 'פרווה', 'חלבי בלבד', 'בשרי בלבד', 'כשרות מהודרת'];
@@ -170,7 +170,7 @@ export default function ProfileScreen() {
     ]);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#4F8EF7" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>;
 
   const tabs = ['פרטים אישיים', 'העדפות תזונה', 'יעדים'];
 
@@ -179,10 +179,10 @@ export default function ProfileScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
-          <Ionicons name="log-out-outline" size={22} color="#ff6b6b" />
+          <Ionicons name="log-out-outline" size={22} color="#ef7d6c" />
         </TouchableOpacity>
         <View style={styles.avatarCard}>
-          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#4F8EF7" /></View>
+          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#5b9bdc" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
         </View>
       </View>
@@ -341,9 +341,9 @@ export default function ProfileScreen() {
                   ))}
                 </View>
                 {[
-                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#4F8EF7', cal: 4 },
+                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#5b9bdc', cal: 4 },
                   { label: 'פחמימות', val: targets.carbs, total: targets.calories, color: '#ffd700', cal: 4 },
-                  { label: 'שומן', val: targets.fat, total: targets.calories, color: '#ff6b6b', cal: 9 },
+                  { label: 'שומן', val: targets.fat, total: targets.calories, color: '#ef7d6c', cal: 9 },
                 ].map(m => {
                   const pct = Math.round((m.val * m.cal / m.total) * 100);
                   return (
@@ -379,65 +379,65 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0a0a0a' },
+  container: { flex: 1, backgroundColor: '#0c1622' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
   header: { paddingTop: 52, paddingHorizontal: 16, paddingBottom: 8 },
-  avatarCard: { backgroundColor: '#141414', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatarCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   avatarCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#1a2a4a', justifyContent: 'center', alignItems: 'center' },
   headerTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right', flex: 1 },
   headerSub: { color: '#666', fontSize: 12, textAlign: 'right', flex: 1 },
-  tabBar: { flexDirection: 'row', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
+  tabBar: { flexDirection: 'row', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
   tabTxt: { color: '#555', fontSize: 13 },
-  tabTxtActive: { color: '#4F8EF7', fontWeight: '700' },
-  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#4F8EF7' },
+  tabTxtActive: { color: '#5b9bdc', fontWeight: '700' },
+  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc' },
   scroll: { flex: 1 },
   section: { padding: 16 },
   fieldLabel: { color: '#aaa', fontSize: 13, textAlign: 'right', marginBottom: 8, marginTop: 16 },
-  textInput: { backgroundColor: '#141414', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, textAlign: 'right', borderWidth: 1, borderColor: '#2a2a2a' },
+  textInput: { backgroundColor: '#14212f', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, textAlign: 'right', borderWidth: 1, borderColor: '#2e455c' },
   row3: { flexDirection: 'row', gap: 12 },
   col: { flex: 1 },
-  numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: '#2a2a2a', overflow: 'hidden' },
-  numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1e1e1e' },
-  numBtnTxt: { color: '#4F8EF7', fontSize: 20, fontWeight: '700' },
+  numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 10, borderWidth: 1, borderColor: '#2e455c', overflow: 'hidden' },
+  numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: '#23384c' },
+  numBtnTxt: { color: '#5b9bdc', fontSize: 20, fontWeight: '700' },
   numValue: { flex: 1, color: '#fff', fontSize: 15, textAlign: 'center', height: 44 },
   numUnit: { color: '#888', fontSize: 12, paddingRight: 8 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: '#141414', borderWidth: 1, borderColor: '#2a2a2a' },
-  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#4F8EF7' },
+  optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#2e455c' },
+  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
   optTxt: { color: '#666', fontSize: 13 },
-  optTxtActive: { color: '#4F8EF7', fontWeight: '700' },
+  optTxtActive: { color: '#5b9bdc', fontWeight: '700' },
   paceText: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 8 },
   paceHint: { color: '#e0a030', fontSize: 12, textAlign: 'right', marginTop: 8, lineHeight: 17 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#141414', borderWidth: 1, borderColor: '#2a2a2a' },
+  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#2e455c' },
   chipActive: { backgroundColor: '#2a1a4a', borderColor: '#8a6aff' },
   chipTxt: { color: '#666', fontSize: 13 },
   chipTxtActive: { color: '#8a6aff', fontWeight: '700' },
-  chipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#4CAF50' },
-  chipGreenTxt: { color: '#4CAF50', fontSize: 13 },
-  chipRed: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#ff6b6b' },
-  chipRedTxt: { color: '#ff6b6b', fontSize: 13 },
+  chipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
+  chipGreenTxt: { color: '#56bd6b', fontSize: 13 },
+  chipRed: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#ef7d6c' },
+  chipRedTxt: { color: '#ef7d6c', fontSize: 13 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  addInput: { flex: 1, backgroundColor: '#141414', color: '#fff', borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: '#2a2a2a' },
-  addBtn: { backgroundColor: '#4F8EF7', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
+  addInput: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: '#2e455c' },
+  addBtn: { backgroundColor: '#5b9bdc', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
   addBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  targetsCard: { backgroundColor: '#141414', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
+  targetsCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
   targetsTitle: { color: '#888', fontSize: 14, marginBottom: 8 },
   targetsCalories: { color: '#fff', fontSize: 52, fontWeight: '800' },
   targetsKcal: { color: '#888', fontSize: 14 },
   bmrRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  bmrCard: { flex: 1, backgroundColor: '#141414', borderRadius: 12, padding: 14, alignItems: 'center' },
-  bmrLabel: { color: '#4F8EF7', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  bmrCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 12, padding: 14, alignItems: 'center' },
+  bmrLabel: { color: '#5b9bdc', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   bmrVal: { color: '#fff', fontSize: 20, fontWeight: '700' },
-  macroRow: { backgroundColor: '#141414', borderRadius: 12, padding: 12, marginBottom: 8 },
-  macroBarWrap: { height: 8, backgroundColor: '#1e1e1e', borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
+  macroRow: { backgroundColor: '#14212f', borderRadius: 12, padding: 12, marginBottom: 8 },
+  macroBarWrap: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
   macroBar: { height: '100%', borderRadius: 4 },
   macroInfo: { flexDirection: 'row', justifyContent: 'space-between' },
   macroName: { fontSize: 14, fontWeight: '700' },
   macroDetail: { color: '#888', fontSize: 13 },
   noTargets: { color: '#666', fontSize: 14, textAlign: 'center', paddingVertical: 32 },
-  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#4F8EF7', padding: 16, alignItems: 'center' },
+  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#5b9bdc', padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
