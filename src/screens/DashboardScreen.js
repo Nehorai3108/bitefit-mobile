@@ -65,6 +65,27 @@ function MacroCard({ label, eaten, target, color }) {
   );
 }
 
+function WeekStrip() {
+  const days = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+  const today = new Date();
+  const todayIdx = today.getDay();
+  const sunday = new Date(today); sunday.setDate(today.getDate() - todayIdx);
+  return (
+    <View style={styles.weekStrip}>
+      {days.map((d, i) => {
+        const date = new Date(sunday); date.setDate(sunday.getDate() + i);
+        const isToday = i === todayIdx;
+        return (
+          <View key={i} style={[styles.weekDay, isToday && styles.weekDayActive]}>
+            <Text style={[styles.weekDayName, isToday && styles.weekDayTxtActive]}>{d}</Text>
+            <Text style={[styles.weekDayNum, isToday && styles.weekDayTxtActive]}>{date.getDate()}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 function FoodLogRow({ entry, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -218,9 +239,16 @@ export default function DashboardScreen() {
             <Text style={styles.histBtnTxt}>מלאי</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.logo}>NutriSmart</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text style={styles.logo}>NutriSmart</Text>
+          <Image source={require('../../assets/nutrismart-logo.png')}
+            style={styles.logoImg} resizeMode="contain" />
+        </View>
       </View>
       <Text style={styles.dateSub}>{date}</Text>
+
+      {/* רצועת ימי השבוע — Cal AI style */}
+      <WeekStrip />
 
       <HistoryScreen visible={showHistory} onClose={() => setShowHistory(false)} />
       <InventoryScreen visible={showInventory} onClose={() => setShowInventory(false)} />
@@ -249,28 +277,6 @@ export default function DashboardScreen() {
 
       {/* מאזן יומי חכם — יעד/נאכל לכל ארוחה + איזון בין ארוחות */}
       <MealBalanceCard />
-
-      {/* Water */}
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>מים — היום</Text>
-          <Text style={styles.waterMl}>{totalMl}ml / {goalMl}ml</Text>
-        </View>
-        <View style={styles.glassesRow}>
-          {Array.from({ length: goalGlasses }).map((_, i) => (
-            <Ionicons key={i} name={i < glasses ? 'water' : 'water-outline'} size={22}
-              color={i < glasses ? '#5b9bdc' : '#2e455c'} style={{ marginHorizontal: 2 }} />
-          ))}
-        </View>
-        <View style={styles.waterBtns}>
-          {[250, 500, 750, 1000].map(ml => (
-            <TouchableOpacity key={ml} style={styles.waterBtn}
-              onPress={async () => { await addWater(ml).catch(() => {}); setWater(w => ({ ...w, total_ml: (w.total_ml ?? 0) + ml })); }}>
-              <Text style={styles.waterBtnTxt}>+{ml >= 1000 ? '1L' : `${ml}ml`}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
 
       {/* Today's food log */}
       <View style={[styles.card, { marginBottom: 28 }]}>
@@ -315,6 +321,13 @@ const styles = StyleSheet.create({
   date: { color: '#666', fontSize: 13 },
   dateSub: { color: '#666', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
   logo: { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
+  logoImg: { width: 34, height: 34, borderRadius: 9 },
+  weekStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
+  weekDay: { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
+  weekDayActive: { backgroundColor: '#5b9bdc' },
+  weekDayName: { color: '#5d7489', fontSize: 12, fontWeight: '600' },
+  weekDayNum: { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
+  weekDayTxtActive: { color: '#0c1622' },
   histBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#14212f', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
   histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
