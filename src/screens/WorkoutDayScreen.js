@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import ExerciseIllustration from '../components/ExerciseIllustration';
 
 const TYPE_COLOR = {
   strength: '#3a7a4a',
@@ -48,7 +49,6 @@ function WarmCoolCard({ item, C }) {
 function ExerciseCard({ ex, index, color, C }) {
   const [expanded, setExpanded] = useState(false);
   const showRest = ex.rest && ex.rest !== '-';
-  const icon = exIcon(ex.name);
 
   return (
     <TouchableOpacity
@@ -65,8 +65,9 @@ function ExerciseCard({ ex, index, color, C }) {
           <Text style={[sh.exName, { color: C.text }]}>{ex.name}</Text>
           {ex.muscles ? <Text style={[sh.muscles, { color: C.textMuted }]}>{ex.muscles}</Text> : null}
         </View>
-        <View style={[sh.iconCircle, { backgroundColor: color + '15' }]}>
-          <Ionicons name={icon} size={18} color={color} />
+        {/* איור קטן */}
+        <View style={[sh.illCircle, { backgroundColor: color + '10' }]}>
+          <ExerciseIllustration name={ex.name} color={color} size={52} />
         </View>
       </View>
 
@@ -192,7 +193,7 @@ const sh = StyleSheet.create({
   card:       { borderRadius: 14, padding: 14, marginBottom: 10, borderRightWidth: 4,
                 shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.07, shadowRadius: 5, elevation: 2 },
   cardTop:    { flexDirection: 'row-reverse', gap: 10, alignItems: 'center', marginBottom: 10 },
-  iconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  illCircle:  { width: 58, height: 58, borderRadius: 12, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   num:        { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   numTxt:     { fontSize: 13, fontWeight: '800' },
   exName:     { fontSize: 15, fontWeight: '700', textAlign: 'right' },
