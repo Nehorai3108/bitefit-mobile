@@ -19,15 +19,26 @@ const WORKOUT_TYPES = [
 ];
 
 const INTENSITIES = [
-  { key: 'low',      label: 'נמוכה',  mult: 4 },
-  { key: 'moderate', label: 'בינונית', mult: 6 },
-  { key: 'high',     label: 'גבוהה',  mult: 8 },
-  { key: 'extreme',  label: 'קיצונית', mult: 10 },
+  { key: 'low',      label: 'נמוכה'   },
+  { key: 'moderate', label: 'בינונית' },
+  { key: 'high',     label: 'גבוהה'   },
+  { key: 'extreme',  label: 'קיצונית' },
 ];
 
-function calcCalories(durationMin, intensity) {
-  const mult = INTENSITIES.find(i => i.key === intensity)?.mult ?? 6;
-  return Math.round((durationMin / 60) * mult * 75);
+// MET values per workout type × intensity (based on ACSM/Compendium of Physical Activities)
+const MET = {
+  strength: { low: 3.0, moderate: 4.5, high: 6.0, extreme: 8.0  },
+  running:  { low: 6.0, moderate: 9.0, high: 11.5, extreme: 14.5 },
+  cycling:  { low: 4.0, moderate: 6.8, high: 9.5,  extreme: 12.0 },
+  swimming: { low: 4.0, moderate: 6.0, high: 8.5,  extreme: 11.0 },
+  yoga:     { low: 2.0, moderate: 3.0, high: 4.0,  extreme: 5.0  },
+  hiit:     { low: 5.5, moderate: 8.0, high: 11.0, extreme: 14.0 },
+};
+
+// weightKg — ברירת מחדל 75 עד שנטמיע משיכת פרופיל
+function calcCalories(durationMin, intensity, type = 'strength', weightKg = 75) {
+  const met = MET[type]?.[intensity] ?? MET.strength.moderate;
+  return Math.round((durationMin / 60) * met * weightKg);
 }
 
 // Map a backend workout_log row into the shape the UI renders.
@@ -76,7 +87,7 @@ export default function WorkoutScreen({ navigation }) {
 
   const handleAdd = async () => {
     if (!form.duration) { Alert.alert('שגיאה', 'הכנס משך זמן'); return; }
-    const calories = calcCalories(parseInt(form.duration), form.intensity);
+    const calories = calcCalories(parseInt(form.duration), form.intensity, form.type);
     setSaving(true);
     try {
       await addWorkout({
@@ -230,7 +241,7 @@ export default function WorkoutScreen({ navigation }) {
             {form.duration ? (
               <Text style={styles.caloriePreview}>
                 קלוריות משוערות: <Text style={{ color: '#ef7d6c', fontWeight: '700' }}>
-                  {calcCalories(parseInt(form.duration) || 0, form.intensity)} קק"ל
+                  {calcCalories(parseInt(form.duration) || 0, form.intensity, form.type)} קק"ל
                 </Text>
               </Text>
             ) : null}
