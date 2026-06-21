@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React, { useState, useRef, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -9,7 +8,6 @@ import {
   Pressable, TextInput, ActivityIndicator, Alert,
   ScrollView, KeyboardAvoidingView, Platform, Image,
 } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -721,7 +719,6 @@ function WakingBanner() {
 export default function App() {
   useEffect(() => { initNotifications(); }, []);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
     <ThemeProvider>
     <AuthProvider>
       <NavigationContainer>
@@ -730,7 +727,6 @@ export default function App() {
       </NavigationContainer>
     </AuthProvider>
     </ThemeProvider>
-    </GestureHandlerRootView>
   );
 }
 

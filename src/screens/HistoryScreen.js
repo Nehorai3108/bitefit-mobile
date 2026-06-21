@@ -3,7 +3,6 @@ import {
   View, Text, StyleSheet, TouchableOpacity, Modal,
   ScrollView, ActivityIndicator, Image,
 } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchFoodHistory, fetchFoodLogByDate, fetchProfileTargets } from '../api/client';
@@ -299,13 +298,6 @@ export default function HistoryScreen({ visible, onClose }) {
   const s = useMemo(() => makeS(C), [C]);
   const now = new Date();
 
-  const onSwipe = ({ nativeEvent: e }) => {
-    if (e.state === State.END &&
-        e.translationX > 60 &&
-        Math.abs(e.translationX) > Math.abs(e.translationY) * 1.5)
-      onClose();
-  };
-
   const [tab,     setTab]     = useState(0);   // 0=שבועי 1=חודשי
   const [year,    setYear]    = useState(now.getFullYear());
   const [month,   setMonth]   = useState(now.getMonth());
@@ -345,7 +337,6 @@ export default function HistoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <PanGestureHandler onHandlerStateChange={onSwipe}>
       <View style={s.container}>
         {/* Header */}
         <View style={s.header}>
@@ -373,7 +364,6 @@ export default function HistoryScreen({ visible, onClose }) {
 
         {selected && <DayDetail selected={selected} onClose={() => setSelected(null)} />}
       </View>
-      </PanGestureHandler>
     </Modal>
   );
 }

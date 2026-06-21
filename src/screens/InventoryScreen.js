@@ -4,7 +4,6 @@ import {
   ActivityIndicator, TextInput, Alert, Pressable, Image,
   KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import {
@@ -37,12 +36,6 @@ const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 export default function InventoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
-  const onSwipe = ({ nativeEvent: e }) => {
-    if (e.state === State.END &&
-        e.translationX > 60 &&
-        Math.abs(e.translationX) > Math.abs(e.translationY) * 1.5)
-      onClose();
-  };
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -75,7 +68,6 @@ export default function InventoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <PanGestureHandler onHandlerStateChange={onSwipe}>
       <View style={s.container}>
         <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
@@ -146,7 +138,6 @@ export default function InventoryScreen({ visible, onClose }) {
         />
         <CookModal visible={showCook} onClose={() => setShowCook(false)} />
       </View>
-      </PanGestureHandler>
     </Modal>
   );
 }
