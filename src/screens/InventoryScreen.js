@@ -36,10 +36,14 @@ const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 export default function InventoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   const swipeClose = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gs) =>
-      gs.dx > 20 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
-    onPanResponderRelease: (_, gs) => { if (gs.dx > 80) onClose(); },
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderRelease: (_, gs) => {
+      if (gs.dx > 60 && Math.abs(gs.dx) > Math.abs(gs.dy) * 1.5)
+        closeRef.current();
+    },
   })).current.panHandlers;
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);

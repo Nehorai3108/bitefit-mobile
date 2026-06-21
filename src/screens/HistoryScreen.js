@@ -294,11 +294,13 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
 
 // החלקה ימינה לסגירה
 function useSwipeClose(onClose) {
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   return useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gs) =>
-      gs.dx > 20 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
+    onStartShouldSetPanResponder: () => true,
     onPanResponderRelease: (_, gs) => {
-      if (gs.dx > 80) onClose();
+      if (gs.dx > 60 && Math.abs(gs.dx) > Math.abs(gs.dy) * 1.5)
+        closeRef.current();
     },
   })).current.panHandlers;
 }
