@@ -73,8 +73,8 @@ export default function InventoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={s.container} {...swipeClose}>
-        <View style={s.header}>
+      <View style={s.container}>
+        <View style={s.header} {...swipeClose}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
           <Text style={s.count}>{items.length} פריטים</Text>

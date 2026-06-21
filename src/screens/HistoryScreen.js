@@ -349,9 +349,9 @@ export default function HistoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={s.container} {...swipeClose}>
-        {/* Header */}
-        <View style={s.header}>
+      <View style={s.container}>
+        {/* Header — כאן יושב ה-PanResponder כי ה-ScrollView מתחתיו גוזל מגעים */}
+        <View style={s.header} {...swipeClose}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>היסטוריית תזונה</Text>
         </View>
