@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
@@ -248,11 +249,14 @@ export default function HomeScreen({ navigation }) {
   const [searching, setSearching] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState(null);
 
-  useEffect(() => {
+  const loadCompletedWorkout = useCallback(() => {
     AsyncStorage.getItem(todayWorkoutKey()).then(val => {
       if (val) try { setCompletedWorkout(JSON.parse(val)); } catch {}
+      else setCompletedWorkout(null);
     });
   }, []);
+
+  useFocusEffect(loadCompletedWorkout);
 
   const load = useCallback(async () => {
     try {
