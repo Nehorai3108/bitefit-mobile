@@ -5,8 +5,17 @@ import {
   Image, ActivityIndicator, RefreshControl, Alert, Modal, TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry, searchMealRecipes } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+
+const todayWorkoutKey = () => {
+  const d = new Date();
+  return `@bitefit_workout_done_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+};
+
+const TYPE_ICON = { strength: 'barbell-outline', cardio: 'bicycle-outline', hiit: 'flash-outline', rest: 'bed-outline' };
+const TYPE_COLOR = { strength: '#3a7a4a', cardio: '#2e86de', hiit: '#e74c3c', rest: '#8e44ad' };
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר' },
@@ -237,6 +246,13 @@ export default function HomeScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [searchResults, setSearchResults] = useState(null); // null = not searching
   const [searching, setSearching] = useState(false);
+  const [completedWorkout, setCompletedWorkout] = useState(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(todayWorkoutKey()).then(val => {
+      if (val) try { setCompletedWorkout(JSON.parse(val)); } catch {}
+    });
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -365,6 +381,22 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
+        {/* Workout completed card */}
+        {completedWorkout && (
+          <View style={[styles.workoutDoneCard, { borderColor: TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a' }]}>
+            <View style={[styles.workoutDoneIcon, { backgroundColor: (TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a') + '20' }]}>
+              <Ionicons name={TYPE_ICON[completedWorkout.type] ?? 'barbell-outline'} size={22} color={TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a'} />
+            </View>
+            <View style={styles.workoutDoneBody}>
+              <Text style={[styles.workoutDoneTitle, { color: TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a' }]}>אימון הושלם היום ✓</Text>
+              <Text style={[styles.workoutDoneName, { color: C.text }]}>{completedWorkout.name}</Text>
+              {completedWorkout.duration ? (
+                <Text style={[styles.workoutDoneMeta, { color: C.textMuted }]}>{completedWorkout.duration} דק' · {completedWorkout.muscles}</Text>
+              ) : null}
+            </View>
+          </View>
+        )}
+
         <View style={styles.divider} />
 
         {/* Meal tabs */}
@@ -478,6 +510,12 @@ const makeStyles = (C) => StyleSheet.create({
   clearBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: C.border },
   clearTxt: { color: '#aaa', fontSize: 15 },
   divider: { height: 1, backgroundColor: C.surface2, marginHorizontal: 16, marginBottom: 10 },
+  workoutDoneCard: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, marginHorizontal: 16, marginBottom: 14, padding: 14, borderRadius: 14, borderWidth: 1.5, backgroundColor: C.surface },
+  workoutDoneIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  workoutDoneBody: { flex: 1, alignItems: 'flex-end' },
+  workoutDoneTitle: { fontSize: 12, fontWeight: '700', marginBottom: 2 },
+  workoutDoneName: { fontSize: 15, fontWeight: '800', textAlign: 'right' },
+  workoutDoneMeta: { fontSize: 12, marginTop: 2 },
   tabsContent: { paddingHorizontal: 16, gap: 4 },
   tabWrap: { paddingHorizontal: 12, paddingBottom: 10, alignItems: 'center' },
   tabText: { color: C.placeholder, fontSize: 14 },

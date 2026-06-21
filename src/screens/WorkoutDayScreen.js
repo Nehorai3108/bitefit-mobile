@@ -1,8 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import ExerciseIllustration from '../components/ExerciseIllustration';
+
+const todayKey = () => {
+  const d = new Date();
+  return `@bitefit_workout_done_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+};
 
 const TYPE_COLOR = {
   strength: '#3a7a4a',
@@ -124,6 +130,30 @@ export default function WorkoutDayScreen({ day, onClose }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const color = TYPE_COLOR[day?.type] ?? '#3a7a4a';
+  const [done, setDone] = useState(false);
+
+  React.useEffect(() => {
+    AsyncStorage.getItem(todayKey()).then(val => {
+      if (!val) return;
+      try { if (JSON.parse(val).name === day?.name) setDone(true); } catch {}
+    });
+  }, [day?.name]);
+
+  const markDone = async () => {
+    const entry = {
+      name: day.name,
+      type: day.type,
+      duration: day.duration,
+      muscles: day.muscles ?? '',
+      completedAt: new Date().toISOString(),
+    };
+    await AsyncStorage.setItem(todayKey(), JSON.stringify(entry));
+    setDone(true);
+    Alert.alert('כל הכבוד! 💪', `סיימת את "${day.name}"\nהאימון נשמר בדף הבית`, [
+      { text: 'סגור', onPress: onClose },
+      { text: 'המשך לצפות', style: 'cancel' },
+    ]);
+  };
 
   if (!day) return null;
 
@@ -152,7 +182,7 @@ export default function WorkoutDayScreen({ day, onClose }) {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 120 }}>
 
         {day.warmup?.length > 0 && (
           <>
@@ -178,6 +208,18 @@ export default function WorkoutDayScreen({ day, onClose }) {
           </>
         )}
       </ScrollView>
+
+      {/* Done button — fixed at bottom */}
+      <View style={[styles.doneBar, { backgroundColor: C.bg, borderTopColor: C.border }]}>
+        <TouchableOpacity
+          style={[styles.doneBtn, { backgroundColor: done ? '#6abf7b' : color }]}
+          onPress={done ? undefined : markDone}
+          activeOpacity={done ? 1 : 0.8}
+        >
+          <Ionicons name={done ? 'checkmark-circle' : 'checkmark-circle-outline'} size={22} color="#fff" />
+          <Text style={styles.doneTxt}>{done ? 'האימון הושלם ✓' : 'ביצעתי את האימון'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -222,4 +264,7 @@ const makeStyles = (C) => StyleSheet.create({
   metaTxt:     { color: '#fff', fontSize: 12, fontWeight: '600' },
   noteBox:     { borderWidth: 1, borderRadius: 10, padding: 12, marginBottom: 10 },
   noteTxt:     { fontSize: 13, textAlign: 'right', lineHeight: 20 },
+  doneBar:     { position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 16, paddingVertical: 12, paddingBottom: 32, borderTopWidth: 1 },
+  doneBtn:     { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 14, paddingVertical: 15 },
+  doneTxt:     { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
