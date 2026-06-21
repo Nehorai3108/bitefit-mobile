@@ -410,9 +410,6 @@ function buildMixed(days) {
   return results;
 }
 
-export const WARMUP = WARMUP;
-export const COOLDOWN = COOLDOWN;
-
 export function generatePlan(daysPerWeek, workoutType) {
   const count = Math.min(Math.max(daysPerWeek, 2), 6);
   const activeIndices = DAY_INDICES[count];
