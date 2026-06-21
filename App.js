@@ -10,6 +10,7 @@ import {
   Animated, PanResponder,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
@@ -597,35 +598,45 @@ const TABS = [
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
 ];
 
-const DRAWER_OPEN  = 0;
-const DRAWER_CLOSED = 90;
+const ICONS_H = 72; // גובה שורת האייקונים
 
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
-  const translateY = useRef(new Animated.Value(DRAWER_CLOSED)).current;
+  const insets = useSafeAreaInsets();
+  const translateY = useRef(new Animated.Value(ICONS_H)).current;
   const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const open  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: DRAWER_OPEN,   useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const close = () => { isOpen.current = false; Animated.spring(translateY, { toValue: DRAWER_CLOSED, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,      useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: ICONS_H, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const toggle = () => isOpen.current ? closeDrawer() : openDrawer();
 
   const pan = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dy) > 8 && Math.abs(gs.dy) > Math.abs(gs.dx),
+    onStartShouldSetPanResponder: () => true,
     onPanResponderRelease: (_, gs) => {
-      if (gs.dy < -20) open();
-      else if (gs.dy > 20) close();
+      if (gs.dy < -15) openDrawer();
+      else if (gs.dy > 15) closeDrawer();
+      else toggle(); // tap
     },
   })).current;
 
-  const go = (name) => { navigation.navigate(name); close(); };
+  const go = (name) => { navigation.navigate(name); closeDrawer(); };
 
   return (
-    <Animated.View style={[fabSt.drawer, { backgroundColor: C.surface, transform: [{ translateY }] }]} {...pan.panHandlers}>
-      {/* handle */}
-      <View style={fabSt.handle} />
+    <Animated.View
+      style={[fabSt.drawer, {
+        backgroundColor: C.surface,
+        bottom: insets.bottom + 8,
+        transform: [{ translateY }],
+      }]}
+    >
+      {/* ידית משיכה — לחיצה או גרירה */}
+      <View style={fabSt.handleWrap} {...pan.panHandlers}>
+        <View style={fabSt.handle} />
+      </View>
 
-      {/* tab icons */}
+      {/* שורת טאבים */}
       <View style={fabSt.row}>
         {realRoutes.map(route => {
           const def = TABS.find(t => t.name === route.name);
@@ -638,7 +649,7 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
             </TouchableOpacity>
           );
         })}
-        <TouchableOpacity style={fabSt.item} onPress={() => { onAddPress(); close(); }}>
+        <TouchableOpacity style={fabSt.item} onPress={() => { onAddPress(); closeDrawer(); }}>
           <View style={fabSt.addCircle}><Ionicons name="add" size={22} color="#fff" /></View>
           <Text style={[fabSt.label, { color: C.textMuted }]}>הוסף</Text>
         </TouchableOpacity>
@@ -648,12 +659,13 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
 }
 
 const fabSt = StyleSheet.create({
-  drawer:   { position: 'absolute', bottom: 0, left: 0, right: 0, borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
-  handle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: '#ccc', alignSelf: 'center', marginTop: 10, marginBottom: 6 },
-  row:      { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 8, paddingTop: 8 },
-  item:     { alignItems: 'center', gap: 4, flex: 1 },
-  label:    { fontSize: 10, fontWeight: '600' },
-  addCircle:{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center' },
+  drawer:     { position: 'absolute', left: 16, right: 16, borderRadius: 22, shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
+  handleWrap: { paddingVertical: 10, alignItems: 'center' },
+  handle:     { width: 36, height: 4, borderRadius: 2, backgroundColor: '#bbb' },
+  row:        { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 8, paddingBottom: 12 },
+  item:       { alignItems: 'center', gap: 3, flex: 1 },
+  label:      { fontSize: 10, fontWeight: '600' },
+  addCircle:  { width: 38, height: 38, borderRadius: 19, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center' },
 });
 
 function TabNavigator() {
