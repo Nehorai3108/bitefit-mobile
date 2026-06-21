@@ -598,71 +598,70 @@ const TABS = [
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
 ];
 
-const ICONS_H = 88; // מסתיר כמעט הכל — רק רצועה קטנה נראית
+const DRAWER_H = 90;
 
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
   const insets = useSafeAreaInsets();
-  const translateY = useRef(new Animated.Value(ICONS_H)).current;
+  const translateY = useRef(new Animated.Value(DRAWER_H)).current;
   const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,      useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: ICONS_H, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const toggle = () => isOpen.current ? closeDrawer() : openDrawer();
+  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,        useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: DRAWER_H, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
 
   const pan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderRelease: (_, gs) => {
-      if (gs.dy < -15) openDrawer();
-      else if (gs.dy > 15) closeDrawer();
-      else toggle(); // tap
+      if (gs.dy < -10) openDrawer();
+      else closeDrawer();
     },
   })).current;
 
   const go = (name) => { navigation.navigate(name); closeDrawer(); };
 
   return (
-    <Animated.View
-      style={[fabSt.drawer, {
-        backgroundColor: C.surface,
-        bottom: insets.bottom + 8,
-        transform: [{ translateY }],
-      }]}
-    >
-      {/* ידית משיכה — לחיצה או גרירה */}
-      <View style={fabSt.handleWrap} {...pan.panHandlers}>
-        <View style={fabSt.handle} />
+    <>
+      {/* פס ירוק עדין — תמיד נראה, לחיצה/גרירה פותחת */}
+      <View style={[fabSt.pill, { bottom: insets.bottom + 10 }]} {...pan.panHandlers}>
+        <View style={fabSt.pillBar} />
       </View>
 
-      {/* שורת טאבים */}
-      <View style={fabSt.row}>
-        {realRoutes.map(route => {
-          const def = TABS.find(t => t.name === route.name);
-          if (!def) return null;
-          const focused = activeRoute === route.name;
-          return (
-            <TouchableOpacity key={route.name} style={fabSt.item} onPress={() => go(route.name)}>
-              <Ionicons name={focused ? def.activeIcon : def.icon} size={24} color={focused ? '#3a7a4a' : C.textMuted} />
-              <Text style={[fabSt.label, { color: focused ? '#3a7a4a' : C.textMuted }]}>{route.name}</Text>
-            </TouchableOpacity>
-          );
-        })}
-        <TouchableOpacity style={fabSt.item} onPress={() => { onAddPress(); closeDrawer(); }}>
-          <View style={fabSt.addCircle}><Ionicons name="add" size={22} color="#fff" /></View>
-          <Text style={[fabSt.label, { color: C.textMuted }]}>הוסף</Text>
-        </TouchableOpacity>
-      </View>
-    </Animated.View>
+      {/* מגירת ניווט */}
+      <Animated.View style={[fabSt.drawer, { backgroundColor: C.surface, bottom: insets.bottom + 24, transform: [{ translateY }] }]}>
+        <View style={fabSt.handleWrap} {...pan.panHandlers}>
+          <View style={fabSt.handle} />
+        </View>
+        <View style={fabSt.row}>
+          {realRoutes.map(route => {
+            const def = TABS.find(t => t.name === route.name);
+            if (!def) return null;
+            const focused = activeRoute === route.name;
+            return (
+              <TouchableOpacity key={route.name} style={fabSt.item} onPress={() => go(route.name)}>
+                <Ionicons name={focused ? def.activeIcon : def.icon} size={24} color={focused ? '#3a7a4a' : C.textMuted} />
+                <Text style={[fabSt.label, { color: focused ? '#3a7a4a' : C.textMuted }]}>{route.name}</Text>
+              </TouchableOpacity>
+            );
+          })}
+          <TouchableOpacity style={fabSt.item} onPress={() => { onAddPress(); closeDrawer(); }}>
+            <View style={fabSt.addCircle}><Ionicons name="add" size={22} color="#fff" /></View>
+            <Text style={[fabSt.label, { color: C.textMuted }]}>הוסף</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </>
   );
 }
 
 const fabSt = StyleSheet.create({
+  pill:       { position: 'absolute', alignSelf: 'center', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 24, zIndex: 99 },
+  pillBar:    { width: 44, height: 4, borderRadius: 2, backgroundColor: '#3a7a4a', opacity: 0.5 },
   drawer:     { position: 'absolute', left: 16, right: 16, borderRadius: 22, shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
-  handleWrap: { paddingVertical: 10, alignItems: 'center' },
-  handle:     { width: 36, height: 4, borderRadius: 2, backgroundColor: '#bbb' },
-  row:        { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 8, paddingBottom: 12 },
+  handleWrap: { paddingVertical: 8, alignItems: 'center' },
+  handle:     { width: 36, height: 4, borderRadius: 2, backgroundColor: '#ccc' },
+  row:        { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 8, paddingBottom: 14 },
   item:       { alignItems: 'center', gap: 3, flex: 1 },
   label:      { fontSize: 10, fontWeight: '600' },
   addCircle:  { width: 38, height: 38, borderRadius: 19, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center' },
