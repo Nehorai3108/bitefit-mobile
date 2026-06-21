@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
   ScrollView, Image,
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function LoginScreen({ navigation }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const { login } = useAuth();
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -51,7 +54,7 @@ export default function LoginScreen({ navigation }) {
             value={email}
             onChangeText={setEmail}
             placeholder="your@email.com"
-            placeholderTextColor="#666"
+            placeholderTextColor={C.textDim}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
@@ -63,7 +66,7 @@ export default function LoginScreen({ navigation }) {
             value={password}
             onChangeText={setPassword}
             placeholder="••••••••"
-            placeholderTextColor="#666"
+            placeholderTextColor={C.textDim}
             secureTextEntry
           />
 
@@ -93,23 +96,23 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-const s = StyleSheet.create({
-  root:       { flex: 1, backgroundColor: '#0c1622' },
+const makeS = (C) => StyleSheet.create({
+  root:       { flex: 1, backgroundColor: C.bg },
   scroll:     { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
 
   hero:       { alignItems: 'center', marginBottom: 36 },
   logoImg:    { width: 120, height: 120, borderRadius: 24, marginBottom: 4 },
   logo:       { fontSize: 64 },
-  appName:    { fontSize: 34, fontWeight: '800', color: '#fff', marginTop: 8 },
-  tagline:    { fontSize: 15, color: '#888', marginTop: 4 },
+  appName:    { fontSize: 34, fontWeight: '800', color: C.text, marginTop: 8 },
+  tagline:    { fontSize: 15, color: C.textMuted, marginTop: 4 },
 
-  card:       { backgroundColor: '#1b2c3d', borderRadius: 20, padding: 24, marginBottom: 24 },
-  cardTitle:  { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20, textAlign: 'right' },
+  card:       { backgroundColor: C.surface2, borderRadius: 20, padding: 24, marginBottom: 24 },
+  cardTitle:  { fontSize: 20, fontWeight: '700', color: C.text, marginBottom: 20, textAlign: 'right' },
 
   label:      { fontSize: 13, color: '#aaa', marginBottom: 6, textAlign: 'right' },
   input:      {
-    backgroundColor: '#2e455c', borderRadius: 12, paddingHorizontal: 16,
-    paddingVertical: 14, color: '#fff', fontSize: 15, marginBottom: 16,
+    backgroundColor: C.border, borderRadius: 12, paddingHorizontal: 16,
+    paddingVertical: 14, color: C.text, fontSize: 15, marginBottom: 16,
     textAlign: 'right',
   },
 
@@ -121,6 +124,6 @@ const s = StyleSheet.create({
   btnText:    { color: '#000', fontSize: 16, fontWeight: '700' },
 
   switchRow:  { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  switchText: { color: '#888', fontSize: 14 },
+  switchText: { color: C.textMuted, fontSize: 14 },
   switchLink: { color: '#56bd6b', fontSize: 14, fontWeight: '600' },
 });

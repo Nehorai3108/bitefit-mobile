@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   ActivityIndicator, RefreshControl, Image, Alert,
@@ -14,6 +14,7 @@ import { useSwipeNav } from '../hooks/useSwipeNav';
 import MealBalanceCard from '../components/MealBalanceCard';
 import HistoryScreen from './HistoryScreen';
 import InventoryScreen from './InventoryScreen';
+import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
   BREAKFAST:       'ארוחת בוקר',   breakfast: 'ארוחת בוקר',
@@ -42,10 +43,12 @@ function toIso(date) {
 }
 
 function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const filled = Math.round(pct * 100);
   return (
     <View style={[styles.ringWrap, { width: size, height: size }]}>
-      <View style={[styles.ringBg, { width: size, height: size, borderRadius: size / 2, borderColor: '#23384c' }]} />
+      <View style={[styles.ringBg, { width: size, height: size, borderRadius: size / 2, borderColor: C.surface3 }]} />
       <View style={[styles.ringFg, {
         width: size - 14, height: size - 14,
         borderRadius: (size - 14) / 2,
@@ -65,6 +68,8 @@ function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
 }
 
 function MacroCard({ label, eaten, target, color }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const pct  = target > 0 ? Math.min(eaten / target, 1) : 0;
   const left = Math.max(Math.round((target ?? 0) - (eaten ?? 0)), 0);
   return (
@@ -79,6 +84,8 @@ function MacroCard({ label, eaten, target, color }) {
 
 // ─── סרגל ימי שבוע אינטראקטיבי — 7 ימים אחרונים כולל היום ────────────────────
 function WeekStrip({ selectedDate, onSelectDate }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const HE_DAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
   const today    = new Date();
   const todayStr = toIso(today);
@@ -121,6 +128,8 @@ function WeekStrip({ selectedDate, onSelectDate }) {
 }
 
 function FoodLogRow({ entry, onDelete, readOnly }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const mealColor = MEAL_COLORS[entry.meal_type] ?? '#5b9bdc';
@@ -173,13 +182,13 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
             <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
             <Text style={styles.logCalLbl}>קק"ל</Text>
           </View>
-          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color="#555" />
+          <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color={C.placeholder} />
         </TouchableOpacity>
         {!readOnly && (
           <TouchableOpacity onPress={handleDelete} disabled={deleting} style={styles.logDeleteBtn}>
             {deleting
               ? <ActivityIndicator size="small" color="#ff4444" />
-              : <Ionicons name="trash-outline" size={16} color="#444" />
+              : <Ionicons name="trash-outline" size={16} color={C.textFaint} />
             }
           </TouchableOpacity>
         )}
@@ -203,6 +212,8 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
 }
 
 export default function DashboardScreen({ navigation }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const todayStr = toIso(new Date());
 
   const [selectedDate, setSelectedDate] = useState(todayStr);
@@ -375,11 +386,11 @@ export default function DashboardScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
-  center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
+const makeStyles = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
+  center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg },
   header:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 2 },
-  dateSub:   { color: '#666', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
+  dateSub:   { color: C.textDim, fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
   logo:      { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
   logoImg:   { width: 34, height: 34, borderRadius: 9 },
 
@@ -388,53 +399,53 @@ const styles = StyleSheet.create({
   weekDayActive:   { backgroundColor: '#5b9bdc' },
   weekDayName:     { color: '#5d7489', fontSize: 12, fontWeight: '600' },
   weekDayNum:      { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
-  weekDayTxtActive:{ color: '#0c1622' },
+  weekDayTxtActive:{ color: C.bg },
   todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#5b9bdc', marginTop: 3 },
 
-  histBtn:    { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#14212f', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
+  histBtn:    { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: C.surface, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: C.border2 },
   histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
-  calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
+  calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: C.surface, borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
   calInfo: { flex: 1, paddingRight: 12 },
-  calNum:  { color: '#fff', fontSize: 38, fontWeight: '800' },
-  calLbl:  { color: '#888', fontSize: 13, marginBottom: 14 },
+  calNum:  { color: C.text, fontSize: 38, fontWeight: '800' },
+  calLbl:  { color: C.textMuted, fontSize: 13, marginBottom: 14 },
   calRow:  { flexDirection: 'row', gap: 20 },
   calItem: {},
-  calVal:  { color: '#fff', fontSize: 15, fontWeight: '700' },
-  calSub:  { color: '#666', fontSize: 11, marginTop: 2 },
+  calVal:  { color: C.text, fontSize: 15, fontWeight: '700' },
+  calSub:  { color: C.textDim, fontSize: 11, marginTop: 2 },
 
   ringWrap:   { justifyContent: 'center', alignItems: 'center' },
   ringBg:     { borderWidth: 9, position: 'absolute' },
   ringFg:     { borderWidth: 9, position: 'absolute' },
   ringCenter: { justifyContent: 'center', alignItems: 'center' },
   ringLabel:  { fontSize: 14, fontWeight: '800' },
-  ringSub:    { color: '#888', fontSize: 10 },
+  ringSub:    { color: C.textMuted, fontSize: 10 },
 
   macrosRow: { flexDirection: 'row', marginHorizontal: 16, gap: 10, marginBottom: 12 },
-  macroCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 16, padding: 12, alignItems: 'center', gap: 3 },
-  macroVal:  { color: '#fff', fontSize: 15, fontWeight: '700' },
-  macroSub:  { color: '#666', fontSize: 10 },
+  macroCard: { flex: 1, backgroundColor: C.surface, borderRadius: 16, padding: 12, alignItems: 'center', gap: 3 },
+  macroVal:  { color: C.text, fontSize: 15, fontWeight: '700' },
+  macroSub:  { color: C.textDim, fontSize: 10 },
   macroName: { fontSize: 12, fontWeight: '700' },
 
-  card:       { backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
+  card:       { backgroundColor: C.surface, borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  cardTitle:  { color: '#fff', fontSize: 15, fontWeight: '700' },
-  waterMl:    { color: '#666', fontSize: 12 },
-  empty:      { color: '#444', fontSize: 14 },
+  cardTitle:  { color: C.text, fontSize: 15, fontWeight: '700' },
+  waterMl:    { color: C.textDim, fontSize: 12 },
+  empty:      { color: C.textFaint, fontSize: 14 },
 
-  logItem:      { borderBottomWidth: 1, borderBottomColor: '#23384c' },
+  logItem:      { borderBottomWidth: 1, borderBottomColor: C.surface3 },
   logRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
   logTapArea:   { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   logDot:       { width: 4, height: 38, borderRadius: 2 },
   logThumb:     { width: 40, height: 40, borderRadius: 10 },
   logInfo:      { flex: 1 },
-  logName:      { color: '#fff', fontSize: 14, fontWeight: '600', textAlign: 'right' },
+  logName:      { color: C.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
   logMeal:      { fontSize: 11, marginTop: 2, textAlign: 'right' },
   logCalWrap:   { alignItems: 'center', minWidth: 42 },
   logCal:       { fontSize: 15, fontWeight: '800' },
-  logCalLbl:    { color: '#666', fontSize: 10 },
+  logCalLbl:    { color: C.textDim, fontSize: 10 },
   logDeleteBtn: { padding: 8, marginLeft: 2 },
-  macroPanel:   { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#101010', borderRadius: 12, paddingVertical: 12, marginBottom: 10, marginHorizontal: 4 },
+  macroPanel:   { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: C.macroPanel, borderRadius: 12, paddingVertical: 12, marginBottom: 10, marginHorizontal: 4 },
   macroBox:     { alignItems: 'center' },
   macroLbl:     { color: '#777', fontSize: 11, marginTop: 3 },
 });

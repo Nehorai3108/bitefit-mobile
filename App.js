@@ -11,6 +11,7 @@ import {
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import LoginScreen      from './src/screens/auth/LoginScreen';
 import SignupScreen     from './src/screens/auth/SignupScreen';
 import OnboardingScreen from './src/screens/onboarding/OnboardingScreen';
@@ -587,6 +588,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 
 // ─── Tab Navigator ─────────────────────────────────────────────────────────────
 function TabNavigator() {
+  const { C } = useTheme();
   const [showAdd, setShowAdd]           = useState(false);
   const [showBarcode, setShowBarcode]   = useState(false);
   const [showManual, setShowManual]     = useState(false);
@@ -614,8 +616,8 @@ function TabNavigator() {
             headerShown: false,
             tabBarShowLabel: false,
             tabBarStyle: {
-              backgroundColor: '#0e0e0e',
-              borderTopColor: '#1b2c3d',
+              backgroundColor: C.tabBar,
+              borderTopColor: C.tabBorder,
               borderTopWidth: 1,
               height: 62,
               paddingBottom: 8,
@@ -715,12 +717,14 @@ function WakingBanner() {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <NavigationContainer>
         <RootNavigator />
         <WakingBanner />
       </NavigationContainer>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
 

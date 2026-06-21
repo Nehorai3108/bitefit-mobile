@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
@@ -7,6 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 const WORKOUT_TYPES = [
   { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#5b9bdc' },
@@ -49,6 +50,8 @@ function decorate(row) {
 }
 
 export default function WorkoutScreen({ navigation }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const panHandlers = useSwipeNav(navigation, 'אימון');
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -143,7 +146,7 @@ export default function WorkoutScreen({ navigation }) {
             <View key={w.id} style={[styles.workoutCard, { borderLeftColor: w.color }]}>
               <View style={styles.workoutLeft}>
                 <TouchableOpacity onPress={() => handleDelete(w.id)}>
-                  <Ionicons name="trash-outline" size={18} color="#555" />
+                  <Ionicons name="trash-outline" size={18} color={C.placeholder} />
                 </TouchableOpacity>
               </View>
               <View style={styles.workoutInfo}>
@@ -172,7 +175,7 @@ export default function WorkoutScreen({ navigation }) {
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={() => setShowModal(false)}>
-                <Ionicons name="close" size={24} color="#fff" />
+                <Ionicons name="close" size={24} color={C.text} />
               </TouchableOpacity>
               <Text style={styles.modalTitle}>הוסף אימון</Text>
             </View>
@@ -185,7 +188,7 @@ export default function WorkoutScreen({ navigation }) {
                   style={[styles.typeBtn, form.type === t.key && { borderColor: t.color, backgroundColor: t.color + '22' }]}
                   onPress={() => setForm(f => ({ ...f, type: t.key }))}
                 >
-                  <Ionicons name={t.icon} size={20} color={form.type === t.key ? t.color : '#555'} />
+                  <Ionicons name={t.icon} size={20} color={form.type === t.key ? t.color : C.placeholder} />
                   <Text style={[styles.typeTxt, form.type === t.key && { color: t.color }]}>{t.label}</Text>
                 </TouchableOpacity>
               ))}
@@ -198,7 +201,7 @@ export default function WorkoutScreen({ navigation }) {
               onChangeText={v => setForm(f => ({ ...f, duration: v }))}
               keyboardType="numeric"
               placeholder="30"
-              placeholderTextColor="#555"
+              placeholderTextColor={C.placeholder}
             />
 
             <Text style={styles.fieldLabel}>עצימות</Text>
@@ -221,7 +224,7 @@ export default function WorkoutScreen({ navigation }) {
               onChangeText={v => setForm(f => ({ ...f, distance: v }))}
               keyboardType="decimal-pad"
               placeholder="0.0"
-              placeholderTextColor="#555"
+              placeholderTextColor={C.placeholder}
             />
 
             {form.duration ? (
@@ -243,23 +246,23 @@ export default function WorkoutScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
+const makeStyles = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 16 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  title: { color: C.text, fontSize: 22, fontWeight: '800' },
   addBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, padding: 8 },
 
   statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginBottom: 16 },
-  statCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 14, padding: 14, alignItems: 'center' },
+  statCard: { flex: 1, backgroundColor: C.surface, borderRadius: 14, padding: 14, alignItems: 'center' },
   statNum: { color: '#5b9bdc', fontSize: 24, fontWeight: '800' },
-  statLbl: { color: '#888', fontSize: 12, marginTop: 4 },
+  statLbl: { color: C.textMuted, fontSize: 12, marginTop: 4 },
 
   empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
-  emptyText: { color: '#555', fontSize: 15 },
+  emptyText: { color: C.placeholder, fontSize: 15 },
   addFirstBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
   addFirstTxt: { color: '#fff', fontWeight: '700' },
 
-  workoutCard: { backgroundColor: '#14212f', borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
+  workoutCard: { backgroundColor: C.surface, borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
   workoutLeft: { marginRight: 12 },
   workoutInfo: { flex: 1 },
   workoutTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
@@ -267,23 +270,23 @@ const styles = StyleSheet.create({
   workoutType: { fontSize: 15, fontWeight: '700' },
   workoutCalories: { color: '#ef7d6c', fontSize: 14, fontWeight: '600' },
   workoutDetails: { flexDirection: 'row', gap: 10 },
-  workoutDetail: { color: '#666', fontSize: 12 },
+  workoutDetail: { color: C.textDim, fontSize: 12 },
 
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  modalOverlay: { flex: 1, backgroundColor: C.overlay, justifyContent: 'flex-end' },
+  modalCard: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  fieldLabel: { color: '#888', fontSize: 13, marginBottom: 8, textAlign: 'right' },
+  modalTitle: { color: C.text, fontSize: 18, fontWeight: '700' },
+  fieldLabel: { color: C.textMuted, fontSize: 13, marginBottom: 8, textAlign: 'right' },
   typeRow: { marginBottom: 16 },
-  typeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#23384c', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: '#2e455c' },
-  typeTxt: { color: '#555', fontSize: 13 },
-  input: { backgroundColor: '#23384c', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, marginBottom: 16, textAlign: 'right' },
+  typeBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: C.surface3, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: C.border },
+  typeTxt: { color: C.placeholder, fontSize: 13 },
+  input: { backgroundColor: C.surface3, color: C.text, borderRadius: 10, padding: 12, fontSize: 15, marginBottom: 16, textAlign: 'right' },
   intensityRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  intensityBtn: { flex: 1, padding: 10, borderRadius: 10, backgroundColor: '#23384c', alignItems: 'center', borderWidth: 1, borderColor: '#2e455c' },
+  intensityBtn: { flex: 1, padding: 10, borderRadius: 10, backgroundColor: C.surface3, alignItems: 'center', borderWidth: 1, borderColor: C.border },
   intensityBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
-  intensityTxt: { color: '#555', fontSize: 13 },
+  intensityTxt: { color: C.placeholder, fontSize: 13 },
   intensityTxtActive: { color: '#5b9bdc', fontWeight: '700' },
-  caloriePreview: { color: '#888', fontSize: 14, textAlign: 'center', marginBottom: 16 },
+  caloriePreview: { color: C.textMuted, fontSize: 14, textAlign: 'center', marginBottom: 16 },
   saveBtn: { backgroundColor: '#5b9bdc', borderRadius: 14, padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

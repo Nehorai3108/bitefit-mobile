@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
@@ -7,8 +7,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 function FoodDetectedCard({ foodData }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const [logged, setLogged] = useState(false);
   const [logging, setLogging] = useState(false);
 
@@ -74,6 +77,8 @@ const SUGGESTIONS = [
 ];
 
 export default function ChatScreen({ navigation }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const panHandlers = useSwipeNav(navigation, 'צ׳אט');
   const [messages, setMessages] = useState([
     { id: '0', role: 'assistant', text: 'שלום! אני התזונאי ה-AI שלך 🥗\nאשאל, אייעץ ואעזור לך לאכול טוב יותר. איך אוכל לעזור?' }
@@ -188,7 +193,7 @@ export default function ChatScreen({ navigation }) {
           value={input}
           onChangeText={setInput}
           placeholder="שאל משהו על תזונה..."
-          placeholderTextColor="#444"
+          placeholderTextColor={C.textFaint}
           onSubmitEditing={() => send()}
           returnKeyType="send"
           multiline
@@ -199,31 +204,31 @@ export default function ChatScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
+const makeStyles = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, gap: 8 },
-  title: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  title: { color: C.text, fontSize: 20, fontWeight: '800' },
   onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#56bd6b' },
   listContent: { padding: 12, paddingBottom: 8 },
   bubbleWrap: { flexDirection: 'row', marginVertical: 4, alignItems: 'flex-end' },
   userWrap: { justifyContent: 'flex-end' },
   aiWrap: { justifyContent: 'flex-start' },
-  avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#1b2c3d', justifyContent: 'center', alignItems: 'center', marginRight: 6 },
+  avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: C.surface2, justifyContent: 'center', alignItems: 'center', marginRight: 6 },
   avatarTxt: { fontSize: 16 },
   bubble: { maxWidth: '78%', borderRadius: 16, padding: 12 },
   userBubble: { backgroundColor: '#5b9bdc', borderBottomRightRadius: 4 },
-  aiBubble: { backgroundColor: '#1b2c3d', borderBottomLeftRadius: 4 },
-  bubbleText: { color: '#fff', fontSize: 15, lineHeight: 22, textAlign: 'right' },
+  aiBubble: { backgroundColor: C.surface2, borderBottomLeftRadius: 4 },
+  bubbleText: { color: C.text, fontSize: 15, lineHeight: 22, textAlign: 'right' },
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
   foodDetectedTitle: { color: '#56bd6b', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
   suggestions: { paddingHorizontal: 12, paddingBottom: 4, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  suggestionChip: { backgroundColor: '#14212f', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#2e455c' },
-  suggestionTxt: { color: '#888', fontSize: 13 },
+  suggestionChip: { backgroundColor: C.surface, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: C.border },
+  suggestionTxt: { color: C.textMuted, fontSize: 13 },
   typingRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 6, gap: 6 },
-  typingTxt: { color: '#555', fontSize: 13 },
-  inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: '#14212f' },
-  input: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
+  typingTxt: { color: C.placeholder, fontSize: 13 },
+  inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: C.surface },
+  input: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
   sendBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   logBtn: { backgroundColor: '#5b9bdc', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, ActivityIndicator, Alert, Platform,
@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { saveProfile } from '../../api/client';
+import { useTheme } from '../../context/ThemeContext';
 
 const GENDERS   = [{ key: 'male', label: 'זכר' }, { key: 'female', label: 'נקבה' }];
 const GOALS     = [
@@ -23,6 +24,8 @@ const ACTIVITIES = [
 const COMMON_ALLERGIES = ['גלוטן', 'חלב', 'ביצים', 'אגוזים', 'סויה', 'דגים', 'בוטנים'];
 
 export default function OnboardingScreen() {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const { markOnboarded } = useAuth();
   const [step, setStep] = useState(1);
 
@@ -126,14 +129,14 @@ export default function OnboardingScreen() {
 
             <Text style={s.label}>שם פרטי</Text>
             <TextInput style={s.input} value={name} onChangeText={setName}
-              placeholder="מה שמך?" placeholderTextColor="#555"
+              placeholder="מה שמך?" placeholderTextColor={C.placeholder}
               autoCapitalize="words" />
 
             <View style={s.row}>
               <View style={s.halfWrap}>
                 <Text style={s.label}>גיל</Text>
                 <TextInput style={s.input} value={age} onChangeText={setAge}
-                  placeholder="25" placeholderTextColor="#555"
+                  placeholder="25" placeholderTextColor={C.placeholder}
                   keyboardType="number-pad" />
               </View>
               <View style={s.halfWrap}>
@@ -154,13 +157,13 @@ export default function OnboardingScreen() {
               <View style={s.halfWrap}>
                 <Text style={s.label}>גובה (ס"מ)</Text>
                 <TextInput style={s.input} value={height} onChangeText={setHeight}
-                  placeholder="170" placeholderTextColor="#555"
+                  placeholder="170" placeholderTextColor={C.placeholder}
                   keyboardType="number-pad" />
               </View>
               <View style={s.halfWrap}>
                 <Text style={s.label}>משקל (ק"ג)</Text>
                 <TextInput style={s.input} value={weight} onChangeText={setWeight}
-                  placeholder="70" placeholderTextColor="#555"
+                  placeholder="70" placeholderTextColor={C.placeholder}
                   keyboardType="decimal-pad" />
               </View>
             </View>
@@ -190,7 +193,7 @@ export default function OnboardingScreen() {
                 </Text>
                 <TextInput style={s.input} value={targetWeight} onChangeText={setTargetWeight}
                   placeholder={weight ? `למשל ${goal === 'lose_weight' ? +weight - 5 : +weight + 5}` : 'ק"ג'}
-                  placeholderTextColor="#555" keyboardType="decimal-pad" />
+                  placeholderTextColor={C.placeholder} keyboardType="decimal-pad" />
                 {targetWeight && weight ? (
                   <Text style={s.optionSub}>
                     {goal === 'lose_weight' ? 'לרדת' : 'לעלות'} {Math.abs(+weight - +targetWeight).toFixed(1)} ק"ג
@@ -271,53 +274,53 @@ export default function OnboardingScreen() {
 
 const GREEN = '#56bd6b';
 
-const s = StyleSheet.create({
-  root:    { flex: 1, backgroundColor: '#0c1622' },
+const makeS = (C) => StyleSheet.create({
+  root:    { flex: 1, backgroundColor: C.bg },
   scroll:  { flexGrow: 1, paddingHorizontal: 24, paddingTop: 16, paddingBottom: 120 },
 
   progressBar: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingTop: 56, paddingBottom: 8 },
   dot:         { width: 8, height: 8, borderRadius: 4, backgroundColor: '#333' },
   dotActive:   { backgroundColor: GREEN, width: 24 },
 
-  stepTitle: { fontSize: 24, fontWeight: '800', color: '#fff', textAlign: 'right', marginBottom: 6, marginTop: 20 },
+  stepTitle: { fontSize: 24, fontWeight: '800', color: C.text, textAlign: 'right', marginBottom: 6, marginTop: 20 },
   stepSub:   { fontSize: 14, color: '#777', textAlign: 'right', marginBottom: 24 },
 
   label:  { fontSize: 13, color: '#aaa', marginBottom: 6, textAlign: 'right' },
   input:  {
-    backgroundColor: '#23384c', borderRadius: 12, paddingHorizontal: 16,
-    paddingVertical: 14, color: '#fff', fontSize: 15, marginBottom: 16, textAlign: 'right',
+    backgroundColor: C.surface3, borderRadius: 12, paddingHorizontal: 16,
+    paddingVertical: 14, color: C.text, fontSize: 15, marginBottom: 16, textAlign: 'right',
   },
 
   row:      { flexDirection: 'row', gap: 12 },
   halfWrap: { flex: 1 },
 
   chipRow:     { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  chip:        { flex: 1, backgroundColor: '#23384c', borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
+  chip:        { flex: 1, backgroundColor: C.surface3, borderRadius: 10, paddingVertical: 14, alignItems: 'center' },
   chipActive:  { backgroundColor: GREEN },
-  chipTxt:     { color: '#888', fontWeight: '600', fontSize: 14 },
+  chipTxt:     { color: C.textMuted, fontWeight: '600', fontSize: 14 },
   chipTxtActive: { color: '#000' },
 
   optionCard:       {
-    backgroundColor: '#1b2c3d', borderRadius: 14, padding: 16,
+    backgroundColor: C.surface2, borderRadius: 14, padding: 16,
     marginBottom: 10, borderWidth: 2, borderColor: 'transparent',
   },
   optionCardActive:  { borderColor: GREEN, backgroundColor: '#1e2a14' },
   optionLabel:       { fontSize: 16, color: '#ccc', fontWeight: '600', textAlign: 'right' },
   optionLabelActive: { color: GREEN },
-  optionSub:         { fontSize: 12, color: '#666', textAlign: 'right', marginTop: 3 },
+  optionSub:         { fontSize: 12, color: C.textDim, textAlign: 'right', marginTop: 3 },
 
   tagGrid:        { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  tagChip:        { backgroundColor: '#23384c', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10 },
+  tagChip:        { backgroundColor: C.surface3, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10 },
   tagChipActive:  { backgroundColor: '#2a1e1e', borderWidth: 1.5, borderColor: '#e05252' },
-  tagTxt:         { color: '#888', fontSize: 14 },
+  tagTxt:         { color: C.textMuted, fontSize: 14 },
   tagTxtActive:   { color: '#e05252' },
   selectedTxt:    { color: '#e05252', fontSize: 13, textAlign: 'right', marginTop: 8 },
 
   bottom:     {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: '#0c1622', paddingHorizontal: 24,
+    backgroundColor: C.bg, paddingHorizontal: 24,
     paddingTop: 12, paddingBottom: Platform.OS === 'ios' ? 36 : 20,
-    borderTopWidth: 1, borderTopColor: '#23384c',
+    borderTopWidth: 1, borderTopColor: C.surface3,
   },
   nextBtn:     {
     backgroundColor: GREEN, borderRadius: 14, paddingVertical: 16,
@@ -326,7 +329,7 @@ const s = StyleSheet.create({
   btnDisabled: { opacity: 0.6 },
   nextTxt:     { color: '#000', fontSize: 16, fontWeight: '700' },
   backBtn:     { alignItems: 'center', paddingVertical: 10, marginBottom: 4 },
-  backTxt:     { color: '#666', fontSize: 15 },
+  backTxt:     { color: C.textDim, fontSize: 15 },
   skipBtn:     { alignItems: 'center', paddingVertical: 8 },
-  skipTxt:     { color: '#555', fontSize: 14 },
+  skipTxt:     { color: C.placeholder, fontSize: 14 },
 });

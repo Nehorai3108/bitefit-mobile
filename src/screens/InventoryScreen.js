@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView,
   ActivityIndicator, TextInput, Alert, Pressable, Image,
@@ -10,6 +10,7 @@ import {
   fetchInventory, addInventoryItem, deleteInventoryItem, scanReceipt,
   addInventoryBulk, fetchCookSuggestions, addFoodEntry,
 } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 const MEAL_BY_HOUR = () => {
   const h = new Date().getHours();
@@ -33,6 +34,8 @@ const CAT_ORDER = ['produce', 'meat', 'dairy', 'bakery', 'pantry', 'frozen', 'be
 const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 
 export default function InventoryScreen({ visible, onClose }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -67,7 +70,7 @@ export default function InventoryScreen({ visible, onClose }) {
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
         <View style={s.header}>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color="#fff" /></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
           <Text style={s.count}>{items.length} פריטים</Text>
         </View>
@@ -105,12 +108,12 @@ export default function InventoryScreen({ visible, onClose }) {
               <View key={cat} style={s.catBlock}>
                 <View style={s.catTitleRow}>
                   <Text style={s.catTitle}>{CATEGORIES[cat].label}</Text>
-                  <Ionicons name={CATEGORIES[cat].icon} size={16} color="#888" />
+                  <Ionicons name={CATEGORIES[cat].icon} size={16} color={C.textMuted} />
                 </View>
                 {grouped[cat].map(it => (
                   <View key={it.item_id} style={s.itemRow}>
                     <TouchableOpacity onPress={() => handleDelete(it)} style={{ padding: 6 }}>
-                      <Ionicons name="trash-outline" size={18} color="#555" />
+                      <Ionicons name="trash-outline" size={18} color={C.placeholder} />
                     </TouchableOpacity>
                     <View style={{ flex: 1, alignItems: 'flex-end' }}>
                       <Text style={s.itemName}>{it.name_he}</Text>
@@ -146,6 +149,8 @@ function formatQty(q) {
 
 // ─── Manual add ────────────────────────────────────────────────────────────────
 function ManualAddModal({ visible, onClose, onAdded }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [name, setName] = useState('');
   const [qty, setQty] = useState(1);
   const [unit, setUnit] = useState('יח׳');
@@ -175,7 +180,7 @@ function ManualAddModal({ visible, onClose, onAdded }) {
         <TextInput
           style={s.input}
           placeholder="שם המוצר (למשל: עגבניות)"
-          placeholderTextColor="#555"
+          placeholderTextColor={C.placeholder}
           value={name}
           onChangeText={setName}
           textAlign="right"
@@ -216,6 +221,8 @@ function ManualAddModal({ visible, onClose, onAdded }) {
 
 // ─── Receipt scan ────────────────────────────────────────────────────────────────
 function ReceiptScanModal({ visible, onClose, onDone }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [permission, requestPermission] = useCameraPermissions();
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'review'
   const [result, setResult] = useState([]);
@@ -250,14 +257,14 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#0c1622' }}>
+      <View style={{ flex: 1, backgroundColor: C.bg }}>
         {phase === 'camera' && (
           <>
             {permission?.granted ? (
               <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back" />
             ) : (
               <View style={s.center}>
-                <Text style={{ color: '#fff', marginBottom: 16 }}>צריך הרשאת מצלמה</Text>
+                <Text style={{ color: C.text, marginBottom: 16 }}>צריך הרשאת מצלמה</Text>
                 <TouchableOpacity style={s.saveBtn} onPress={requestPermission}><Text style={s.saveBtnTxt}>הרשה גישה</Text></TouchableOpacity>
               </View>
             )}
@@ -272,7 +279,7 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
         {phase === 'processing' && (
           <View style={s.center}>
             <ActivityIndicator size="large" color="#5b9bdc" />
-            <Text style={{ color: '#fff', marginTop: 16 }}>קורא את הקבלה ומחלץ מוצרים...</Text>
+            <Text style={{ color: C.text, marginTop: 16 }}>קורא את הקבלה ומחלץ מוצרים...</Text>
           </View>
         )}
 
@@ -294,7 +301,7 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
                   <Text style={s.itemName}>{it.name_he}</Text>
                   <Text style={s.itemQty}>{it.unit}</Text>
                 </View>
-                <Ionicons name={(CATEGORIES[it.category] || CATEGORIES.other).icon} size={18} color="#666" />
+                <Ionicons name={(CATEGORIES[it.category] || CATEGORIES.other).icon} size={18} color={C.textDim} />
               </View>
             ))}
             <TouchableOpacity style={s.saveBtn} onPress={confirm} disabled={saving}>
@@ -310,6 +317,8 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
 
 // ─── Cook from inventory ─────────────────────────────────────────────────────────
 function CookModal({ visible, onClose }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -328,7 +337,7 @@ function CookModal({ visible, onClose }) {
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
         <View style={s.header}>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color="#fff" /></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>מה אפשר להכין</Text>
         </View>
 
@@ -353,6 +362,8 @@ function CookModal({ visible, onClose }) {
 }
 
 function CookCard({ recipe: r, matchColor }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [ate, setAte] = useState(false);
   const [open, setOpen] = useState(false);
   const total = (r.available?.length ?? 0) + (r.missing?.length ?? 0);
@@ -381,7 +392,7 @@ function CookCard({ recipe: r, matchColor }) {
       <TouchableOpacity activeOpacity={0.85} onPress={() => setOpen(o => !o)}>
         {r.image_url
           ? <Image source={{ uri: r.image_url }} style={s.cookImg} resizeMode="cover" />
-          : <View style={[s.cookImg, s.cookImgEmpty]}><Ionicons name="restaurant-outline" size={36} color="#444" /></View>}
+          : <View style={[s.cookImg, s.cookImgEmpty]}><Ionicons name="restaurant-outline" size={36} color={C.textFaint} /></View>}
       </TouchableOpacity>
       <View style={s.cookBody}>
         <Text style={s.cookName}>{r.name_he ?? r.name_en}</Text>
@@ -418,71 +429,71 @@ function CookCard({ recipe: r, matchColor }) {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
+const makeS = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8, padding: 24 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
-  title: { color: '#fff', fontSize: 20, fontWeight: '800', flex: 1 },
-  count: { color: '#666', fontSize: 13 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.surface2 },
+  title: { color: C.text, fontSize: 20, fontWeight: '800', flex: 1 },
+  count: { color: C.textDim, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 10, padding: 16 },
   actionBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: 12, paddingVertical: 13 },
-  actionBtnAlt: { backgroundColor: '#14212f', borderWidth: 1, borderColor: '#1e2a44' },
+  actionBtnAlt: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.border2 },
   actionTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   cookBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginHorizontal: 16, marginBottom: 8, backgroundColor: '#1a2e1a', borderWidth: 1, borderColor: '#2e5a2e', borderRadius: 12, paddingVertical: 13 },
   cookBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  emptyTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginTop: 8 },
-  emptyText: { color: '#666', fontSize: 14, textAlign: 'center', lineHeight: 22 },
+  emptyTitle: { color: C.text, fontSize: 18, fontWeight: '700', marginTop: 8 },
+  emptyText: { color: C.textDim, fontSize: 14, textAlign: 'center', lineHeight: 22 },
   catBlock: { marginBottom: 18 },
   catTitleRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginBottom: 8 },
-  catTitle: { color: '#888', fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  catTitle: { color: C.textMuted, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#161616' },
-  itemName: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
+  itemName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right' },
   itemQty: { color: '#5b9bdc', fontSize: 12, fontWeight: '600', marginTop: 2 },
 
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
-  sheet: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: C.overlay },
+  sheet: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   sheetHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#333', alignSelf: 'center', marginBottom: 16 },
-  sheetTitle: { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right', marginBottom: 16 },
-  input: { backgroundColor: '#1b2c3d', color: '#fff', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, marginBottom: 12 },
+  sheetTitle: { color: C.text, fontSize: 18, fontWeight: '800', textAlign: 'right', marginBottom: 16 },
+  input: { backgroundColor: C.surface2, color: C.text, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, marginBottom: 12 },
   qtyRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, marginBottom: 14 },
-  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1b2c3d', borderRadius: 10 },
+  stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface2, borderRadius: 10 },
   stepBtn: { paddingHorizontal: 12, paddingVertical: 8 },
   stepTxt: { color: '#5b9bdc', fontSize: 18, fontWeight: '800' },
-  stepVal: { color: '#fff', fontSize: 15, fontWeight: '700', minWidth: 36, textAlign: 'center' },
-  fieldLabel: { color: '#888', fontSize: 13, textAlign: 'right', marginBottom: 8 },
-  chip: { backgroundColor: '#1b2c3d', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#262626' },
+  stepVal: { color: C.text, fontSize: 15, fontWeight: '700', minWidth: 36, textAlign: 'center' },
+  fieldLabel: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginBottom: 8 },
+  chip: { backgroundColor: C.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#262626' },
   chipActive: { backgroundColor: '#5b9bdc22', borderColor: '#5b9bdc' },
-  chipTxt: { color: '#888', fontSize: 13 },
+  chipTxt: { color: C.textMuted, fontSize: 13 },
   chipTxtActive: { color: '#5b9bdc', fontWeight: '700' },
   saveBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
   saveBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
-  closeOverlay: { position: 'absolute', top: 52, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
+  closeOverlay: { position: 'absolute', top: 52, left: 16, backgroundColor: C.overlay, borderRadius: 20, padding: 8 },
   shutter: { position: 'absolute', bottom: 48, alignSelf: 'center', width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff' },
   hint: { position: 'absolute', bottom: 130, alignSelf: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 13 },
-  reviewTitle: { color: '#fff', fontSize: 19, fontWeight: '800', textAlign: 'center' },
+  reviewTitle: { color: C.text, fontSize: 19, fontWeight: '800', textAlign: 'center' },
   reviewSub: { color: '#777', fontSize: 13, textAlign: 'center', marginTop: 4, marginBottom: 16 },
-  qtyStepperSm: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#1b2c3d', borderRadius: 8 },
-  stepValSm: { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 28, textAlign: 'center' },
+  qtyStepperSm: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface2, borderRadius: 8 },
+  stepValSm: { color: C.text, fontSize: 13, fontWeight: '700', minWidth: 28, textAlign: 'center' },
   cancelBtn: { paddingVertical: 12, alignItems: 'center', marginTop: 6 },
-  cancelTxt: { color: '#888', fontSize: 14 },
+  cancelTxt: { color: C.textMuted, fontSize: 14 },
 
   // Cook suggestions
-  cookCard: { backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden', marginBottom: 14 },
+  cookCard: { backgroundColor: C.surface, borderRadius: 16, overflow: 'hidden', marginBottom: 14 },
   cookImg: { width: '100%', height: 130 },
-  cookImgEmpty: { backgroundColor: '#23384c', alignItems: 'center', justifyContent: 'center' },
+  cookImgEmpty: { backgroundColor: C.surface3, alignItems: 'center', justifyContent: 'center' },
   cookBody: { padding: 14 },
-  cookName: { color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  cookName: { color: C.text, fontSize: 16, fontWeight: '700', textAlign: 'right' },
   cookMatch: { flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 6 },
   cookMatchTxt: { fontSize: 13, fontWeight: '700' },
-  cookMissing: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 6 },
-  ingList: { marginTop: 10, borderTopWidth: 1, borderTopColor: '#23384c', paddingTop: 10 },
+  cookMissing: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 6 },
+  ingList: { marginTop: 10, borderTopWidth: 1, borderTopColor: C.surface3, paddingTop: 10 },
   ingLine: { color: '#ccc', fontSize: 13, textAlign: 'right', paddingVertical: 2 },
   instr: { color: '#999', fontSize: 13, lineHeight: 22, textAlign: 'right', marginTop: 8 },
   cookActions: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  cookDetailBtn: { backgroundColor: '#23384c', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: '#2e455c' },
-  cookDetailTxt: { color: '#888', fontSize: 13 },
+  cookDetailBtn: { backgroundColor: C.surface3, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: C.border },
+  cookDetailTxt: { color: C.textMuted, fontSize: 13 },
   cookAddBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#5b9bdc', borderRadius: 10, paddingVertical: 9 },
   cookAddBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
   cookAddTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },

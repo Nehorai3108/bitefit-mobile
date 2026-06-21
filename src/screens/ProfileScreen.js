@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, StyleSheet, ActivityIndicator,
@@ -7,6 +7,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProfile, saveProfile, fetchProfileTargets } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const ACTIVITY_LEVELS = [
   { key: 'sedentary',       label: 'יושבני (ללא פעילות)' },
@@ -31,6 +32,8 @@ const SPORT_TYPES = ['לא מגדיר', 'כוח', 'סיבולת', 'יוגה/פי
 const DIET_TYPES = ['ללא הגבלה', 'צמחוני', 'טבעוני', 'קטוגני', 'ים תיכוני', 'אחר'];
 
 function SelectOption({ options, value, onChange, labelKey = 'label', valueKey = 'key' }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   return (
     <View style={styles.optionsWrap}>
       {options.map(opt => {
@@ -54,6 +57,8 @@ function snap(value, step) {
 }
 
 function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const dec = (parseFloat(value) || 0) - step;
   const inc = (parseFloat(value) || 0) + step;
   return (
@@ -76,6 +81,8 @@ function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
 }
 
 export default function ProfileScreen({ navigation }) {
+  const { C, isDark, toggle } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const panHandlers = useSwipeNav(navigation, 'פרופיל');
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -181,9 +188,14 @@ export default function ProfileScreen({ navigation }) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
-          <Ionicons name="log-out-outline" size={22} color="#ef7d6c" />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 4 }}>
+          <TouchableOpacity onPress={toggle} style={{ padding: 8 }}>
+            <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={22} color={C.textMuted} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
+            <Ionicons name="log-out-outline" size={22} color="#ef7d6c" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.avatarCard}>
           <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#5b9bdc" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
@@ -205,7 +217,7 @@ export default function ProfileScreen({ navigation }) {
         {tab === 0 && (
           <View style={styles.section}>
             <Text style={styles.fieldLabel}>שם מלא</Text>
-            <TextInput style={styles.textInput} value={name} onChangeText={setName} placeholder="שם מלא" placeholderTextColor="#444" />
+            <TextInput style={styles.textInput} value={name} onChangeText={setName} placeholder="שם מלא" placeholderTextColor={C.textFaint} />
 
             <View style={styles.row3}>
               <View style={styles.col}>
@@ -234,7 +246,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
 
             <Text style={styles.fieldLabel}>תאריך לידה</Text>
-            <TextInput style={styles.textInput} value={dob} onChangeText={setDob} placeholder="YYYY-MM-DD" placeholderTextColor="#444" />
+            <TextInput style={styles.textInput} value={dob} onChangeText={setDob} placeholder="YYYY-MM-DD" placeholderTextColor={C.textFaint} />
 
             <View style={styles.row3}>
               <View style={styles.col}>
@@ -281,7 +293,7 @@ export default function ProfileScreen({ navigation }) {
               <TouchableOpacity style={styles.addBtn} onPress={() => addChip(allergies, setAllergies, customAllergy, setCustomAllergy)}>
                 <Text style={styles.addBtnTxt}>הוסף</Text>
               </TouchableOpacity>
-              <TextInput style={styles.addInput} value={customAllergy} onChangeText={setCustomAllergy} placeholder="הוסף אלרגיה מותאמת" placeholderTextColor="#444" />
+              <TextInput style={styles.addInput} value={customAllergy} onChangeText={setCustomAllergy} placeholder="הוסף אלרגיה מותאמת" placeholderTextColor={C.textFaint} />
             </View>
 
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>** מזונות מועדפים:</Text>
@@ -296,7 +308,7 @@ export default function ProfileScreen({ navigation }) {
               <TouchableOpacity style={styles.addBtn} onPress={() => addChip(preferredFoods, setPreferredFoods, customPref, setCustomPref)}>
                 <Text style={styles.addBtnTxt}>הוסף</Text>
               </TouchableOpacity>
-              <TextInput style={styles.addInput} value={customPref} onChangeText={setCustomPref} placeholder="לדוגמה: אבוקדו" placeholderTextColor="#444" />
+              <TextInput style={styles.addInput} value={customPref} onChangeText={setCustomPref} placeholder="לדוגמה: אבוקדו" placeholderTextColor={C.textFaint} />
             </View>
 
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>** מזונות להימנע:</Text>
@@ -311,7 +323,7 @@ export default function ProfileScreen({ navigation }) {
               <TouchableOpacity style={styles.addBtn} onPress={() => addChip(dislikedFoods, setDislikedFoods, customDislike, setCustomDislike)}>
                 <Text style={styles.addBtnTxt}>הוסף</Text>
               </TouchableOpacity>
-              <TextInput style={styles.addInput} value={customDislike} onChangeText={setCustomDislike} placeholder="לדוגמה: אורז" placeholderTextColor="#444" />
+              <TextInput style={styles.addInput} value={customDislike} onChangeText={setCustomDislike} placeholder="לדוגמה: אורז" placeholderTextColor={C.textFaint} />
             </View>
 
             <Text style={[styles.fieldLabel, { marginTop: 16 }]}>** סוג ספורט / פעילות:</Text>
@@ -382,66 +394,66 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
-  header: { paddingTop: 52, paddingHorizontal: 16, paddingBottom: 8 },
-  avatarCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+const makeStyles = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg },
+  header: { paddingTop: 52, paddingHorizontal: 16, paddingBottom: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  avatarCard: { backgroundColor: C.surface, borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1, marginLeft: 8 },
   avatarCircle: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#1a2a4a', justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right', flex: 1 },
-  headerSub: { color: '#666', fontSize: 12, textAlign: 'right', flex: 1 },
-  tabBar: { flexDirection: 'row', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
+  headerTitle: { color: C.text, fontSize: 16, fontWeight: '800', textAlign: 'right', flex: 1 },
+  headerSub: { color: C.textDim, fontSize: 12, textAlign: 'right', flex: 1 },
+  tabBar: { flexDirection: 'row', paddingHorizontal: 16, borderBottomWidth: 1, borderBottomColor: C.surface2 },
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
-  tabTxt: { color: '#555', fontSize: 13 },
+  tabTxt: { color: C.placeholder, fontSize: 13 },
   tabTxtActive: { color: '#5b9bdc', fontWeight: '700' },
   tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc' },
   scroll: { flex: 1 },
   section: { padding: 16 },
   fieldLabel: { color: '#aaa', fontSize: 13, textAlign: 'right', marginBottom: 8, marginTop: 16 },
-  textInput: { backgroundColor: '#14212f', color: '#fff', borderRadius: 10, padding: 12, fontSize: 15, textAlign: 'right', borderWidth: 1, borderColor: '#2e455c' },
+  textInput: { backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 12, fontSize: 15, textAlign: 'right', borderWidth: 1, borderColor: C.border },
   row3: { flexDirection: 'row', gap: 12 },
   col: { flex: 1 },
-  numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 10, borderWidth: 1, borderColor: '#2e455c', overflow: 'hidden' },
-  numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: '#23384c' },
+  numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 10, borderWidth: 1, borderColor: C.border, overflow: 'hidden' },
+  numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface3 },
   numBtnTxt: { color: '#5b9bdc', fontSize: 20, fontWeight: '700' },
-  numValue: { flex: 1, color: '#fff', fontSize: 15, textAlign: 'center', height: 44 },
-  numUnit: { color: '#888', fontSize: 12, paddingRight: 8 },
+  numValue: { flex: 1, color: C.text, fontSize: 15, textAlign: 'center', height: 44 },
+  numUnit: { color: C.textMuted, fontSize: 12, paddingRight: 8 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#2e455c' },
+  optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
   optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
-  optTxt: { color: '#666', fontSize: 13 },
+  optTxt: { color: C.textDim, fontSize: 13 },
   optTxtActive: { color: '#5b9bdc', fontWeight: '700' },
-  paceText: { color: '#888', fontSize: 12, textAlign: 'right', marginTop: 8 },
+  paceText: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 8 },
   paceHint: { color: '#e0a030', fontSize: 12, textAlign: 'right', marginTop: 8, lineHeight: 17 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#2e455c' },
+  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
   chipActive: { backgroundColor: '#2a1a4a', borderColor: '#8a6aff' },
-  chipTxt: { color: '#666', fontSize: 13 },
+  chipTxt: { color: C.textDim, fontSize: 13 },
   chipTxtActive: { color: '#8a6aff', fontWeight: '700' },
   chipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
   chipGreenTxt: { color: '#56bd6b', fontSize: 13 },
   chipRed: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#ef7d6c' },
   chipRedTxt: { color: '#ef7d6c', fontSize: 13 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  addInput: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: '#2e455c' },
+  addInput: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: C.border },
   addBtn: { backgroundColor: '#5b9bdc', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
   addBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  targetsCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
-  targetsTitle: { color: '#888', fontSize: 14, marginBottom: 8 },
-  targetsCalories: { color: '#fff', fontSize: 52, fontWeight: '800' },
-  targetsKcal: { color: '#888', fontSize: 14 },
+  targetsCard: { backgroundColor: C.surface, borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
+  targetsTitle: { color: C.textMuted, fontSize: 14, marginBottom: 8 },
+  targetsCalories: { color: C.text, fontSize: 52, fontWeight: '800' },
+  targetsKcal: { color: C.textMuted, fontSize: 14 },
   bmrRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  bmrCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 12, padding: 14, alignItems: 'center' },
+  bmrCard: { flex: 1, backgroundColor: C.surface, borderRadius: 12, padding: 14, alignItems: 'center' },
   bmrLabel: { color: '#5b9bdc', fontSize: 12, fontWeight: '700', marginBottom: 4 },
-  bmrVal: { color: '#fff', fontSize: 20, fontWeight: '700' },
-  macroRow: { backgroundColor: '#14212f', borderRadius: 12, padding: 12, marginBottom: 8 },
-  macroBarWrap: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
+  bmrVal: { color: C.text, fontSize: 20, fontWeight: '700' },
+  macroRow: { backgroundColor: C.surface, borderRadius: 12, padding: 12, marginBottom: 8 },
+  macroBarWrap: { height: 8, backgroundColor: C.surface3, borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
   macroBar: { height: '100%', borderRadius: 4 },
   macroInfo: { flexDirection: 'row', justifyContent: 'space-between' },
   macroName: { fontSize: 14, fontWeight: '700' },
-  macroDetail: { color: '#888', fontSize: 13 },
-  noTargets: { color: '#666', fontSize: 14, textAlign: 'center', paddingVertical: 32 },
+  macroDetail: { color: C.textMuted, fontSize: 13 },
+  noTargets: { color: C.textDim, fontSize: 14, textAlign: 'center', paddingVertical: 32 },
   saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#5b9bdc', padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchMealBalance, moveMealCalories, resetMealBalance } from '../api/client';
 import { onDataChanged } from '../refreshBus';
+import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
   BREAKFAST: 'בוקר',
@@ -13,6 +14,8 @@ const MEAL_LABELS = {
 };
 
 export default function MealBalanceCard() {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pickFrom, setPickFrom] = useState(null); // ארוחת המקור שבחרנו להעביר ממנה
@@ -108,27 +111,27 @@ export default function MealBalanceCard() {
   );
 }
 
-const s = StyleSheet.create({
-  card: { backgroundColor: '#14212f', borderRadius: 16, padding: 16, marginBottom: 16 },
+const makeS = (C) => StyleSheet.create({
+  card: { backgroundColor: C.surface, borderRadius: 16, padding: 16, marginBottom: 16 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  title: { color: '#fff', fontSize: 17, fontWeight: '800', textAlign: 'right' },
+  title: { color: C.text, fontSize: 17, fontWeight: '800', textAlign: 'right' },
   resetBtn: { paddingVertical: 2 },
-  resetTxt: { color: '#666', fontSize: 13 },
+  resetTxt: { color: C.textDim, fontSize: 13 },
 
   row: { marginBottom: 14 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  mealName: { color: '#fff', fontSize: 14, fontWeight: '700', textAlign: 'right' },
+  mealName: { color: C.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   adjTag: { color: '#56bd6b', fontSize: 12, fontWeight: '700' },
   balanceLink: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
-  barWrap: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 4 },
+  barWrap: { height: 8, backgroundColor: C.surface3, borderRadius: 4, overflow: 'hidden', marginBottom: 4 },
   bar: { height: '100%', borderRadius: 4 },
-  nums: { color: '#888', fontSize: 12, textAlign: 'right' },
+  nums: { color: C.textMuted, fontSize: 12, textAlign: 'right' },
 
-  picker: { marginTop: 8, backgroundColor: '#1b2c3d', borderRadius: 10, padding: 10 },
+  picker: { marginTop: 8, backgroundColor: C.surface2, borderRadius: 10, padding: 10 },
   pickerHint: { color: '#aaa', fontSize: 12, textAlign: 'right', marginBottom: 8 },
   pickerRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
-  pickChip: { backgroundColor: '#2e455c', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 7 },
+  pickChip: { backgroundColor: C.border, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 7 },
   pickChipTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '600' },
 
   footer: { color: '#aaa', fontSize: 13, textAlign: 'right', marginTop: 4, fontWeight: '600' },

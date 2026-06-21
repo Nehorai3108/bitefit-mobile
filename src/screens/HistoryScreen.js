@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal,
   ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchFoodHistory, fetchFoodLogByDate, fetchProfileTargets } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const DOW_HE = ['א','ב','ג','ד','ה','ו','ש'];
@@ -16,6 +17,8 @@ const MEAL_LABELS = {
 const iso = (y, m, d) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
 export default function HistoryScreen({ visible, onClose }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const now = new Date();
   const [year, setYear]   = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -77,7 +80,7 @@ export default function HistoryScreen({ visible, onClose }) {
       <View style={s.container}>
         {/* Header */}
         <View style={s.header}>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color="#fff" /></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>היסטוריית תזונה</Text>
         </View>
 
@@ -137,6 +140,8 @@ export default function HistoryScreen({ visible, onClose }) {
 }
 
 function DayDetail({ selected, onClose }) {
+  const { C } = useTheme();
+  const s = useMemo(() => makeS(C), [C]);
   const { date, entries, total } = selected;
   const dObj = new Date(date + 'T00:00:00');
   const dateLabel = dObj.toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -147,7 +152,7 @@ function DayDetail({ selected, onClose }) {
         <View style={s.detailSheet}>
           <View style={s.detailHandle} />
           <View style={s.detailHeader}>
-            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color="#fff" /></TouchableOpacity>
+            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color={C.text} /></TouchableOpacity>
             <Text style={s.detailTitle}>{dateLabel}</Text>
           </View>
 
@@ -166,7 +171,7 @@ function DayDetail({ selected, onClose }) {
               <View key={i} style={s.entryRow}>
                 {e.image_url
                   ? <Image source={{ uri: e.image_url }} style={s.entryThumb} />
-                  : <View style={[s.entryThumb, s.entryThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color="#555" /></View>}
+                  : <View style={[s.entryThumb, s.entryThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color={C.placeholder} /></View>}
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <Text style={s.entryName}>{e.food_name}</Text>
                   <Text style={s.entryMeta}>{MEAL_LABELS[e.meal_type] ?? e.meal_type} · {Math.round(e.grams)}g</Text>
@@ -181,35 +186,35 @@ function DayDetail({ selected, onClose }) {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
+const makeS = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
-  title: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.surface2 },
+  title: { color: C.text, fontSize: 20, fontWeight: '800' },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  navBtn: { padding: 8, backgroundColor: '#14212f', borderRadius: 10 },
-  monthLabel: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  navBtn: { padding: 8, backgroundColor: C.surface, borderRadius: 10 },
+  monthLabel: { color: C.text, fontSize: 18, fontWeight: '700' },
   legend: { color: '#777', fontSize: 11, textAlign: 'center', marginBottom: 12 },
   weekRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 6 },
-  dowCell: { width: '13.5%', textAlign: 'center', color: '#666', fontSize: 13, fontWeight: '600' },
+  dowCell: { width: '13.5%', textAlign: 'center', color: C.textDim, fontSize: 13, fontWeight: '600' },
   dayCell: { width: '13.5%', aspectRatio: 0.85, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
-  dayCellActive: { backgroundColor: '#14212f' },
+  dayCellActive: { backgroundColor: C.surface },
   dayCellToday: { borderWidth: 1, borderColor: '#5b9bdc' },
   dayNum: { color: '#ccc', fontSize: 14 },
   dayCal: { fontSize: 10, fontWeight: '700', marginTop: 2 },
-  empty: { color: '#666', fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 22 },
-  detailOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  detailSheet: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  empty: { color: C.textDim, fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 22 },
+  detailOverlay: { flex: 1, backgroundColor: C.overlay, justifyContent: 'flex-end' },
+  detailSheet: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   detailHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#333', alignSelf: 'center', marginBottom: 14 },
   detailHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  detailTitle: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right', marginLeft: 12 },
-  totalsRow: { backgroundColor: '#1b2c3d', borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
+  detailTitle: { color: C.text, fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right', marginLeft: 12 },
+  totalsRow: { backgroundColor: C.surface2, borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
   totalsCal: { color: '#5b9bdc', fontSize: 26, fontWeight: '800' },
-  totalsMacros: { color: '#888', fontSize: 13, marginTop: 4 },
-  entryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#1f1f1f' },
+  totalsMacros: { color: C.textMuted, fontSize: 13, marginTop: 4 },
+  entryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border2 },
   entryThumb: { width: 40, height: 40, borderRadius: 8 },
-  entryThumbEmpty: { backgroundColor: '#23384c', alignItems: 'center', justifyContent: 'center' },
-  entryName: { color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'right' },
-  entryMeta: { color: '#666', fontSize: 12, textAlign: 'right' },
+  entryThumbEmpty: { backgroundColor: C.surface3, alignItems: 'center', justifyContent: 'center' },
+  entryName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right' },
+  entryMeta: { color: C.textDim, fontSize: 12, textAlign: 'right' },
   entryCal: { color: '#ffd700', fontSize: 15, fontWeight: '700', minWidth: 44 },
 });

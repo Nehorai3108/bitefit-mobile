@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry, searchMealRecipes } from '../api/client';
+import { useTheme } from '../context/ThemeContext';
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר' },
@@ -18,6 +19,8 @@ const MEALS = [
 
 // Full recipe detail: ingredients in household units + nutrition + instructions
 function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const n = recipe?.total_nutrition ?? {};
   const portions = recipe?.portions ?? 1;
   const ingredients = recipe?.ingredients ?? [];
@@ -48,12 +51,12 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
             </View>
             {recipe?.prep_time_minutes ? (
               <View style={styles.detailMetaItem}>
-                <Ionicons name="time-outline" size={16} color="#888" />
+                <Ionicons name="time-outline" size={16} color={C.textMuted} />
                 <Text style={styles.detailMetaTxt}>{recipe.prep_time_minutes} דק'</Text>
               </View>
             ) : null}
             <View style={styles.detailMetaItem}>
-              <Ionicons name="person-outline" size={16} color="#888" />
+              <Ionicons name="person-outline" size={16} color={C.textMuted} />
               <Text style={styles.detailMetaTxt}>{scaled ? 'מנה אחת' : `${portions} מנות`}</Text>
             </View>
           </View>
@@ -111,6 +114,8 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
 }
 
 function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const [ate, setAte] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const n = recipe?.total_nutrition ?? {};
@@ -197,7 +202,7 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
         {/* Action buttons */}
         <View style={styles.cardActions}>
           <TouchableOpacity style={styles.instrBtn} onPress={() => setShowDetail(true)}>
-            <Ionicons name="list-outline" size={14} color="#888" />
+            <Ionicons name="list-outline" size={14} color={C.textMuted} />
             <Text style={styles.instrTxt}>פרטים</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.ateBtn, ate && styles.ateBtnDone]} onPress={handleAte}>
@@ -219,6 +224,8 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
 }
 
 export default function HomeScreen({ navigation }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
   const panHandlers = useSwipeNav(navigation, 'תזונה');
   const [plan, setPlan] = useState(null);
   const [activeMeal, setActiveMeal] = useState(0);
@@ -382,7 +389,7 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.searchRow}>
           {searchResults !== null && (
             <TouchableOpacity style={styles.searchClear} onPress={clearSearch}>
-              <Ionicons name="close" size={18} color="#888" />
+              <Ionicons name="close" size={18} color={C.textMuted} />
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
@@ -393,7 +400,7 @@ export default function HomeScreen({ navigation }) {
           <TextInput
             style={styles.searchInput}
             placeholder="חפש מתכון (למשל: שקשוקה)..."
-            placeholderTextColor="#555"
+            placeholderTextColor={C.placeholder}
             value={searchText}
             onChangeText={setSearchText}
             onSubmitEditing={handleSearch}
@@ -446,7 +453,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="restaurant-outline" size={64} color="#222" />
+            <Ionicons name="restaurant-outline" size={64} color={C.textFaint} />
             <Text style={styles.emptyText}>לחץ "הכן לי תפריט להיום" כדי להתחיל</Text>
           </View>
         )}
@@ -456,59 +463,59 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c1622' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
+const makeStyles = (C) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.bg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 52, paddingBottom: 8 },
-  dateText: { color: '#555', fontSize: 13 },
+  dateText: { color: C.placeholder, fontSize: 13 },
   logo: { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
   titleSection: { paddingHorizontal: 16, paddingBottom: 10 },
-  pageTitle: { color: '#fff', fontSize: 15, fontWeight: '700', textAlign: 'right' },
-  pageSub: { color: '#888', fontSize: 13, textAlign: 'right', marginTop: 2 },
+  pageTitle: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
+  pageSub: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginTop: 2 },
   actionRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 10 },
   generateBtn: { flex: 1, backgroundColor: '#5b9bdc', borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
   generateTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  clearBtn: { backgroundColor: '#1b2c3d', borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: '#2e455c' },
+  clearBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: C.border },
   clearTxt: { color: '#aaa', fontSize: 15 },
-  divider: { height: 1, backgroundColor: '#1b2c3d', marginHorizontal: 16, marginBottom: 10 },
+  divider: { height: 1, backgroundColor: C.surface2, marginHorizontal: 16, marginBottom: 10 },
   tabsContent: { paddingHorizontal: 16, gap: 4 },
   tabWrap: { paddingHorizontal: 12, paddingBottom: 10, alignItems: 'center' },
-  tabText: { color: '#555', fontSize: 14 },
+  tabText: { color: C.placeholder, fontSize: 14 },
   tabTextActive: { color: '#5b9bdc', fontWeight: '700' },
   tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc', borderRadius: 1 },
-  mealHint: { color: '#888', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 8 },
+  mealHint: { color: C.textMuted, fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 8 },
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 10 },
-  searchInput: { flex: 1, backgroundColor: '#14212f', color: '#fff', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: '#23384c' },
+  searchInput: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: C.surface3 },
   searchBtn: { backgroundColor: '#5b9bdc', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
-  searchClear: { backgroundColor: '#1b2c3d', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
+  searchClear: { backgroundColor: C.surface2, borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
   mealHintCal: { color: '#ffd700', fontWeight: '700' },
   cardsList: { paddingHorizontal: 16, gap: 14, paddingBottom: 28 },
-  recipeCard: { backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
+  recipeCard: { backgroundColor: C.surface, borderRadius: 16, overflow: 'hidden' },
   recipeImage: { width: '100%', height: 200 },
-  imagePlaceholder: { backgroundColor: '#23384c', justifyContent: 'center', alignItems: 'center' },
+  imagePlaceholder: { backgroundColor: C.surface3, justifyContent: 'center', alignItems: 'center' },
   recipeBody: { padding: 14 },
   recipeTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
-  recipeName: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
+  recipeName: { color: C.text, fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
   refreshBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 8 },
   refreshTxt: { color: '#5b9bdc', fontSize: 13 },
   calorieRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   calorieActual: { color: '#5b9bdc', fontSize: 15, fontWeight: '700' },
-  calorieTarget: { color: '#666', fontSize: 13 },
+  calorieTarget: { color: C.textDim, fontSize: 13 },
   macrosRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   macroBadge: { flex: 1, borderRadius: 10, borderWidth: 1, padding: 10, alignItems: 'center' },
   macroVal: { fontSize: 15, fontWeight: '700' },
-  macroLbl: { color: '#888', fontSize: 11, marginTop: 3 },
-  ingredients: { color: '#555', fontSize: 12, textAlign: 'right', marginTop: 4 },
+  macroLbl: { color: C.textMuted, fontSize: 11, marginTop: 3 },
+  ingredients: { color: C.placeholder, fontSize: 12, textAlign: 'right', marginTop: 4 },
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 10 },
-  instrBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#23384c', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: '#2e455c' },
-  instrTxt: { color: '#888', fontSize: 12 },
+  instrBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.surface3, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: C.border },
+  instrTxt: { color: C.textMuted, fontSize: 12 },
   ateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#5b9bdc', borderRadius: 8, paddingVertical: 9 },
   ateBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
   ateTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#14212f', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
+  modalOverlay: { flex: 1, backgroundColor: C.overlay, justifyContent: 'flex-end' },
+  modalCard: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { color: '#fff', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
+  modalTitle: { color: C.text, fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
   instrText: { color: '#ccc', fontSize: 15, lineHeight: 26, textAlign: 'right' },
 
   // Tap badge on card image
@@ -516,26 +523,26 @@ const styles = StyleSheet.create({
   tapBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '600' },
 
   // Recipe detail modal
-  detailContainer: { flex: 1, backgroundColor: '#0c1622' },
+  detailContainer: { flex: 1, backgroundColor: C.bg },
   detailImage: { width: '100%', height: 240 },
-  detailClose: { position: 'absolute', top: 48, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
+  detailClose: { position: 'absolute', top: 48, left: 16, backgroundColor: C.overlay, borderRadius: 20, padding: 8 },
   detailBody: { padding: 18, paddingBottom: 48 },
-  detailName: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
+  detailName: { color: C.text, fontSize: 22, fontWeight: '800', textAlign: 'right', marginBottom: 12 },
   detailMetaRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: 18, marginBottom: 16 },
   detailMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   detailMetaTxt: { color: '#aaa', fontSize: 13, fontWeight: '600' },
   detailSection: { marginTop: 22 },
-  detailSectionTitle: { color: '#fff', fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
-  ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: '#1b2c3d' },
+  detailSectionTitle: { color: C.text, fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
+  ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: C.surface2 },
   ingredientName: { color: '#ddd', fontSize: 15, textAlign: 'right' },
   ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#5b9bdc' },
   ingredientQty: { color: '#5b9bdc', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
   detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#5b9bdc', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
   detailAteTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
   noRecipes: { padding: 32, alignItems: 'center', gap: 12 },
-  noRecipesText: { color: '#555', fontSize: 14 },
-  retryBtn: { backgroundColor: '#1b2c3d', borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
+  noRecipesText: { color: C.placeholder, fontSize: 14 },
+  retryBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
   retryTxt: { color: '#5b9bdc', fontSize: 14 },
   emptyState: { paddingTop: 48, alignItems: 'center', gap: 14, paddingBottom: 24 },
-  emptyText: { color: '#555', fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
+  emptyText: { color: C.placeholder, fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
 });
