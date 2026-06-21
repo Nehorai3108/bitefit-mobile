@@ -41,7 +41,14 @@
         }
       ],
       "expo-image-picker",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#5b9bdc"
+        }
+      ]
     ],
     "extra": {
       "eas": {

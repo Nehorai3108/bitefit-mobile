@@ -22,6 +22,7 @@ import ChatScreen      from './src/screens/ChatScreen';
 import WorkoutScreen   from './src/screens/WorkoutScreen';
 import ProfileScreen   from './src/screens/ProfileScreen';
 import { isWaking, onWakingChange } from './src/serverWaking';
+import { initNotifications } from './src/notifications';
 import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode, fetchRecentFoods } from './src/api/client';
 
 const Tab = createBottomTabNavigator();
@@ -716,6 +717,7 @@ function WakingBanner() {
 }
 
 export default function App() {
+  useEffect(() => { initNotifications(); }, []);
   return (
     <ThemeProvider>
     <AuthProvider>
