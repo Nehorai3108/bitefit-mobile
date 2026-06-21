@@ -599,7 +599,7 @@ function pickKey(name = '') {
   if (/פלאנק/.test(name))                                       return 'plank';
   if (/לאנג/.test(name))                                        return 'lunge';
   if (/חתיר|שכיבה.*מוט/.test(name))                            return 'row';
-  if (/ריצה|ספרינט|הליכה|ברפי|קפיצה|טיפוס|ברכיים גבוהות/.test(name)) return 'run';
+  if (/ברפי|קפיצה|טיפוס/.test(name)) return 'run';
   if (/בטן|כפיפות בטן|סיבוב|Russian/.test(name))                return 'crunch';
   if (/הרמת רגל|הרמות רגל/.test(name))                          return 'legraise';
   return null;
