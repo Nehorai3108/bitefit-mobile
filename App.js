@@ -632,10 +632,14 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
 
   return (
     <>
-      {/* פס ירוק עדין — תמיד נראה, לחיצה/גרירה פותחת */}
-      <View style={[fabSt.pill, { bottom: insets.bottom + 6 }]} {...pan.panHandlers}>
+      {/* קו ירוק — לחיצה פותחת/סוגרת */}
+      <TouchableOpacity
+        style={[fabSt.pill, { bottom: insets.bottom + 6 }]}
+        onPress={() => isOpen.current ? closeDrawer() : openDrawer()}
+        activeOpacity={0.7}
+      >
         <View style={fabSt.pillBar} />
-      </View>
+      </TouchableOpacity>
 
       {/* מגירת ניווט — מוסתרת לחלוטין עד פתיחה */}
       <Animated.View
@@ -669,7 +673,7 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
 
 const fabSt = StyleSheet.create({
   pill:       { position: 'absolute', alignSelf: 'center', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 24, zIndex: 99 },
-  pillBar:    { width: 44, height: 4, borderRadius: 2, backgroundColor: '#3a7a4a', opacity: 0.45 },
+  pillBar:    { width: 60, height: 6, borderRadius: 3, backgroundColor: '#3a7a4a', opacity: 0.75 },
   drawer:     { position: 'absolute', left: 16, right: 16, borderRadius: 22, shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
   handleWrap: { paddingVertical: 8, alignItems: 'center' },
   handle:     { width: 36, height: 4, borderRadius: 2, backgroundColor: '#ccc' },
