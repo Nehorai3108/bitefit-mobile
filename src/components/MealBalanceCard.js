@@ -11,6 +11,7 @@ const MEAL_LABELS = {
   LUNCH: 'צהריים',
   AFTERNOON_SNACK: 'חטיף אחה״צ',
   DINNER: 'ערב',
+  EVENING_SNACK: 'חטיף ערב',
 };
 
 export default function MealBalanceCard() {
