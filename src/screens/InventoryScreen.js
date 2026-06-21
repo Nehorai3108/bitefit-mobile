@@ -33,7 +33,7 @@ const CATEGORIES = {
 const CAT_ORDER = ['produce', 'meat', 'dairy', 'bakery', 'pantry', 'frozen', 'beverages', 'snacks', 'other'];
 const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 
-export default function InventoryScreen({ visible, onClose }) {
+export default function InventoryScreen({ navigation }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
   const [items, setItems] = useState([]);
@@ -67,10 +67,9 @@ export default function InventoryScreen({ visible, onClose }) {
   const cats = CAT_ORDER.filter(c => grouped[c]?.length);
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
         <View style={s.header}>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Ionicons name="chevron-back" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
           <Text style={s.count}>{items.length} פריטים</Text>
         </View>
@@ -138,7 +137,6 @@ export default function InventoryScreen({ visible, onClose }) {
         />
         <CookModal visible={showCook} onClose={() => setShowCook(false)} />
       </View>
-    </Modal>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Modal,
+  View, Text, StyleSheet, TouchableOpacity,
   ScrollView, ActivityIndicator, Image,
 } from 'react-native';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
@@ -293,7 +293,7 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
 }
 
 // ─── Main HistoryScreen ───────────────────────────────────────────────────────
-export default function HistoryScreen({ visible, onClose }) {
+export default function HistoryScreen({ navigation }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
   const now = new Date();
@@ -318,7 +318,7 @@ export default function HistoryScreen({ visible, onClose }) {
     } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { if (visible) { load(); setSelected(null); } }, [visible, load]);
+  useEffect(() => { load(); }, [load]);
 
   const openDay = async (dateStr) => {
     const day = history[dateStr];
@@ -336,11 +336,10 @@ export default function HistoryScreen({ visible, onClose }) {
   const nextMonth = () => { if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1); };
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
         {/* Header */}
         <View style={s.header}>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Ionicons name="chevron-back" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>היסטוריית תזונה</Text>
         </View>
 
@@ -364,7 +363,6 @@ export default function HistoryScreen({ visible, onClose }) {
 
         {selected && <DayDetail selected={selected} onClose={() => setSelected(null)} />}
       </View>
-    </Modal>
   );
 }
 

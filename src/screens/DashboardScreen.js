@@ -12,8 +12,6 @@ import {
 import { onDataChanged } from '../refreshBus';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import MealBalanceCard from '../components/MealBalanceCard';
-import HistoryScreen from './HistoryScreen';
-import InventoryScreen from './InventoryScreen';
 import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
@@ -224,8 +222,6 @@ export default function DashboardScreen({ navigation }) {
   const [todayEntries, setTodayEntries] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showInventory, setShowInventory] = useState(false);
   const [burned, setBurned] = useState(0);
 
   const panHandlers = useSwipeNav(navigation, 'בית');
@@ -281,11 +277,11 @@ export default function DashboardScreen({ navigation }) {
         {/* כותרת */}
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
+            <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('History')}>
               <Ionicons name="calendar-outline" size={18} color="#5b9bdc" />
               <Text style={styles.histBtnTxt}>היסטוריה</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.histBtn} onPress={() => setShowInventory(true)}>
+            <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('Inventory')}>
               <Ionicons name="cart-outline" size={18} color="#5b9bdc" />
               <Text style={styles.histBtnTxt}>מלאי</Text>
             </TouchableOpacity>
@@ -304,9 +300,6 @@ export default function DashboardScreen({ navigation }) {
 
         {/* סרגל שבוע אינטראקטיבי */}
         <WeekStrip selectedDate={selectedDate} onSelectDate={handleDateSelect} />
-
-        <HistoryScreen  visible={showHistory}   onClose={() => setShowHistory(false)} />
-        <InventoryScreen visible={showInventory} onClose={() => setShowInventory(false)} />
 
         {/* כרטיס קלוריות */}
         <View style={styles.calCard}>

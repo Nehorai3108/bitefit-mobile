@@ -677,6 +677,7 @@ function TabNavigator() {
 }
 
 const AuthStack = createNativeStackNavigator();
+const RootStack  = createNativeStackNavigator();
 
 function AuthNavigator() {
   return (
@@ -684,6 +685,21 @@ function AuthNavigator() {
       <AuthStack.Screen name="Login"  component={LoginScreen} />
       <AuthStack.Screen name="Signup" component={SignupScreen} />
     </AuthStack.Navigator>
+  );
+}
+
+import HistoryScreen   from './src/screens/HistoryScreen';
+import InventoryScreen from './src/screens/InventoryScreen';
+
+function MainNavigator() {
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      <RootStack.Screen name="Tabs"      component={TabNavigator} />
+      <RootStack.Screen name="History"   component={HistoryScreen}
+        options={{ animation: 'slide_from_right' }} />
+      <RootStack.Screen name="Inventory" component={InventoryScreen}
+        options={{ animation: 'slide_from_right' }} />
+    </RootStack.Navigator>
   );
 }
 
@@ -700,7 +716,7 @@ function RootNavigator() {
 
   if (!token)      return <AuthNavigator />;
   if (!onboarded)  return <OnboardingScreen />;
-  return <TabNavigator />;
+  return <MainNavigator />;
 }
 
 // באנר "השרת מתעורר" — מופיע כשבקשה נמשכת מעבר ל-4 שניות (cold start של Render)
