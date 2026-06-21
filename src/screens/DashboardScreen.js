@@ -304,7 +304,9 @@ export default function DashboardScreen({ navigation }) {
 
         {/* כרטיס קלוריות */}
         <TouchableOpacity style={styles.calCard} activeOpacity={0.85} onPress={() => setShowConsumed(v => !v)}>
-          <View style={styles.calInfo}>
+          <ProgressRing size={110} pct={calPct} color="#3a7a4a"
+            label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
+          <View style={[styles.calInfo, { alignItems: 'flex-end' }]}>
             <Text style={[styles.calNum, showConsumed && { color: '#56bd6b' }]}>
               {showConsumed ? cal.toLocaleString() : calLeft.toLocaleString()}
             </Text>
@@ -326,8 +328,6 @@ export default function DashboardScreen({ navigation }) {
               )}
             </View>
           </View>
-          <ProgressRing size={110} pct={calPct} color="#3a7a4a"
-            label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
         </TouchableOpacity>
 
         {/* מאקרו */}
