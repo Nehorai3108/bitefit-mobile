@@ -598,7 +598,7 @@ const TABS = [
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
 ];
 
-const ICONS_H = 72; // גובה שורת האייקונים
+const ICONS_H = 88; // מסתיר כמעט הכל — רק רצועה קטנה נראית
 
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
