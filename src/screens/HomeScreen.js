@@ -249,14 +249,14 @@ export default function HomeScreen({ navigation }) {
   const [searching, setSearching] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState(null);
 
-  const loadCompletedWorkout = useCallback(() => {
-    AsyncStorage.getItem(todayWorkoutKey()).then(val => {
-      if (val) try { setCompletedWorkout(JSON.parse(val)); } catch {}
-      else setCompletedWorkout(null);
-    });
-  }, []);
-
-  useFocusEffect(loadCompletedWorkout);
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem(todayWorkoutKey()).then(val => {
+        if (val) try { setCompletedWorkout(JSON.parse(val)); } catch {}
+        else setCompletedWorkout(null);
+      });
+    }, [])
+  );
 
   const load = useCallback(async () => {
     try {
