@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 import { generatePlan } from '../utils/workoutPlanner';
+import WorkoutDayScreen from './WorkoutDayScreen';
 
 const PLAN_KEY = '@bitefit_workout_plan';
 
@@ -304,35 +305,9 @@ export default function WorkoutScreen({ navigation }) {
         </View>
       </Modal>
 
-      {/* מודאל פירוט אימון יומי */}
-      <Modal visible={!!selectedDay} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { maxHeight: '85%' }]}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => setSelectedDay(null)}>
-                <Ionicons name="close" size={24} color={C.text} />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>{selectedDay?.name}</Text>
-            </View>
-            <Text style={styles.planDayMeta}>{selectedDay?.day} • {selectedDay?.duration} דקות</Text>
-            {selectedDay?.note ? <Text style={styles.planNote}>{selectedDay.note}</Text> : null}
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {(selectedDay?.exercises ?? []).map((ex, i) => (
-                <View key={i} style={styles.exRow}>
-                  <View style={styles.exNum}><Text style={styles.exNumTxt}>{i + 1}</Text></View>
-                  <View style={styles.exInfo}>
-                    <Text style={styles.exName}>{ex.name}</Text>
-                    <Text style={styles.exDetail}>
-                      {ex.sets > 1 ? `${ex.sets} סטים` : ''}{ex.sets > 1 && ex.reps ? ' × ' : ''}{ex.reps}
-                    </Text>
-                    {ex.note ? <Text style={styles.exNote}>{ex.note}</Text> : null}
-                  </View>
-                </View>
-              ))}
-              <View style={{ height: 20 }} />
-            </ScrollView>
-          </View>
-        </View>
+      {/* מסך פירוט אימון */}
+      <Modal visible={!!selectedDay} animationType="slide">
+        <WorkoutDayScreen day={selectedDay} onClose={() => setSelectedDay(null)} />
       </Modal>
 
       {/* Add workout modal */}
