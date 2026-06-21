@@ -19,7 +19,7 @@ const ACTIVITY_LEVELS = [
 
 const GOALS = [
   { key: 'lose_weight', label: 'ירידה במשקל',  color: '#ef7d6c' },
-  { key: 'maintain',    label: 'שמירה על משקל', color: '#5b9bdc' },
+  { key: 'maintain',    label: 'שמירה על משקל', color: '#3a7a4a' },
   { key: 'gain_weight', label: 'עלייה במשקל',  color: '#56bd6b' },
 ];
 
@@ -179,7 +179,7 @@ export default function ProfileScreen({ navigation }) {
     ]);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>;
 
   const tabs = ['פרטים אישיים', 'העדפות תזונה', 'יעדים'];
 
@@ -197,7 +197,7 @@ export default function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={styles.avatarCard}>
-          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#5b9bdc" /></View>
+          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#3a7a4a" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
         </View>
       </View>
@@ -356,7 +356,7 @@ export default function ProfileScreen({ navigation }) {
                   ))}
                 </View>
                 {[
-                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#5b9bdc', cal: 4 },
+                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#3a7a4a', cal: 4 },
                   { label: 'פחמימות', val: targets.carbs, total: targets.calories, color: '#ffd700', cal: 4 },
                   { label: 'שומן', val: targets.fat, total: targets.calories, color: '#ef7d6c', cal: 9 },
                 ].map(m => {
@@ -406,8 +406,8 @@ const makeStyles = (C) => StyleSheet.create({
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
   tabTxt: { color: C.placeholder, fontSize: 13 },
-  tabTxtActive: { color: '#5b9bdc', fontWeight: '700' },
-  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc' },
+  tabTxtActive: { color: '#3a7a4a', fontWeight: '700' },
+  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#3a7a4a' },
   scroll: { flex: 1 },
   section: { padding: 16 },
   fieldLabel: { color: '#aaa', fontSize: 13, textAlign: 'right', marginBottom: 8, marginTop: 16 },
@@ -416,14 +416,14 @@ const makeStyles = (C) => StyleSheet.create({
   col: { flex: 1 },
   numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 10, borderWidth: 1, borderColor: C.border, overflow: 'hidden' },
   numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface3 },
-  numBtnTxt: { color: '#5b9bdc', fontSize: 20, fontWeight: '700' },
+  numBtnTxt: { color: '#3a7a4a', fontSize: 20, fontWeight: '700' },
   numValue: { flex: 1, color: C.text, fontSize: 15, textAlign: 'center', height: 44 },
   numUnit: { color: C.textMuted, fontSize: 12, paddingRight: 8 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
-  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
+  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
   optTxt: { color: C.textDim, fontSize: 13 },
-  optTxtActive: { color: '#5b9bdc', fontWeight: '700' },
+  optTxtActive: { color: '#3a7a4a', fontWeight: '700' },
   paceText: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 8 },
   paceHint: { color: '#e0a030', fontSize: 12, textAlign: 'right', marginTop: 8, lineHeight: 17 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
@@ -437,7 +437,7 @@ const makeStyles = (C) => StyleSheet.create({
   chipRedTxt: { color: '#ef7d6c', fontSize: 13 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: C.border },
-  addBtn: { backgroundColor: '#5b9bdc', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
+  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
   addBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
   targetsCard: { backgroundColor: C.surface, borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
   targetsTitle: { color: C.textMuted, fontSize: 14, marginBottom: 8 },
@@ -445,7 +445,7 @@ const makeStyles = (C) => StyleSheet.create({
   targetsKcal: { color: C.textMuted, fontSize: 14 },
   bmrRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   bmrCard: { flex: 1, backgroundColor: C.surface, borderRadius: 12, padding: 14, alignItems: 'center' },
-  bmrLabel: { color: '#5b9bdc', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  bmrLabel: { color: '#3a7a4a', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   bmrVal: { color: C.text, fontSize: 20, fontWeight: '700' },
   macroRow: { backgroundColor: C.surface, borderRadius: 12, padding: 12, marginBottom: 8 },
   macroBarWrap: { height: 8, backgroundColor: C.surface3, borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
@@ -454,6 +454,6 @@ const makeStyles = (C) => StyleSheet.create({
   macroName: { fontSize: 14, fontWeight: '700' },
   macroDetail: { color: C.textMuted, fontSize: 13 },
   noTargets: { color: C.textDim, fontSize: 14, textAlign: 'center', paddingVertical: 32 },
-  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#5b9bdc', padding: 16, alignItems: 'center' },
+  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#3a7a4a', padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });

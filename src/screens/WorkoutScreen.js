@@ -10,7 +10,7 @@ import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const WORKOUT_TYPES = [
-  { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#5b9bdc' },
+  { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#3a7a4a' },
   { key: 'running',  label: 'ריצה', icon: 'walk-outline', color: '#56bd6b' },
   { key: 'cycling',  label: 'אופניים', icon: 'bicycle-outline', color: '#ffd700' },
   { key: 'swimming', label: 'שחייה', icon: 'water-outline', color: '#00bcd4' },
@@ -44,7 +44,7 @@ function decorate(row) {
     calories: Math.round(row.calories_burned ?? 0),
     label: typeInfo?.label ?? row.workout_type,
     icon: typeInfo?.icon ?? 'fitness-outline',
-    color: typeInfo?.color ?? '#5b9bdc',
+    color: typeInfo?.color ?? '#3a7a4a',
     time,
   };
 }
@@ -250,16 +250,16 @@ const makeStyles = (C) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 16 },
   title: { color: C.text, fontSize: 22, fontWeight: '800' },
-  addBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, padding: 8 },
+  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, padding: 8 },
 
   statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginBottom: 16 },
   statCard: { flex: 1, backgroundColor: C.surface, borderRadius: 14, padding: 14, alignItems: 'center' },
-  statNum: { color: '#5b9bdc', fontSize: 24, fontWeight: '800' },
+  statNum: { color: '#3a7a4a', fontSize: 24, fontWeight: '800' },
   statLbl: { color: C.textMuted, fontSize: 12, marginTop: 4 },
 
   empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
   emptyText: { color: C.placeholder, fontSize: 15 },
-  addFirstBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
+  addFirstBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
   addFirstTxt: { color: '#fff', fontWeight: '700' },
 
   workoutCard: { backgroundColor: C.surface, borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
@@ -283,10 +283,10 @@ const makeStyles = (C) => StyleSheet.create({
   input: { backgroundColor: C.surface3, color: C.text, borderRadius: 10, padding: 12, fontSize: 15, marginBottom: 16, textAlign: 'right' },
   intensityRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
   intensityBtn: { flex: 1, padding: 10, borderRadius: 10, backgroundColor: C.surface3, alignItems: 'center', borderWidth: 1, borderColor: C.border },
-  intensityBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#5b9bdc' },
+  intensityBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
   intensityTxt: { color: C.placeholder, fontSize: 13 },
-  intensityTxtActive: { color: '#5b9bdc', fontWeight: '700' },
+  intensityTxtActive: { color: '#3a7a4a', fontWeight: '700' },
   caloriePreview: { color: C.textMuted, fontSize: 14, textAlign: 'center', marginBottom: 16 },
-  saveBtn: { backgroundColor: '#5b9bdc', borderRadius: 14, padding: 16, alignItems: 'center' },
+  saveBtn: { backgroundColor: '#3a7a4a', borderRadius: 14, padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });

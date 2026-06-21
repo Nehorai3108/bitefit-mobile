@@ -58,7 +58,7 @@ function BarcodeTab() {
   return (
     <ScrollView contentContainerStyle={styles.tabContent}>
       {loading ? (
-        <View style={styles.center}><ActivityIndicator color="#5b9bdc" size="large" /><Text style={styles.loadingTxt}>מחפש מוצר...</Text></View>
+        <View style={styles.center}><ActivityIndicator color="#3a7a4a" size="large" /><Text style={styles.loadingTxt}>מחפש מוצר...</Text></View>
       ) : result ? (
         <View style={styles.resultCard}>
           <Text style={styles.productName}>{result.name_he ?? result.name_en}</Text>
@@ -66,7 +66,7 @@ function BarcodeTab() {
           <View style={styles.macrosGrid}>
             {[
               { label: 'קק"ל', val: result.calories, color: '#ffd700' },
-              { label: 'חלבון', val: `${result.protein}g`, color: '#5b9bdc' },
+              { label: 'חלבון', val: `${result.protein}g`, color: '#3a7a4a' },
               { label: "פחמ'", val: `${result.carbs}g`, color: '#56bd6b' },
               { label: 'שומן', val: `${result.fat}g`, color: '#ef7d6c' },
             ].map(m => (
@@ -132,11 +132,11 @@ function CameraTab() {
     <ScrollView contentContainerStyle={styles.tabContent}>
       <View style={styles.pickRow}>
         <TouchableOpacity style={styles.pickBtn} onPress={() => pick(true)}>
-          <Ionicons name="camera" size={28} color="#5b9bdc" />
+          <Ionicons name="camera" size={28} color="#3a7a4a" />
           <Text style={styles.pickLbl}>צלם</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.pickBtn} onPress={() => pick(false)}>
-          <Ionicons name="images" size={28} color="#5b9bdc" />
+          <Ionicons name="images" size={28} color="#3a7a4a" />
           <Text style={styles.pickLbl}>גלריה</Text>
         </TouchableOpacity>
       </View>
@@ -145,7 +145,7 @@ function CameraTab() {
 
       {loading && (
         <View style={styles.loadingCard}>
-          <ActivityIndicator color="#5b9bdc" size="large" />
+          <ActivityIndicator color="#3a7a4a" size="large" />
           <Text style={styles.loadingTxt}>מזהה אוכל בתמונה...</Text>
         </View>
       )}
@@ -162,7 +162,7 @@ function CameraTab() {
                 <Text style={styles.foodMacro}>ח: {item.protein ?? 0}g</Text>
                 <Text style={styles.foodMacro}>פ: {item.carbs ?? 0}g</Text>
                 <Text style={styles.foodMacro}>ש: {item.fat ?? 0}g</Text>
-                <Text style={[styles.foodMacro, { color: '#5b9bdc' }]}>{item.calories ?? 0} קק"ל</Text>
+                <Text style={[styles.foodMacro, { color: '#3a7a4a' }]}>{item.calories ?? 0} קק"ל</Text>
               </View>
               <View style={styles.foodInfo}>
                 <Text style={styles.foodName}>{item.name_he ?? item.name}</Text>
@@ -222,14 +222,14 @@ const styles = StyleSheet.create({
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
   tabTxt: { color: '#555', fontSize: 15 },
-  tabTxtActive: { color: '#5b9bdc', fontWeight: '700' },
-  tabLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#5b9bdc' },
+  tabTxtActive: { color: '#3a7a4a', fontWeight: '700' },
+  tabLine: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#3a7a4a' },
   tabContent: { padding: 16, paddingBottom: 40 },
   center: { alignItems: 'center', gap: 12, paddingTop: 40 },
   loadingCard: { backgroundColor: '#14212f', borderRadius: 16, padding: 24, alignItems: 'center', gap: 10 },
   loadingTxt: { color: '#888', fontSize: 14 },
   scanOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  scanFrame: { width: 240, height: 160, borderWidth: 2, borderColor: '#5b9bdc', borderRadius: 12 },
+  scanFrame: { width: 240, height: 160, borderWidth: 2, borderColor: '#3a7a4a', borderRadius: 12 },
   scanHint: { color: '#fff', marginTop: 16, fontSize: 14 },
   cancelBtn: { position: 'absolute', bottom: 40, alignSelf: 'center', backgroundColor: '#1b2c3d', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 12 },
   cancelTxt: { color: '#fff', fontSize: 15 },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   foodGrams: { color: '#666', fontSize: 12 },
   foodMacros: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   foodMacro: { color: '#555', fontSize: 12 },
-  primaryBtn: { margin: 16, backgroundColor: '#5b9bdc', borderRadius: 12, padding: 14, alignItems: 'center' },
+  primaryBtn: { margin: 16, backgroundColor: '#3a7a4a', borderRadius: 12, padding: 14, alignItems: 'center' },
   primaryBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   secondaryBtn: { marginHorizontal: 16, marginBottom: 16, backgroundColor: '#23384c', borderRadius: 12, padding: 12, alignItems: 'center' },
   secondaryBtnTxt: { color: '#888', fontSize: 14 },

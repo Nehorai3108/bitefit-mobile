@@ -26,7 +26,7 @@ const MEAL_LABELS = {
 const MEAL_COLORS = {
   BREAKFAST:       '#f97316',   breakfast: '#f97316',
   MORNING_SNACK:   '#84cc16',   morning_snack: '#84cc16',
-  LUNCH:           '#5b9bdc',   lunch: '#5b9bdc',
+  LUNCH:           '#3a7a4a',   lunch: '#3a7a4a',
   AFTERNOON_SNACK: '#a855f7',   afternoon_snack: '#a855f7',
   DINNER:          '#ec4899',   dinner: '#ec4899',
   EVENING_SNACK:   '#14b8a6',   evening_snack: '#14b8a6',
@@ -40,7 +40,7 @@ function toIso(date) {
   return `${y}-${m}-${d}`;
 }
 
-function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
+function ProgressRing({ size = 90, pct = 0, color = '#3a7a4a', label, sub }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const filled = Math.round(pct * 100);
@@ -113,7 +113,7 @@ function WeekStrip({ selectedDate, onSelectDate }) {
             <Text style={[
               styles.weekDayNum,
               isSelected && styles.weekDayTxtActive,
-              isToday && !isSelected && { color: '#5b9bdc' },
+              isToday && !isSelected && { color: '#3a7a4a' },
             ]}>
               {date.getDate()}
             </Text>
@@ -130,7 +130,7 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
   const styles = useMemo(() => makeStyles(C), [C]);
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const mealColor = MEAL_COLORS[entry.meal_type] ?? '#5b9bdc';
+  const mealColor = MEAL_COLORS[entry.meal_type] ?? '#3a7a4a';
   const mealLabel = MEAL_LABELS[entry.meal_type] ?? entry.meal_type;
   const time = entry.timestamp
     ? new Date(entry.timestamp).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })
@@ -155,7 +155,7 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
   };
 
   const MACROS = [
-    { label: 'חלבון', val: entry.protein, color: '#5b9bdc' },
+    { label: 'חלבון', val: entry.protein, color: '#3a7a4a' },
     { label: 'פחמימות', val: entry.carbs, color: '#ffd700' },
     { label: 'שומן', val: entry.fat, color: '#ef7d6c' },
   ];
@@ -255,7 +255,7 @@ export default function DashboardScreen({ navigation }) {
   useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => onDataChanged(load), [load]);
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>;
 
   const isToday    = selectedDate === todayStr;
   const displayDate = new Date(selectedDate + 'T12:00:00')
@@ -272,17 +272,17 @@ export default function DashboardScreen({ navigation }) {
       <ScrollView
         style={styles.container}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#5b9bdc" />
+          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#3a7a4a" />
         }
       >
         {/* כותרת */}
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('History')}>
-              <Ionicons name="calendar-outline" size={20} color="#5b9bdc" />
+              <Ionicons name="calendar-outline" size={20} color="#3a7a4a" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('Inventory')}>
-              <Ionicons name="cart-outline" size={20} color="#5b9bdc" />
+              <Ionicons name="cart-outline" size={20} color="#3a7a4a" />
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -293,7 +293,7 @@ export default function DashboardScreen({ navigation }) {
         </View>
 
         {/* תאריך נבחר */}
-        <Text style={[styles.dateSub, !isToday && { color: '#5b9bdc' }]}>
+        <Text style={[styles.dateSub, !isToday && { color: '#3a7a4a' }]}>
           {isToday ? displayDate : `${displayDate} (היסטוריה)`}
         </Text>
 
@@ -324,7 +324,7 @@ export default function DashboardScreen({ navigation }) {
               )}
             </View>
           </View>
-          <ProgressRing size={110} pct={calPct} color="#5b9bdc"
+          <ProgressRing size={110} pct={calPct} color="#3a7a4a"
             label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
         </TouchableOpacity>
 
@@ -332,7 +332,7 @@ export default function DashboardScreen({ navigation }) {
         <View style={styles.macrosRow}>
           <MacroCard label="שומן"    eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#56bd6b" />
           <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}  target={targets?.carbs ?? 250} color="#f0935f" />
-          <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#5b9bdc" />
+          <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#3a7a4a" />
         </View>
 
         {/* מאזן ארוחות — רק ליום הנוכחי */}
@@ -385,19 +385,19 @@ const makeStyles = (C) => StyleSheet.create({
   center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg },
   header:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 2 },
   dateSub:   { color: C.textDim, fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
-  logo:      { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
+  logo:      { fontSize: 20, fontWeight: '800', color: '#3a7a4a' },
   logoImg:   { width: 34, height: 34, borderRadius: 9 },
 
   weekStrip:       { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
   weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
-  weekDayActive:   { backgroundColor: '#5b9bdc' },
+  weekDayActive:   { backgroundColor: '#3a7a4a' },
   weekDayName:     { color: '#5d7489', fontSize: 12, fontWeight: '600' },
   weekDayNum:      { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
   weekDayTxtActive:{ color: C.bg },
-  todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#5b9bdc', marginTop: 3 },
+  todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#3a7a4a', marginTop: 3 },
 
   histBtn:    { alignItems: 'center', justifyContent: 'center', backgroundColor: C.surface, borderRadius: 10, padding: 8, borderWidth: 1, borderColor: C.border2 },
-  histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
+  histBtnTxt: { color: '#3a7a4a', fontSize: 13, fontWeight: '700' },
 
   calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: C.surface, borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
   calInfo: { flex: 1, paddingRight: 12 },

@@ -4,43 +4,43 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // ─── פלטות צבעים ─────────────────────────────────────────────────────────────
 
 export const DARK = {
-  bg:         '#0c1622',
-  surface:    '#14212f',
-  surface2:   '#1b2c3d',
-  surface3:   '#23384c',
-  border:     '#2e455c',
-  border2:    '#1e2a44',
+  bg:         '#0e1a12',
+  surface:    '#162218',
+  surface2:   '#1e2e20',
+  surface3:   '#263a28',
+  border:     '#2e4a30',
+  border2:    '#1e3020',
   text:       '#ffffff',
-  textMuted:  '#888888',
-  textDim:    '#666666',
-  textFaint:  '#444444',
-  placeholder:'#555555',
-  inputBg:    '#2e455c',
-  tabBar:     '#0e0e0e',
-  tabBorder:  '#1b2c3d',
+  textMuted:  '#88a88a',
+  textDim:    '#668068',
+  textFaint:  '#445846',
+  placeholder:'#4a6a4c',
+  inputBg:    '#2e4a30',
+  tabBar:     '#0e1a12',
+  tabBorder:  '#1e2e20',
   overlay:    'rgba(0,0,0,0.6)',
-  macroPanel: '#101010',
-  logDot:     '#23384c',
+  macroPanel: '#101e12',
+  logDot:     '#263a28',
 };
 
 export const LIGHT = {
-  bg:         '#f0f5fb',
+  bg:         '#f2ede0',
   surface:    '#ffffff',
-  surface2:   '#e4edf8',
-  surface3:   '#d3e3f0',
-  border:     '#b0c8e0',
-  border2:    '#c8daea',
-  text:       '#0c1622',
-  textMuted:  '#5d7489',
-  textDim:    '#7a8ea0',
-  textFaint:  '#9aafbe',
-  placeholder:'#9aafbe',
-  inputBg:    '#dce8f4',
+  surface2:   '#ede8db',
+  surface3:   '#e4dece',
+  border:     '#d0c8b0',
+  border2:    '#ddd8c8',
+  text:       '#1a1a1a',
+  textMuted:  '#5a6a5a',
+  textDim:    '#7a8a7a',
+  textFaint:  '#9aaa9a',
+  placeholder:'#9aaa9a',
+  inputBg:    '#e8e2d4',
   tabBar:     '#ffffff',
-  tabBorder:  '#d0e0ee',
+  tabBorder:  '#e0d8c8',
   overlay:    'rgba(0,0,0,0.4)',
-  macroPanel: '#e4edf8',
-  logDot:     '#d3e3f0',
+  macroPanel: '#ede8db',
+  logDot:     '#e4dece',
 };
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ export const LIGHT = {
 const ThemeContext = createContext({ C: DARK, isDark: true, toggle: () => {} });
 
 export function ThemeProvider({ children }) {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem('@bitefit_theme').then(val => {

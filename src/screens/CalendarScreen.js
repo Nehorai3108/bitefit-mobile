@@ -83,14 +83,14 @@ export default function CalendarScreen() {
         {/* Month navigation */}
         <View style={styles.monthNav}>
           <TouchableOpacity onPress={nextMonth}>
-            <Ionicons name="chevron-forward" size={24} color="#5b9bdc" />
+            <Ionicons name="chevron-forward" size={24} color="#3a7a4a" />
           </TouchableOpacity>
           <View style={styles.monthCenter}>
             <Text style={styles.monthName}>{MONTH_NAMES[month]}</Text>
             <Text style={styles.yearTxt}>{year}</Text>
           </View>
           <TouchableOpacity onPress={prevMonth}>
-            <Ionicons name="chevron-back" size={24} color="#5b9bdc" />
+            <Ionicons name="chevron-back" size={24} color="#3a7a4a" />
           </TouchableOpacity>
         </View>
 
@@ -124,7 +124,7 @@ export default function CalendarScreen() {
           </Text>
 
           {loading ? (
-            <ActivityIndicator color="#5b9bdc" style={{ marginTop: 20 }} />
+            <ActivityIndicator color="#3a7a4a" style={{ marginTop: 20 }} />
           ) : (
             <>
               {/* Summary cards */}
@@ -136,7 +136,7 @@ export default function CalendarScreen() {
                 <View style={styles.summaryCard}>
                   <View style={styles.glassesRow}>
                     {Array.from({ length: Math.min(waterGlasses, 8) }).map((_, i) => (
-                      <Ionicons key={i} name="water" size={14} color="#5b9bdc" />
+                      <Ionicons key={i} name="water" size={14} color="#3a7a4a" />
                     ))}
                   </View>
                   <Text style={styles.summaryLbl}>{waterMl}ml מים</Text>
@@ -199,11 +199,11 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12 },
   emptyCell: { width: '14.28%', height: 52 },
   dayCell: { width: '14.28%', height: 52, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
-  dayCellSel: { backgroundColor: '#5b9bdc' },
-  dayCellToday: { borderWidth: 1, borderColor: '#5b9bdc' },
+  dayCellSel: { backgroundColor: '#3a7a4a' },
+  dayCellToday: { borderWidth: 1, borderColor: '#3a7a4a' },
   dayNum: { color: '#aaa', fontSize: 14, fontWeight: '600' },
   dayNumSel: { color: '#fff', fontWeight: '800' },
-  dayNumToday: { color: '#5b9bdc', fontWeight: '800' },
+  dayNumToday: { color: '#3a7a4a', fontWeight: '800' },
   indicators: { flexDirection: 'row', gap: 2, marginTop: 2 },
   dot: { width: 4, height: 4, borderRadius: 2 },
   detailSection: { paddingHorizontal: 16, paddingTop: 8 },
@@ -222,9 +222,9 @@ const styles = StyleSheet.create({
   entryMeal: { color: '#666', fontSize: 11, marginTop: 1 },
   entryCal: { color: '#ffd700', fontSize: 13, fontWeight: '700' },
   waterHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  waterPct: { color: '#5b9bdc', fontSize: 14, fontWeight: '700' },
+  waterPct: { color: '#3a7a4a', fontSize: 14, fontWeight: '700' },
   waterBar: { height: 8, backgroundColor: '#23384c', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
-  waterFill: { height: '100%', backgroundColor: '#5b9bdc', borderRadius: 4 },
+  waterFill: { height: '100%', backgroundColor: '#3a7a4a', borderRadius: 4 },
   waterStats: { flexDirection: 'row', justifyContent: 'space-between' },
   waterStat: { color: '#666', fontSize: 12 },
 });

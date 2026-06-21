@@ -234,7 +234,7 @@ function BarcodeScanModal({ visible, onClose }) {
         {/* Loading phase */}
         {phase === 'loading' && (
           <View style={s.center}>
-            <ActivityIndicator size="large" color="#5b9bdc" />
+            <ActivityIndicator size="large" color="#3a7a4a" />
             <Text style={{ color: '#888', marginTop: 12 }}>מחפש מוצר...</Text>
           </View>
         )}
@@ -252,7 +252,7 @@ function BarcodeScanModal({ visible, onClose }) {
             <View style={s.macrosGrid}>
               {[
                 { label: 'קק"ל', val: result.calories,         color: '#ffd700' },
-                { label: 'חלבון', val: `${result.protein}g`,   color: '#5b9bdc' },
+                { label: 'חלבון', val: `${result.protein}g`,   color: '#3a7a4a' },
                 { label: "פחמ'",  val: `${result.carbs}g`,     color: '#56bd6b' },
                 { label: 'שומן',  val: `${result.fat}g`,       color: '#ef7d6c' },
               ].map(m => (
@@ -422,7 +422,7 @@ function CameraPhotoModal({ visible, onClose }) {
         {/* Processing phase */}
         {phase === 'processing' && (
           <View style={s.center}>
-            <ActivityIndicator size="large" color="#5b9bdc" />
+            <ActivityIndicator size="large" color="#3a7a4a" />
             <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>מזהה מזון בתמונה...</Text>
           </View>
         )}
@@ -432,7 +432,7 @@ function CameraPhotoModal({ visible, onClose }) {
           <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
             <View style={s.modalHeader}>
               <TouchableOpacity onPress={() => setPhase('camera')}>
-                <Ionicons name="camera-outline" size={22} color="#5b9bdc" />
+                <Ionicons name="camera-outline" size={22} color="#3a7a4a" />
               </TouchableOpacity>
               <Text style={[s.sheetTitle, { marginBottom: 0 }]}>
                 זוהו {items.length} פריטים · {total} קק"ל
@@ -469,7 +469,7 @@ function CameraPhotoModal({ visible, onClose }) {
                     placeholder="שם המאכל"
                     placeholderTextColor="#555"
                   />
-                  <Text style={[s.foodMeta, { color: '#5b9bdc' }]}>{item.calories ?? 0} קק"ל</Text>
+                  <Text style={[s.foodMeta, { color: '#3a7a4a' }]}>{item.calories ?? 0} קק"ל</Text>
                   <Text style={s.foodMeta}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
                   <Text style={[s.foodMeta, { fontSize: 10, color: '#555' }]}>הקש לתיקון השם</Text>
                 </View>
@@ -543,7 +543,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
                     : <View style={[s.recentThumb, s.recentThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color="#555" /></View>}
                   <Text style={s.recentName} numberOfLines={1}>{f.food_name}</Text>
                   <Text style={s.recentCal}>{Math.round(f.calories ?? 0)} קק"ל</Text>
-                  {reloggingId === f.food_name && <ActivityIndicator size="small" color="#5b9bdc" style={s.recentSpinner} />}
+                  {reloggingId === f.food_name && <ActivityIndicator size="small" color="#3a7a4a" style={s.recentSpinner} />}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -563,7 +563,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 
         <TouchableOpacity style={s.actionRow2} onPress={onBarcode}>
           <View style={[s.actionIcon, { backgroundColor: '#1a2a3a' }]}>
-            <Ionicons name="barcode-outline" size={26} color="#5b9bdc" />
+            <Ionicons name="barcode-outline" size={26} color="#3a7a4a" />
           </View>
           <View style={s.actionText}>
             <Text style={s.actionLabel}>סריקת ברקוד</Text>
@@ -624,7 +624,7 @@ function TabNavigator() {
               paddingBottom: 8,
               paddingTop: 8,
             },
-            tabBarActiveTintColor: '#5b9bdc',
+            tabBarActiveTintColor: '#3a7a4a',
             tabBarInactiveTintColor: '#444',
             tabBarIcon: ({ color, focused }) =>
               tab ? <Ionicons name={focused ? tab.activeIcon : tab.icon} size={26} color={color} /> : null,
@@ -772,7 +772,7 @@ const s = StyleSheet.create({
   recentThumb:  { width: 64, height: 64, borderRadius: 10, marginBottom: 6 },
   recentThumbEmpty: { backgroundColor: '#23384c', alignItems: 'center', justifyContent: 'center' },
   recentName:   { color: '#fff', fontSize: 12, fontWeight: '600', textAlign: 'center' },
-  recentCal:    { color: '#5b9bdc', fontSize: 11, fontWeight: '700', marginTop: 2 },
+  recentCal:    { color: '#3a7a4a', fontSize: 11, fontWeight: '700', marginTop: 2 },
   recentSpinner:{ position: 'absolute', top: 30, alignSelf: 'center' },
 
   actionRow2: {
@@ -791,7 +791,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 12,
     color: '#fff', fontSize: 15, borderWidth: 1, borderColor: '#2e455c',
   },
-  searchBtn:    { backgroundColor: '#5b9bdc', borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' },
+  searchBtn:    { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 16, justifyContent: 'center' },
   searchBtnTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   foodCard:  { backgroundColor: '#1b2c3d', borderRadius: 16, padding: 16, gap: 12 },
   foodName:  { color: '#fff', fontSize: 18, fontWeight: '800', textAlign: 'right' },
@@ -805,7 +805,7 @@ const s = StyleSheet.create({
   wakingTxt: { color: '#0c1622', fontSize: 13, fontWeight: '700' },
   foodMeta:  { color: '#666', fontSize: 13, textAlign: 'right' },
   gramsRow:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  calBig:    { color: '#5b9bdc', fontSize: 26, fontWeight: '800' },
+  calBig:    { color: '#3a7a4a', fontSize: 26, fontWeight: '800' },
   gramsInput: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   gramsField: {
     backgroundColor: '#2e455c', borderRadius: 10, width: 70,
@@ -817,15 +817,15 @@ const s = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
     backgroundColor: '#23384c', marginRight: 8, borderWidth: 1, borderColor: '#2e455c',
   },
-  mealChipActive:    { backgroundColor: '#5b9bdc', borderColor: '#5b9bdc' },
+  mealChipActive:    { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
   mealChipTxt:       { color: '#666', fontSize: 13 },
   mealChipTxtActive: { color: '#fff', fontWeight: '700' },
-  saveBtn:    { backgroundColor: '#5b9bdc', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  saveBtn:    { backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
   saveBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   // Barcode
   scanOverlay:    { ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center' },
-  scanFrame:      { width: 260, height: 160, borderWidth: 2, borderColor: '#5b9bdc', borderRadius: 12 },
+  scanFrame:      { width: 260, height: 160, borderWidth: 2, borderColor: '#3a7a4a', borderRadius: 12 },
   scanHint:       { color: '#fff', marginTop: 16, fontSize: 14 },
   closeOverlayBtn: { position: 'absolute', top: 52, left: 16, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 8 },
   backBtn:        { position: 'absolute', top: 12, right: 12, padding: 8 },
@@ -840,7 +840,7 @@ const s = StyleSheet.create({
   foodRow:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1b2c3d', gap: 10 },
   gramsStepper:  { flexDirection: 'row', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 10, borderWidth: 1, borderColor: '#222' },
   stepBtn:       { paddingHorizontal: 10, paddingVertical: 6 },
-  stepTxt:       { color: '#5b9bdc', fontSize: 18, fontWeight: '800' },
+  stepTxt:       { color: '#3a7a4a', fontSize: 18, fontWeight: '800' },
   stepVal:       { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 44, textAlign: 'center' },
 
   // Camera photo shutter

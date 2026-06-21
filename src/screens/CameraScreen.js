@@ -62,11 +62,11 @@ export default function CameraScreen() {
       {/* Action buttons */}
       <View style={styles.btnRow}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => pickImage(true)}>
-          <Ionicons name="camera" size={28} color="#5b9bdc" />
+          <Ionicons name="camera" size={28} color="#3a7a4a" />
           <Text style={styles.actionLbl}>צלם</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionBtn} onPress={() => pickImage(false)}>
-          <Ionicons name="images" size={28} color="#5b9bdc" />
+          <Ionicons name="images" size={28} color="#3a7a4a" />
           <Text style={styles.actionLbl}>גלריה</Text>
         </TouchableOpacity>
       </View>
@@ -79,7 +79,7 @@ export default function CameraScreen() {
       {/* Loading */}
       {loading && (
         <View style={styles.loadingCard}>
-          <ActivityIndicator color="#5b9bdc" size="large" />
+          <ActivityIndicator color="#3a7a4a" size="large" />
           <Text style={styles.loadingTxt}>מזהה אוכל בתמונה...</Text>
           <Text style={styles.loadingHint}>AI מנתח את הארוחה שלך</Text>
         </View>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   foodGrams: { color: '#666', fontSize: 12, marginTop: 2 },
   foodMacros: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   foodMacro: { color: '#555', fontSize: 12 },
-  foodKcal: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
+  foodKcal: { color: '#3a7a4a', fontSize: 13, fontWeight: '700' },
   emptyState: { paddingTop: 60, alignItems: 'center', gap: 12 },
   emptyText: { color: '#444', fontSize: 14, textAlign: 'center' },
 });

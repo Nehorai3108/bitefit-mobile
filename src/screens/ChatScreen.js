@@ -179,7 +179,7 @@ export default function ChatScreen({ navigation }) {
 
       {loading && (
         <View style={styles.typingRow}>
-          <ActivityIndicator size="small" color="#5b9bdc" />
+          <ActivityIndicator size="small" color="#3a7a4a" />
           <Text style={styles.typingTxt}>מקליד...</Text>
         </View>
       )}
@@ -216,7 +216,7 @@ const makeStyles = (C) => StyleSheet.create({
   avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: C.surface2, justifyContent: 'center', alignItems: 'center', marginRight: 6 },
   avatarTxt: { fontSize: 16 },
   bubble: { maxWidth: '78%', borderRadius: 16, padding: 12 },
-  userBubble: { backgroundColor: '#5b9bdc', borderBottomRightRadius: 4 },
+  userBubble: { backgroundColor: '#3a7a4a', borderBottomRightRadius: 4 },
   aiBubble: { backgroundColor: C.surface2, borderBottomLeftRadius: 4 },
   bubbleText: { color: C.text, fontSize: 15, lineHeight: 22, textAlign: 'right' },
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
@@ -229,8 +229,8 @@ const makeStyles = (C) => StyleSheet.create({
   typingTxt: { color: C.placeholder, fontSize: 13 },
   inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: C.surface },
   input: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
-  sendBtn: { backgroundColor: '#5b9bdc', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  logBtn: { backgroundColor: '#5b9bdc', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
+  sendBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+  logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8 },
 });
