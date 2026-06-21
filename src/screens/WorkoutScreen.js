@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
@@ -6,8 +6,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+import { generatePlan } from '../utils/workoutPlanner';
+
+const PLAN_KEY = '@bitefit_workout_plan';
 
 const WORKOUT_TYPES = [
   { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#3a7a4a' },
@@ -60,6 +64,15 @@ function decorate(row) {
   };
 }
 
+const PLAN_TYPES = [
+  { key: 'strength', label: 'כוח', icon: 'barbell-outline' },
+  { key: 'running',  label: 'ריצה', icon: 'walk-outline' },
+  { key: 'hiit',     label: 'HIIT', icon: 'flame-outline' },
+  { key: 'mixed',    label: 'מעורב', icon: 'shuffle-outline' },
+];
+
+const TYPE_ICON = { strength: 'barbell-outline', running: 'walk-outline', hiit: 'flame-outline', mixed: 'shuffle-outline' };
+
 export default function WorkoutScreen({ navigation }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
@@ -72,15 +85,35 @@ export default function WorkoutScreen({ navigation }) {
     type: 'running', duration: '30', intensity: 'moderate', distance: '',
   });
 
+  // תוכנית שבועית
+  const [plan, setPlan]               = useState(null);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [showPlanView, setShowPlanView]   = useState(false);
+  const [selectedDay, setSelectedDay]     = useState(null);
+  const [planForm, setPlanForm] = useState({ days: 3, type: 'strength' });
+
   const load = useCallback(async () => {
     try {
       const r = await fetchWorkouts();
       setWorkouts((r.workouts ?? []).map(decorate).reverse());
     } catch { /* keep current */ }
     finally { setLoading(false); }
+    // טען תוכנית שמורה
+    try {
+      const saved = await AsyncStorage.getItem(PLAN_KEY);
+      if (saved) setPlan(JSON.parse(saved));
+    } catch {}
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const handleCreatePlan = async () => {
+    const newPlan = generatePlan(planForm.days, planForm.type);
+    setPlan(newPlan);
+    await AsyncStorage.setItem(PLAN_KEY, JSON.stringify(newPlan));
+    setShowPlanModal(false);
+    setShowPlanView(true);
+  };
 
   const totalCalories = workouts.reduce((s, w) => s + (w.calories || 0), 0);
   const totalMinutes = workouts.reduce((s, w) => s + (parseInt(w.duration) || 0), 0);
@@ -127,6 +160,12 @@ export default function WorkoutScreen({ navigation }) {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* כפתור תוכנית שבועית */}
+        <TouchableOpacity style={styles.planBtn} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)}>
+          <Ionicons name="calendar-outline" size={18} color="#fff" />
+          <Text style={styles.planBtnTxt}>{plan ? 'צפה בתוכנית השבועית' : 'צור תוכנית אימון'}</Text>
+        </TouchableOpacity>
+
         {/* Today's stats */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -179,6 +218,122 @@ export default function WorkoutScreen({ navigation }) {
           ))
         )}
       </ScrollView>
+
+      {/* מודאל יצירת תוכנית */}
+      <Modal visible={showPlanModal} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setShowPlanModal(false)}>
+                <Ionicons name="close" size={24} color={C.text} />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>צור תוכנית אימון</Text>
+            </View>
+
+            <Text style={styles.fieldLabel}>כמה ימים בשבוע?</Text>
+            <View style={styles.daysRow}>
+              {[2,3,4,5,6].map(d => (
+                <TouchableOpacity
+                  key={d}
+                  style={[styles.dayBtn, planForm.days === d && styles.dayBtnActive]}
+                  onPress={() => setPlanForm(f => ({ ...f, days: d }))}
+                >
+                  <Text style={[styles.dayBtnTxt, planForm.days === d && styles.dayBtnTxtActive]}>{d}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.fieldLabel}>סוג אימון</Text>
+            <View style={styles.planTypeGrid}>
+              {PLAN_TYPES.map(t => (
+                <TouchableOpacity
+                  key={t.key}
+                  style={[styles.planTypeBtn, planForm.type === t.key && styles.planTypeBtnActive]}
+                  onPress={() => setPlanForm(f => ({ ...f, type: t.key }))}
+                >
+                  <Ionicons name={t.icon} size={22} color={planForm.type === t.key ? '#fff' : C.textMuted} />
+                  <Text style={[styles.planTypeTxt, planForm.type === t.key && { color: '#fff' }]}>{t.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity style={styles.saveBtn} onPress={handleCreatePlan}>
+              <Text style={styles.saveTxt}>צור תוכנית</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* מודאל תצוגת תוכנית שבועית */}
+      <Modal visible={showPlanView} animationType="slide">
+        <View style={{ flex: 1, backgroundColor: C.bg }}>
+          <View style={styles.planViewHeader}>
+            <TouchableOpacity onPress={() => setShowPlanView(false)}>
+              <Ionicons name="arrow-back" size={24} color={C.text} />
+            </TouchableOpacity>
+            <Text style={styles.planViewTitle}>תוכנית שבועית</Text>
+            <TouchableOpacity onPress={() => { setShowPlanView(false); setShowPlanModal(true); }}>
+              <Ionicons name="refresh-outline" size={22} color="#3a7a4a" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            {(plan ?? []).map((item, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[styles.planDayCard, item.isRest && styles.planDayRest]}
+                onPress={() => !item.isRest && setSelectedDay(item)}
+              >
+                <View style={styles.planDayLeft}>
+                  <Text style={styles.planDayName}>{item.day}</Text>
+                  {!item.isRest && <Text style={styles.planDayDuration}>{item.duration} דק'</Text>}
+                </View>
+                {item.isRest ? (
+                  <Text style={styles.planRestTxt}>מנוחה</Text>
+                ) : (
+                  <View style={styles.planDayRight}>
+                    <Ionicons name={TYPE_ICON[item.type] ?? 'barbell-outline'} size={18} color="#3a7a4a" />
+                    <Text style={styles.planDayWorkoutName}>{item.name}</Text>
+                    <Ionicons name="chevron-forward" size={16} color={C.textMuted} />
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </View>
+      </Modal>
+
+      {/* מודאל פירוט אימון יומי */}
+      <Modal visible={!!selectedDay} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalCard, { maxHeight: '85%' }]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setSelectedDay(null)}>
+                <Ionicons name="close" size={24} color={C.text} />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>{selectedDay?.name}</Text>
+            </View>
+            <Text style={styles.planDayMeta}>{selectedDay?.day} • {selectedDay?.duration} דקות</Text>
+            {selectedDay?.note ? <Text style={styles.planNote}>{selectedDay.note}</Text> : null}
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {(selectedDay?.exercises ?? []).map((ex, i) => (
+                <View key={i} style={styles.exRow}>
+                  <View style={styles.exNum}><Text style={styles.exNumTxt}>{i + 1}</Text></View>
+                  <View style={styles.exInfo}>
+                    <Text style={styles.exName}>{ex.name}</Text>
+                    <Text style={styles.exDetail}>
+                      {ex.sets > 1 ? `${ex.sets} סטים` : ''}{ex.sets > 1 && ex.reps ? ' × ' : ''}{ex.reps}
+                    </Text>
+                    {ex.note ? <Text style={styles.exNote}>{ex.note}</Text> : null}
+                  </View>
+                </View>
+              ))}
+              <View style={{ height: 20 }} />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Add workout modal */}
       <Modal visible={showModal} animationType="slide" transparent>
@@ -300,4 +455,42 @@ const makeStyles = (C) => StyleSheet.create({
   caloriePreview: { color: C.textMuted, fontSize: 14, textAlign: 'center', marginBottom: 16 },
   saveBtn: { backgroundColor: '#3a7a4a', borderRadius: 14, padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  // כפתור תוכנית
+  planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#3a7a4a', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 14, justifyContent: 'center' },
+  planBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
+
+  // מודאל יצירת תוכנית
+  daysRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+  dayBtn: { flex: 1, padding: 12, borderRadius: 12, backgroundColor: C.surface3, alignItems: 'center', borderWidth: 1, borderColor: C.border },
+  dayBtnActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
+  dayBtnTxt: { color: C.textMuted, fontSize: 16, fontWeight: '700' },
+  dayBtnTxtActive: { color: '#fff' },
+  planTypeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
+  planTypeBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, width: '47%', padding: 14, borderRadius: 14, backgroundColor: C.surface3, borderWidth: 1, borderColor: C.border },
+  planTypeBtnActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
+  planTypeTxt: { color: C.textMuted, fontSize: 14, fontWeight: '600' },
+
+  // תצוגת תוכנית
+  planViewHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 56, paddingBottom: 16 },
+  planViewTitle: { color: C.text, fontSize: 20, fontWeight: '800' },
+  planDayCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: C.surface, marginHorizontal: 16, marginBottom: 10, borderRadius: 14, padding: 16 },
+  planDayRest: { opacity: 0.5 },
+  planDayLeft: { gap: 2 },
+  planDayName: { color: C.text, fontSize: 15, fontWeight: '700' },
+  planDayDuration: { color: C.textMuted, fontSize: 12 },
+  planDayRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  planDayWorkoutName: { color: '#3a7a4a', fontSize: 14, fontWeight: '600' },
+  planRestTxt: { color: C.textMuted, fontSize: 14 },
+
+  // פירוט אימון
+  planDayMeta: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginBottom: 8 },
+  planNote: { color: '#3a7a4a', fontSize: 13, backgroundColor: '#3a7a4a18', borderRadius: 8, padding: 10, marginBottom: 12, textAlign: 'right' },
+  exRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border2 },
+  exNum: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#3a7a4a22', alignItems: 'center', justifyContent: 'center' },
+  exNumTxt: { color: '#3a7a4a', fontSize: 13, fontWeight: '700' },
+  exInfo: { flex: 1 },
+  exName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right' },
+  exDetail: { color: C.textMuted, fontSize: 13, textAlign: 'right' },
+  exNote: { color: C.textDim, fontSize: 12, textAlign: 'right', marginTop: 2 },
 });
