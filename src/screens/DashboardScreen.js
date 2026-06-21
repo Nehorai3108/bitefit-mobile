@@ -1,12 +1,16 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   ActivityIndicator, RefreshControl, Image, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchFoodLogSummary, fetchFoodLog, fetchWater, addWater, fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary } from '../api/client';
+import {
+  fetchFoodLogSummaryByDate, fetchFoodLogByDate,
+  fetchProfileTargets, deleteFoodEntry, fetchWorkoutSummary,
+} from '../api/client';
 import { onDataChanged } from '../refreshBus';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 import MealBalanceCard from '../components/MealBalanceCard';
 import HistoryScreen from './HistoryScreen';
 import InventoryScreen from './InventoryScreen';
@@ -29,6 +33,14 @@ const MEAL_COLORS = {
   EVENING_SNACK:   '#14b8a6',   evening_snack: '#14b8a6',
 };
 
+function toIso(date) {
+  // מחזיר YYYY-MM-DD בזמן מקומי (לא UTC)
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
   const filled = Math.round(pct * 100);
   return (
@@ -38,22 +50,22 @@ function ProgressRing({ size = 90, pct = 0, color = '#5b9bdc', label, sub }) {
         width: size - 14, height: size - 14,
         borderRadius: (size - 14) / 2,
         borderColor: color,
-        borderTopColor: filled > 75 ? color : '#111',
-        borderRightColor: filled > 50 ? color : '#111',
+        borderTopColor:    filled > 75 ? color : '#111',
+        borderRightColor:  filled > 50 ? color : '#111',
         borderBottomColor: filled > 25 ? color : '#111',
-        borderLeftColor: filled > 0 ? color : '#111',
+        borderLeftColor:   filled > 0  ? color : '#111',
         transform: [{ rotate: `${filled * 3.6}deg` }],
       }]} />
       <View style={styles.ringCenter}>
         {label ? <Text style={[styles.ringLabel, { color }]}>{label}</Text> : null}
-        {sub ? <Text style={styles.ringSub}>{sub}</Text> : null}
+        {sub   ? <Text style={styles.ringSub}>{sub}</Text> : null}
       </View>
     </View>
   );
 }
 
 function MacroCard({ label, eaten, target, color }) {
-  const pct = target > 0 ? Math.min(eaten / target, 1) : 0;
+  const pct  = target > 0 ? Math.min(eaten / target, 1) : 0;
   const left = Math.max(Math.round((target ?? 0) - (eaten ?? 0)), 0);
   return (
     <View style={styles.macroCard}>
@@ -65,28 +77,47 @@ function MacroCard({ label, eaten, target, color }) {
   );
 }
 
-function WeekStrip() {
-  const days = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
-  const today = new Date();
+// ─── סרגל ימי שבוע אינטראקטיבי ─────────────────────────────────────────────────
+function WeekStrip({ selectedDate, onSelectDate }) {
+  const days    = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+  const today   = new Date();
+  const todayStr = toIso(today);
   const todayIdx = today.getDay();
-  const sunday = new Date(today); sunday.setDate(today.getDate() - todayIdx);
+  const sunday   = new Date(today);
+  sunday.setDate(today.getDate() - todayIdx);
+
   return (
     <View style={styles.weekStrip}>
       {days.map((d, i) => {
-        const date = new Date(sunday); date.setDate(sunday.getDate() + i);
-        const isToday = i === todayIdx;
+        const date    = new Date(sunday); date.setDate(sunday.getDate() + i);
+        const dateStr = toIso(date);
+        const isToday    = dateStr === todayStr;
+        const isSelected = dateStr === selectedDate;
         return (
-          <View key={i} style={[styles.weekDay, isToday && styles.weekDayActive]}>
-            <Text style={[styles.weekDayName, isToday && styles.weekDayTxtActive]}>{d}</Text>
-            <Text style={[styles.weekDayNum, isToday && styles.weekDayTxtActive]}>{date.getDate()}</Text>
-          </View>
+          <TouchableOpacity
+            key={i}
+            style={[styles.weekDay, isSelected && styles.weekDayActive]}
+            onPress={() => onSelectDate(dateStr)}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.weekDayName, isSelected && styles.weekDayTxtActive]}>{d}</Text>
+            <Text style={[
+              styles.weekDayNum,
+              isSelected && styles.weekDayTxtActive,
+              isToday && !isSelected && { color: '#5b9bdc' },
+            ]}>
+              {date.getDate()}
+            </Text>
+            {/* נקודה כחולה מתחת ליום הנוכחי (כשלא מסומן) */}
+            {isToday && !isSelected && <View style={styles.todayDot} />}
+          </TouchableOpacity>
         );
       })}
     </View>
   );
 }
 
-function FoodLogRow({ entry, onDelete }) {
+function FoodLogRow({ entry, onDelete, readOnly }) {
   const [deleting, setDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const mealColor = MEAL_COLORS[entry.meal_type] ?? '#5b9bdc';
@@ -122,10 +153,7 @@ function FoodLogRow({ entry, onDelete }) {
   return (
     <View style={styles.logItem}>
       <View style={styles.logRow}>
-        {/* Color dot */}
         <View style={[styles.logDot, { backgroundColor: mealColor }]} />
-
-        {/* Tappable area → toggles macro breakdown */}
         <TouchableOpacity style={styles.logTapArea} activeOpacity={0.7} onPress={() => setExpanded(e => !e)}>
           {entry.image_url ? (
             <Image source={{ uri: entry.image_url }} style={styles.logThumb} resizeMode="cover" />
@@ -134,30 +162,25 @@ function FoodLogRow({ entry, onDelete }) {
               <Ionicons name="restaurant-outline" size={18} color={mealColor} />
             </View>
           )}
-
           <View style={styles.logInfo}>
             <Text style={styles.logName} numberOfLines={1}>{entry.food_name}</Text>
             <Text style={[styles.logMeal, { color: mealColor }]}>{mealLabel}{time ? ` · ${time}` : ''}</Text>
           </View>
-
           <View style={styles.logCalWrap}>
             <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
             <Text style={styles.logCalLbl}>קק"ל</Text>
           </View>
-
           <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={16} color="#555" />
         </TouchableOpacity>
-
-        {/* Delete button */}
-        <TouchableOpacity onPress={handleDelete} disabled={deleting} style={styles.logDeleteBtn}>
-          {deleting
-            ? <ActivityIndicator size="small" color="#ff4444" />
-            : <Ionicons name="trash-outline" size={16} color="#444" />
-          }
-        </TouchableOpacity>
+        {!readOnly && (
+          <TouchableOpacity onPress={handleDelete} disabled={deleting} style={styles.logDeleteBtn}>
+            {deleting
+              ? <ActivityIndicator size="small" color="#ff4444" />
+              : <Ionicons name="trash-outline" size={16} color="#444" />
+            }
+          </TouchableOpacity>
+        )}
       </View>
-
-      {/* Expanded macro breakdown */}
       {expanded && (
         <View style={styles.macroPanel}>
           <View style={styles.macroBox}>
@@ -176,10 +199,14 @@ function FoodLogRow({ entry, onDelete }) {
   );
 }
 
-export default function DashboardScreen() {
+export default function DashboardScreen({ navigation }) {
+  const todayStr = toIso(new Date());
+
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const selectedDateRef = useRef(todayStr);
+
   const [summary, setSummary]   = useState({ calories: 0, protein: 0, carbs: 0, fat: 0, entries: 0 });
   const [targets, setTargets]   = useState({ calories: 2000, protein: 150, carbs: 250, fat: 67 });
-  const [water, setWater]       = useState({ total_ml: 0, goal_ml: 2000 });
   const [todayEntries, setTodayEntries] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -187,197 +214,224 @@ export default function DashboardScreen() {
   const [showInventory, setShowInventory] = useState(false);
   const [burned, setBurned] = useState(0);
 
+  const panHandlers = useSwipeNav(navigation, 'בית');
+
   const load = useCallback(async () => {
+    const d = selectedDateRef.current;
     try {
-      const [s, t, w, logData, ws] = await Promise.all([
-        fetchFoodLogSummary().catch(() => ({ calories: 0, protein: 0, carbs: 0, fat: 0, entries: 0 })),
+      const [s, t, logData, ws] = await Promise.all([
+        fetchFoodLogSummaryByDate(d).catch(() => ({ calories: 0, protein: 0, carbs: 0, fat: 0, entries: 0 })),
         fetchProfileTargets().catch(() => ({ calories: 2000, protein: 150, carbs: 250, fat: 67 })),
-        fetchWater().catch(() => ({ total_ml: 0, goal_ml: 2000 })),
-        fetchFoodLog().catch(() => ({ entries: [] })),
+        fetchFoodLogByDate(d).catch(() => ({ entries: [] })),
         fetchWorkoutSummary().catch(() => ({ calories_burned: 0 })),
       ]);
-      setSummary(s); setTargets(t); setWater(w); setBurned(ws?.calories_burned ?? 0);
+      setSummary(s); setTargets(t); setBurned(ws?.calories_burned ?? 0);
       const entries = logData?.entries ?? [];
-      const sorted = [...entries].sort((a, b) =>
+      const sorted  = [...entries].sort((a, b) =>
         new Date(b.timestamp ?? 0) - new Date(a.timestamp ?? 0)
       );
       setTodayEntries(sorted);
     } finally { setLoading(false); setRefreshing(false); }
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  const handleDateSelect = useCallback((d) => {
+    selectedDateRef.current = d;
+    setSelectedDate(d);
+    setLoading(true);
+    load();
+  }, [load]);
 
-  // רענון אוטומטי כשמשהו נוסף/נמחק מכל מקום באפליקציה (מודאל הוספה, צ'אט וכו')
+  useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => onDataChanged(load), [load]);
 
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#5b9bdc" /></View>;
 
-  const cal      = summary?.calories ?? 0;
-  const calTarget = targets?.calories ?? 2000;
-  // Exercise adds to the daily budget (eat-back), so remaining = target + burned − eaten.
-  const adjustedTarget = calTarget + burned;
-  const calLeft  = Math.max(adjustedTarget - cal, 0);
-  const calPct   = adjustedTarget > 0 ? Math.min(cal / adjustedTarget, 1) : 0;
-  const totalMl  = water?.total_ml ?? 0;
-  const goalMl   = water?.goal_ml ?? 2000;
-  const glasses  = Math.round(totalMl / 250);
-  const goalGlasses = Math.round(goalMl / 250);
-  const date     = new Date().toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
+  const isToday    = selectedDate === todayStr;
+  const displayDate = new Date(selectedDate + 'T12:00:00')
+    .toLocaleDateString('he-IL', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const cal           = summary?.calories ?? 0;
+  const calTarget     = targets?.calories ?? 2000;
+  const adjustedTarget = isToday ? calTarget + burned : calTarget;
+  const calLeft       = Math.max(adjustedTarget - cal, 0);
+  const calPct        = adjustedTarget > 0 ? Math.min(cal / adjustedTarget, 1) : 0;
 
   return (
-    <ScrollView style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#5b9bdc" />}>
-
-      <View style={styles.header}>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
-            <Ionicons name="calendar-outline" size={18} color="#5b9bdc" />
-            <Text style={styles.histBtnTxt}>היסטוריה</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.histBtn} onPress={() => setShowInventory(true)}>
-            <Ionicons name="cart-outline" size={18} color="#5b9bdc" />
-            <Text style={styles.histBtnTxt}>מלאי</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Text style={styles.logo}>NutriSmart</Text>
-          <Image source={require('../../assets/nutrismart-logo.png')}
-            style={styles.logoImg} resizeMode="contain" />
-        </View>
-      </View>
-      <Text style={styles.dateSub}>{date}</Text>
-
-      {/* רצועת ימי השבוע — Cal AI style */}
-      <WeekStrip />
-
-      <HistoryScreen visible={showHistory} onClose={() => setShowHistory(false)} />
-      <InventoryScreen visible={showInventory} onClose={() => setShowInventory(false)} />
-
-      {/* Calorie card */}
-      <View style={styles.calCard}>
-        <View style={styles.calInfo}>
-          <Text style={styles.calNum}>{calLeft.toLocaleString()}</Text>
-          <Text style={styles.calLbl}>קלוריות נותרות</Text>
-          <View style={styles.calRow}>
-            <View style={styles.calItem}><Text style={styles.calVal}>{calTarget.toLocaleString()}</Text><Text style={styles.calSub}>יעד</Text></View>
-            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#56bd6b' }]}>{cal}</Text><Text style={styles.calSub}>אכלת</Text></View>
-            <View style={styles.calItem}><Text style={[styles.calVal, { color: '#ef7d6c' }]}>{burned.toLocaleString()}</Text><Text style={styles.calSub}>שרפת</Text></View>
+    <View style={{ flex: 1 }} {...panHandlers}>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#5b9bdc" />
+        }
+      >
+        {/* כותרת */}
+        <View style={styles.header}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity style={styles.histBtn} onPress={() => setShowHistory(true)}>
+              <Ionicons name="calendar-outline" size={18} color="#5b9bdc" />
+              <Text style={styles.histBtnTxt}>היסטוריה</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.histBtn} onPress={() => setShowInventory(true)}>
+              <Ionicons name="cart-outline" size={18} color="#5b9bdc" />
+              <Text style={styles.histBtnTxt}>מלאי</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={styles.logo}>NutriSmart</Text>
+            <Image source={require('../../assets/nutrismart-logo.png')}
+              style={styles.logoImg} resizeMode="contain" />
           </View>
         </View>
-        <ProgressRing size={110} pct={calPct} color="#5b9bdc"
-          label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
-      </View>
 
-      {/* Macros */}
-      <View style={styles.macrosRow}>
-        <MacroCard label="שומן"     eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#56bd6b" />
-        <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}   target={targets?.carbs ?? 250}  color="#f0935f" />
-        <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#5b9bdc" />
-      </View>
+        {/* תאריך נבחר */}
+        <Text style={[styles.dateSub, !isToday && { color: '#5b9bdc' }]}>
+          {isToday ? displayDate : `${displayDate} (היסטוריה)`}
+        </Text>
 
-      {/* מאזן יומי חכם — יעד/נאכל לכל ארוחה + איזון בין ארוחות */}
-      <MealBalanceCard />
+        {/* סרגל שבוע אינטראקטיבי */}
+        <WeekStrip selectedDate={selectedDate} onSelectDate={handleDateSelect} />
 
-      {/* Today's food log */}
-      <View style={[styles.card, { marginBottom: 28 }]}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>יומן אכילה היום</Text>
-          <Text style={styles.waterMl}>{todayEntries.length} ארוחות</Text>
+        <HistoryScreen  visible={showHistory}   onClose={() => setShowHistory(false)} />
+        <InventoryScreen visible={showInventory} onClose={() => setShowInventory(false)} />
+
+        {/* כרטיס קלוריות */}
+        <View style={styles.calCard}>
+          <View style={styles.calInfo}>
+            <Text style={styles.calNum}>{calLeft.toLocaleString()}</Text>
+            <Text style={styles.calLbl}>קלוריות נותרות</Text>
+            <View style={styles.calRow}>
+              <View style={styles.calItem}>
+                <Text style={styles.calVal}>{calTarget.toLocaleString()}</Text>
+                <Text style={styles.calSub}>יעד</Text>
+              </View>
+              <View style={styles.calItem}>
+                <Text style={[styles.calVal, { color: '#56bd6b' }]}>{cal}</Text>
+                <Text style={styles.calSub}>אכלת</Text>
+              </View>
+              {isToday && (
+                <View style={styles.calItem}>
+                  <Text style={[styles.calVal, { color: '#ef7d6c' }]}>{burned.toLocaleString()}</Text>
+                  <Text style={styles.calSub}>שרפת</Text>
+                </View>
+              )}
+            </View>
+          </View>
+          <ProgressRing size={110} pct={calPct} color="#5b9bdc"
+            label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
         </View>
-        {todayEntries.length === 0
-          ? <Text style={styles.empty}>לא נרשמו ארוחות היום</Text>
-          : todayEntries.map((e, i) => (
-              <FoodLogRow
-                key={e.entry_id ?? i}
-                entry={e}
-                onDelete={(id) => {
-                  setTodayEntries(prev => prev.filter(x => x.entry_id !== id));
-                  setSummary(prev => {
-                    const deleted = todayEntries.find(x => x.entry_id === id);
-                    if (!deleted) return prev;
-                    return {
-                      ...prev,
-                      calories: Math.max(0, (prev.calories ?? 0) - (deleted.calories ?? 0)),
-                      protein:  Math.max(0, (prev.protein  ?? 0) - (deleted.protein  ?? 0)),
-                      carbs:    Math.max(0, (prev.carbs    ?? 0) - (deleted.carbs    ?? 0)),
-                      fat:      Math.max(0, (prev.fat      ?? 0) - (deleted.fat      ?? 0)),
-                      entries:  Math.max(0, (prev.entries  ?? 1) - 1),
-                    };
-                  });
-                }}
-              />
-            ))
-        }
-      </View>
 
-    </ScrollView>
+        {/* מאקרו */}
+        <View style={styles.macrosRow}>
+          <MacroCard label="שומן"    eaten={summary?.fat ?? 0}    target={targets?.fat ?? 67}    color="#56bd6b" />
+          <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}  target={targets?.carbs ?? 250} color="#f0935f" />
+          <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#5b9bdc" />
+        </View>
+
+        {/* מאזן ארוחות — רק ליום הנוכחי */}
+        {isToday && <MealBalanceCard />}
+
+        {/* יומן אכילה */}
+        <View style={[styles.card, { marginBottom: 28 }]}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>
+              {isToday ? 'יומן אכילה היום' : `יומן — ${displayDate}`}
+            </Text>
+            <Text style={styles.waterMl}>{todayEntries.length} ארוחות</Text>
+          </View>
+          {todayEntries.length === 0
+            ? <Text style={styles.empty}>
+                {isToday ? 'לא נרשמו ארוחות היום' : 'לא נרשמו ארוחות ביום זה'}
+              </Text>
+            : todayEntries.map((e, i) => (
+                <FoodLogRow
+                  key={e.entry_id ?? i}
+                  entry={e}
+                  readOnly={!isToday}
+                  onDelete={(id) => {
+                    setTodayEntries(prev => prev.filter(x => x.entry_id !== id));
+                    setSummary(prev => {
+                      const deleted = todayEntries.find(x => x.entry_id === id);
+                      if (!deleted) return prev;
+                      return {
+                        ...prev,
+                        calories: Math.max(0, (prev.calories ?? 0) - (deleted.calories ?? 0)),
+                        protein:  Math.max(0, (prev.protein  ?? 0) - (deleted.protein  ?? 0)),
+                        carbs:    Math.max(0, (prev.carbs    ?? 0) - (deleted.carbs    ?? 0)),
+                        fat:      Math.max(0, (prev.fat      ?? 0) - (deleted.fat      ?? 0)),
+                        entries:  Math.max(0, (prev.entries  ?? 1) - 1),
+                      };
+                    });
+                  }}
+                />
+              ))
+          }
+        </View>
+
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0c1622' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 2 },
-  date: { color: '#666', fontSize: 13 },
-  dateSub: { color: '#666', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
-  logo: { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
-  logoImg: { width: 34, height: 34, borderRadius: 9 },
-  weekStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
-  weekDay: { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
-  weekDayActive: { backgroundColor: '#5b9bdc' },
-  weekDayName: { color: '#5d7489', fontSize: 12, fontWeight: '600' },
-  weekDayNum: { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
-  weekDayTxtActive: { color: '#0c1622' },
-  histBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#14212f', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
+  center:    { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0c1622' },
+  header:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 2 },
+  dateSub:   { color: '#666', fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
+  logo:      { fontSize: 20, fontWeight: '800', color: '#5b9bdc' },
+  logoImg:   { width: 34, height: 34, borderRadius: 9 },
+
+  weekStrip:       { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
+  weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
+  weekDayActive:   { backgroundColor: '#5b9bdc' },
+  weekDayName:     { color: '#5d7489', fontSize: 12, fontWeight: '600' },
+  weekDayNum:      { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
+  weekDayTxtActive:{ color: '#0c1622' },
+  todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#5b9bdc', marginTop: 3 },
+
+  histBtn:    { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#14212f', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: '#1e2a44' },
   histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
   calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
   calInfo: { flex: 1, paddingRight: 12 },
-  calNum: { color: '#fff', fontSize: 38, fontWeight: '800' },
-  calLbl: { color: '#888', fontSize: 13, marginBottom: 14 },
-  calRow: { flexDirection: 'row', gap: 20 },
+  calNum:  { color: '#fff', fontSize: 38, fontWeight: '800' },
+  calLbl:  { color: '#888', fontSize: 13, marginBottom: 14 },
+  calRow:  { flexDirection: 'row', gap: 20 },
   calItem: {},
-  calVal: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  calSub: { color: '#666', fontSize: 11, marginTop: 2 },
+  calVal:  { color: '#fff', fontSize: 15, fontWeight: '700' },
+  calSub:  { color: '#666', fontSize: 11, marginTop: 2 },
 
-  ringWrap: { justifyContent: 'center', alignItems: 'center' },
-  ringBg: { borderWidth: 9, position: 'absolute' },
-  ringFg: { borderWidth: 9, position: 'absolute' },
+  ringWrap:   { justifyContent: 'center', alignItems: 'center' },
+  ringBg:     { borderWidth: 9, position: 'absolute' },
+  ringFg:     { borderWidth: 9, position: 'absolute' },
   ringCenter: { justifyContent: 'center', alignItems: 'center' },
-  ringLabel: { fontSize: 14, fontWeight: '800' },
-  ringSub: { color: '#888', fontSize: 10 },
+  ringLabel:  { fontSize: 14, fontWeight: '800' },
+  ringSub:    { color: '#888', fontSize: 10 },
 
   macrosRow: { flexDirection: 'row', marginHorizontal: 16, gap: 10, marginBottom: 12 },
   macroCard: { flex: 1, backgroundColor: '#14212f', borderRadius: 16, padding: 12, alignItems: 'center', gap: 3 },
-  macroVal: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  macroSub: { color: '#666', fontSize: 10 },
+  macroVal:  { color: '#fff', fontSize: 15, fontWeight: '700' },
+  macroSub:  { color: '#666', fontSize: 10 },
   macroName: { fontSize: 12, fontWeight: '700' },
 
-  card: { backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
+  card:       { backgroundColor: '#14212f', borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  cardTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  waterMl: { color: '#666', fontSize: 12 },
-  glassesRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
-  waterBtns: { flexDirection: 'row', gap: 8 },
-  waterBtn: { flex: 1, backgroundColor: '#23384c', borderRadius: 10, paddingVertical: 10, alignItems: 'center', borderWidth: 1, borderColor: '#2e455c' },
-  waterBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
-  empty: { color: '#444', fontSize: 14 },
+  cardTitle:  { color: '#fff', fontSize: 15, fontWeight: '700' },
+  waterMl:    { color: '#666', fontSize: 12 },
+  empty:      { color: '#444', fontSize: 14 },
 
-  // Food log row
-  logItem: { borderBottomWidth: 1, borderBottomColor: '#23384c' },
-  logRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
-  logTapArea: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  logDot: { width: 4, height: 38, borderRadius: 2 },
-  logThumb: { width: 40, height: 40, borderRadius: 10 },
-  logInfo: { flex: 1 },
-  logName: { color: '#fff', fontSize: 14, fontWeight: '600', textAlign: 'right' },
-  logMeal: { fontSize: 11, marginTop: 2, textAlign: 'right' },
-  logCalWrap: { alignItems: 'center', minWidth: 42 },
-  logCal: { fontSize: 15, fontWeight: '800' },
-  logCalLbl: { color: '#666', fontSize: 10 },
+  logItem:      { borderBottomWidth: 1, borderBottomColor: '#23384c' },
+  logRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
+  logTapArea:   { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  logDot:       { width: 4, height: 38, borderRadius: 2 },
+  logThumb:     { width: 40, height: 40, borderRadius: 10 },
+  logInfo:      { flex: 1 },
+  logName:      { color: '#fff', fontSize: 14, fontWeight: '600', textAlign: 'right' },
+  logMeal:      { fontSize: 11, marginTop: 2, textAlign: 'right' },
+  logCalWrap:   { alignItems: 'center', minWidth: 42 },
+  logCal:       { fontSize: 15, fontWeight: '800' },
+  logCalLbl:    { color: '#666', fontSize: 10 },
   logDeleteBtn: { padding: 8, marginLeft: 2 },
-  macroPanel: { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#101010', borderRadius: 12, paddingVertical: 12, marginBottom: 10, marginHorizontal: 4 },
-  macroBox: { alignItems: 'center' },
-  macroVal: { color: '#fff', fontSize: 15, fontWeight: '800' },
-  macroLbl: { color: '#777', fontSize: 11, marginTop: 3 },
+  macroPanel:   { flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#101010', borderRadius: 12, paddingVertical: 12, marginBottom: 10, marginHorizontal: 4 },
+  macroBox:     { alignItems: 'center' },
+  macroLbl:     { color: '#777', fontSize: 11, marginTop: 3 },
 });

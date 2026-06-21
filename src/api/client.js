@@ -156,6 +156,9 @@ export const fetchFoodLog = () => {
 export const fetchFoodLogByDate = (dateIso) =>
   api.get(`/food-log/${dateIso}`).then(r => r.data);
 
+export const fetchFoodLogSummaryByDate = (dateIso) =>
+  api.get(`/food-log/${dateIso}/summary`).then(r => r.data);
+
 // History — per-day calorie totals for the last N days (calendar view)
 export const fetchFoodHistory = (days = 35) =>
   api.get('/food-log/history', { params: { days } }).then(r => r.data);
