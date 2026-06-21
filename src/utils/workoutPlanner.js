@@ -83,7 +83,7 @@ const STRENGTH_SPLITS = {
   ],
   4: [
     {
-      name: 'Upper A — כוח',
+      name: 'פלג עליון א — כוח',
       duration: 60,
       exercises: [
         { name: 'לחיצת חזה שטוח', sets: 4, reps: '5-8', note: 'כוח מקסימלי' },
@@ -95,7 +95,7 @@ const STRENGTH_SPLITS = {
       ],
     },
     {
-      name: 'Lower A — כוח',
+      name: 'פלג תחתון א — כוח',
       duration: 60,
       exercises: [
         { name: 'סקוואט', sets: 5, reps: '4-6', note: 'עבודה כבדה' },
@@ -106,7 +106,7 @@ const STRENGTH_SPLITS = {
       ],
     },
     {
-      name: 'Upper B — היפרטרופיה',
+      name: 'פלג עליון ב — נפח',
       duration: 55,
       exercises: [
         { name: 'לחיצת חזה שיפוע', sets: 4, reps: '10-12' },
@@ -119,7 +119,7 @@ const STRENGTH_SPLITS = {
       ],
     },
     {
-      name: 'Lower B + ליבה',
+      name: 'פלג תחתון ב + ליבה',
       duration: 60,
       exercises: [
         { name: 'דדליפט', sets: 4, reps: '5-6', note: 'תרגיל פותח — כוח' },
@@ -128,13 +128,13 @@ const STRENGTH_SPLITS = {
         { name: 'עגל יושב', sets: 4, reps: '20' },
         { name: 'פלאנק', sets: 3, reps: '60 שניות' },
         { name: 'כפיפות בטן על כדור', sets: 3, reps: '20' },
-        { name: 'Russian twist', sets: 3, reps: '20' },
+        { name: 'סיבובי גזע', sets: 3, reps: '20' },
       ],
     },
   ],
   5: [
     {
-      name: 'Push',
+      name: 'דחיפה — חזה, כתפיים, טריצפס',
       duration: 60,
       exercises: [
         { name: 'לחיצת חזה שטוח', sets: 4, reps: '6-10' },
@@ -142,15 +142,15 @@ const STRENGTH_SPLITS = {
         { name: 'לחיצת כתפיים', sets: 4, reps: '8-10' },
         { name: 'כריות כתפיים צדדיות', sets: 3, reps: '15' },
         { name: 'דחיקת טריצפס', sets: 3, reps: '12' },
-        { name: 'Dips', sets: 3, reps: 'כישלון' },
+        { name: 'מקבילים', sets: 3, reps: 'עד כישלון' },
       ],
     },
     {
-      name: 'Pull',
+      name: 'משיכה — גב, ביצפס',
       duration: 60,
       exercises: [
         { name: 'דדליפט', sets: 4, reps: '5-6' },
-        { name: 'פולאפ', sets: 4, reps: 'כישלון' },
+        { name: 'פולאפ', sets: 4, reps: 'עד כישלון' },
         { name: 'חתירה ביחיד', sets: 3, reps: '12 כל יד' },
         { name: 'פרפר הפוך עם דמבלים', sets: 3, reps: '15' },
         { name: 'כפיפות ביצפס', sets: 3, reps: '12' },
@@ -158,47 +158,47 @@ const STRENGTH_SPLITS = {
       ],
     },
     {
-      name: 'Legs',
+      name: 'רגליים — פלג תחתון',
       duration: 65,
       exercises: [
         { name: 'סקוואט', sets: 5, reps: '5-8' },
         { name: 'לגפרס', sets: 4, reps: '10-12' },
         { name: 'דדליפט רומני', sets: 3, reps: '10' },
         { name: 'לאנג\'ים הליכה', sets: 3, reps: '12 כל רגל' },
-        { name: 'עגל', sets: 4, reps: '20' },
+        { name: 'עגל בעמידה', sets: 4, reps: '20' },
       ],
     },
     {
-      name: 'Upper — נפח',
+      name: 'פלג עליון — נפח',
       duration: 55,
       exercises: [
         { name: 'לחיצת חזה שיפוע עם דמבלים', sets: 4, reps: '12' },
         { name: 'חתירה בשכיבה', sets: 4, reps: '12' },
         { name: 'כריות כתפיים', sets: 4, reps: '15' },
-        { name: 'מקבילים (Dips)', sets: 3, reps: 'כישלון' },
+        { name: 'מקבילים', sets: 3, reps: 'עד כישלון' },
         { name: 'סופרסט: ביצפס + טריצפס', sets: 3, reps: '12+12' },
       ],
     },
     {
-      name: 'ליבה + HIIT קצר',
+      name: 'ליבה + אינטרוולים',
       duration: 40,
       exercises: [
         { name: 'פלאנק', sets: 4, reps: '60 שניות' },
-        { name: 'Mountain climbers', sets: 3, reps: '30 שניות' },
-        { name: 'Russian twist', sets: 3, reps: '20' },
-        { name: 'Burpees', sets: 3, reps: '10' },
+        { name: 'טיפוס הרים', sets: 3, reps: '30 שניות' },
+        { name: 'סיבובי גזע', sets: 3, reps: '20' },
+        { name: 'ברפי', sets: 3, reps: '10' },
         { name: 'הרמות רגליים', sets: 3, reps: '15' },
-        { name: 'V-ups', sets: 3, reps: '12' },
+        { name: 'קיפולי V', sets: 3, reps: '12' },
       ],
     },
   ],
   6: [
-    { name: 'Push A', duration: 60, exercises: [{ name: 'לחיצת חזה שטוח', sets: 5, reps: '5' }, { name: 'לחיצת חזה שיפוע', sets: 4, reps: '8' }, { name: 'לחיצת כתפיים', sets: 4, reps: '8' }, { name: 'כריות כתפיים צדדיות', sets: 3, reps: '15' }, { name: 'Dips', sets: 3, reps: 'כישלון' }] },
-    { name: 'Pull A', duration: 60, exercises: [{ name: 'דדליפט', sets: 5, reps: '5' }, { name: 'פולאפ', sets: 4, reps: 'כישלון' }, { name: 'חתירה בשכיבה', sets: 4, reps: '8' }, { name: 'כפיפות ביצפס', sets: 3, reps: '10' }] },
-    { name: 'Legs A', duration: 65, exercises: [{ name: 'סקוואט', sets: 5, reps: '5' }, { name: 'לגפרס', sets: 4, reps: '10' }, { name: 'דדליפט רומני', sets: 3, reps: '10' }, { name: 'עגל', sets: 4, reps: '20' }] },
-    { name: 'Push B', duration: 55, exercises: [{ name: 'לחיצת חזה שיפוע דמבלים', sets: 4, reps: '12' }, { name: 'פרפר עם דמבלים', sets: 3, reps: '12' }, { name: 'כריות כתפיים', sets: 4, reps: '15' }, { name: 'טריצפס פושדאון', sets: 3, reps: '15' }] },
-    { name: 'Pull B', duration: 55, exercises: [{ name: 'חתירה ביחיד עם דמבל', sets: 4, reps: '12 כל יד' }, { name: 'פרפר הפוך', sets: 3, reps: '15' }, { name: 'כפיפות ביצפס ריכוז', sets: 3, reps: '12 כל יד' }, { name: 'פטיש', sets: 2, reps: '12 כל יד' }] },
-    { name: 'Legs B', duration: 60, exercises: [{ name: 'בולגרי ספליט סקוואט', sets: 4, reps: '10 כל רגל' }, { name: 'לאנג\'ים הליכה', sets: 3, reps: '12 כל רגל' }, { name: 'כפיפות רגל', sets: 3, reps: '15' }, { name: 'פלאנק', sets: 3, reps: '60 שניות' }] },
+    { name: 'דחיפה א — כוח', duration: 60, exercises: [{ name: 'לחיצת חזה שטוח', sets: 5, reps: '5' }, { name: 'לחיצת חזה שיפוע', sets: 4, reps: '8' }, { name: 'לחיצת כתפיים', sets: 4, reps: '8' }, { name: 'כריות כתפיים צדדיות', sets: 3, reps: '15' }, { name: 'מקבילים', sets: 3, reps: 'עד כישלון' }] },
+    { name: 'משיכה א — כוח', duration: 60, exercises: [{ name: 'דדליפט', sets: 5, reps: '5' }, { name: 'פולאפ', sets: 4, reps: 'עד כישלון' }, { name: 'חתירה בשכיבה', sets: 4, reps: '8' }, { name: 'כפיפות ביצפס', sets: 3, reps: '10' }] },
+    { name: 'רגליים א', duration: 65, exercises: [{ name: 'סקוואט', sets: 5, reps: '5' }, { name: 'לגפרס', sets: 4, reps: '10' }, { name: 'דדליפט רומני', sets: 3, reps: '10' }, { name: 'עגל בעמידה', sets: 4, reps: '20' }] },
+    { name: 'דחיפה ב — נפח', duration: 55, exercises: [{ name: 'לחיצת חזה שיפוע דמבלים', sets: 4, reps: '12' }, { name: 'פרפר עם דמבלים', sets: 3, reps: '12' }, { name: 'כריות כתפיים', sets: 4, reps: '15' }, { name: 'טריצפס פושדאון', sets: 3, reps: '15' }] },
+    { name: 'משיכה ב — נפח', duration: 55, exercises: [{ name: 'חתירה ביחיד עם דמבל', sets: 4, reps: '12 כל יד' }, { name: 'פרפר הפוך', sets: 3, reps: '15' }, { name: 'כפיפות ביצפס ריכוז', sets: 3, reps: '12 כל יד' }, { name: 'פטיש', sets: 2, reps: '12 כל יד' }] },
+    { name: 'רגליים ב + ליבה', duration: 60, exercises: [{ name: 'בולגרי ספליט סקוואט', sets: 4, reps: '10 כל רגל' }, { name: 'לאנג\'ים הליכה', sets: 3, reps: '12 כל רגל' }, { name: 'כפיפות רגל', sets: 3, reps: '15' }, { name: 'פלאנק', sets: 3, reps: '60 שניות' }] },
   ],
 };
 
@@ -244,9 +244,9 @@ const HIIT_WORKOUTS = [
     name: 'Tabata אינטנסיבי',
     duration: 30,
     exercises: [
-      { name: 'Burpees', sets: 8, reps: '20 שניות עבודה / 10 שניות מנוחה' },
+      { name: 'ברפי', sets: 8, reps: '20 שניות עבודה / 10 שניות מנוחה' },
       { name: 'Jump squats', sets: 8, reps: '20/10' },
-      { name: 'Mountain climbers', sets: 8, reps: '20/10' },
+      { name: 'טיפוס הרים', sets: 8, reps: '20/10' },
       { name: 'Push-ups מהירים', sets: 8, reps: '20/10' },
     ],
     note: 'מנוחה 1 דקה בין תרגילים',
@@ -255,7 +255,7 @@ const HIIT_WORKOUTS = [
     name: 'Circuit Training',
     duration: 35,
     exercises: [
-      { name: 'Burpees', sets: 3, reps: '10' },
+      { name: 'ברפי', sets: 3, reps: '10' },
       { name: 'Jump lunges', sets: 3, reps: '12 כל רגל' },
       { name: 'Push-ups', sets: 3, reps: '15' },
       { name: 'High knees', sets: 3, reps: '30 שניות' },
@@ -268,10 +268,10 @@ const HIIT_WORKOUTS = [
     name: 'AMRAP 20 דקות',
     duration: 30,
     exercises: [
-      { name: 'Burpees', sets: 1, reps: '5' },
+      { name: 'ברפי', sets: 1, reps: '5' },
       { name: 'Air squats', sets: 1, reps: '10' },
       { name: 'Push-ups', sets: 1, reps: '10' },
-      { name: 'Mountain climbers', sets: 1, reps: '20 (10 כל צד)' },
+      { name: 'טיפוס הרים', sets: 1, reps: '20 (10 כל צד)' },
     ],
     note: 'כמה שיותר סבבים ב-20 דקות ללא הפסקה',
   },
