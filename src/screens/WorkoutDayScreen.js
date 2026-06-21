@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
@@ -46,28 +46,25 @@ function WarmCoolCard({ item, C }) {
 }
 
 function ExerciseCard({ ex, index, color, C }) {
+  const [expanded, setExpanded] = useState(false);
   const showRest = ex.rest && ex.rest !== '-';
   const icon = exIcon(ex.name);
 
   return (
-    <View style={[sh.card, { backgroundColor: C.surface, borderRightColor: color }]}>
-
-      {/* שורה עליונה: אייקון + שם + מספר */}
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => setExpanded(v => !v)}
+      style={[sh.card, { backgroundColor: C.surface, borderRightColor: color }]}
+    >
+      {/* שורה עליונה */}
       <View style={sh.cardTop}>
-        {/* מספר — שמאל */}
         <View style={[sh.num, { backgroundColor: color + '20' }]}>
           <Text style={[sh.numTxt, { color }]}>{index}</Text>
         </View>
-
-        {/* שם ושרירים — אמצע */}
         <View style={{ flex: 1 }}>
           <Text style={[sh.exName, { color: C.text }]}>{ex.name}</Text>
-          {ex.muscles ? (
-            <Text style={[sh.muscles, { color: C.textMuted }]}>{ex.muscles}</Text>
-          ) : null}
+          {ex.muscles ? <Text style={[sh.muscles, { color: C.textMuted }]}>{ex.muscles}</Text> : null}
         </View>
-
-        {/* אייקון — ימין */}
         <View style={[sh.iconCircle, { backgroundColor: color + '15' }]}>
           <Ionicons name={icon} size={18} color={color} />
         </View>
@@ -91,16 +88,35 @@ function ExerciseCard({ ex, index, color, C }) {
             <Text style={[sh.chipTxt, { color: C.textMuted }]}>{ex.rest}</Text>
           </View>
         )}
+        <View style={{ flex: 1 }} />
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={C.textMuted} />
       </View>
 
-      {/* טיפ טכני */}
-      {ex.tip ? (
-        <View style={[sh.tipBox, { backgroundColor: color + '0d', borderColor: color + '33' }]}>
-          <Text style={[sh.tipLabel, { color }]}>טיפ: </Text>
-          <Text style={[sh.tipTxt, { color: C.textMuted }]}>{ex.tip}</Text>
+      {/* פירוט מורחב */}
+      {expanded && (
+        <View style={[sh.expandBox, { borderTopColor: C.border2 }]}>
+          {ex.tip ? (
+            <View style={[sh.tipBox, { backgroundColor: color + '0d', borderColor: color + '33' }]}>
+              <Text style={[sh.tipLabel, { color }]}>טכניקה: </Text>
+              <Text style={[sh.tipTxt, { color: C.textMuted }]}>{ex.tip}</Text>
+            </View>
+          ) : null}
+          {ex.sets > 1 && (
+            <View style={[sh.howToBox, { backgroundColor: C.surface2 }]}>
+              <Text style={[sh.howToTitle, { color: C.text }]}>איך לבצע:</Text>
+              <Text style={[sh.howToTxt, { color: C.textMuted }]}>
+                {'בצע ' + ex.sets + ' סטים של ' + ex.reps + (showRest ? '. מנוחה ' + ex.rest + ' בין סטים.' : '.')}
+              </Text>
+              {showRest && (
+                <Text style={[sh.howToTxt, { color: C.textMuted, marginTop: 4 }]}>
+                  במהלך המנוחה — תנשום עמוק ותתכונן לסט הבא.
+                </Text>
+              )}
+            </View>
+          )}
         </View>
-      ) : null}
-    </View>
+      )}
+    </TouchableOpacity>
   );
 }
 
@@ -186,9 +202,13 @@ const sh = StyleSheet.create({
   chip:       { flexDirection: 'row-reverse', alignItems: 'center', gap: 4, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
   chipTxt:    { fontSize: 12, fontWeight: '600' },
 
+  expandBox:  { borderTopWidth: 1, marginTop: 10, paddingTop: 10, gap: 8 },
   tipBox:     { flexDirection: 'row-reverse', gap: 4, borderWidth: 1, borderRadius: 10, padding: 10, alignItems: 'flex-start' },
   tipLabel:   { fontSize: 12, fontWeight: '700' },
   tipTxt:     { fontSize: 12, flex: 1, textAlign: 'right', lineHeight: 18 },
+  howToBox:   { borderRadius: 10, padding: 10 },
+  howToTitle: { fontSize: 13, fontWeight: '700', textAlign: 'right', marginBottom: 4 },
+  howToTxt:   { fontSize: 12, textAlign: 'right', lineHeight: 18 },
 });
 
 const makeStyles = (C) => StyleSheet.create({

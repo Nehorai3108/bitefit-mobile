@@ -268,46 +268,48 @@ export default function WorkoutScreen({ navigation }) {
       {/* מודאל תצוגת תוכנית שבועית */}
       <Modal visible={showPlanView} animationType="slide">
         <View style={{ flex: 1, backgroundColor: C.bg }}>
-          <View style={styles.planViewHeader}>
-            <TouchableOpacity onPress={() => setShowPlanView(false)}>
-              <Ionicons name="arrow-back" size={24} color={C.text} />
-            </TouchableOpacity>
-            <Text style={styles.planViewTitle}>תוכנית שבועית</Text>
-            <TouchableOpacity onPress={() => { setShowPlanView(false); setShowPlanModal(true); }}>
-              <Ionicons name="refresh-outline" size={22} color="#3a7a4a" />
-            </TouchableOpacity>
-          </View>
+          {selectedDay ? (
+            // מסך פירוט אימון — בתוך אותו מודאל
+            <WorkoutDayScreen day={selectedDay} onClose={() => setSelectedDay(null)} />
+          ) : (
+            <>
+              <View style={styles.planViewHeader}>
+                <TouchableOpacity onPress={() => setShowPlanView(false)}>
+                  <Ionicons name="arrow-back" size={24} color={C.text} />
+                </TouchableOpacity>
+                <Text style={styles.planViewTitle}>תוכנית שבועית</Text>
+                <TouchableOpacity onPress={() => { setShowPlanView(false); setShowPlanModal(true); }}>
+                  <Ionicons name="refresh-outline" size={22} color="#3a7a4a" />
+                </TouchableOpacity>
+              </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-            {(plan ?? []).map((item, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={[styles.planDayCard, item.isRest && styles.planDayRest]}
-                onPress={() => !item.isRest && setSelectedDay(item)}
-              >
-                <View style={styles.planDayLeft}>
-                  <Text style={styles.planDayName}>{item.day}</Text>
-                  {!item.isRest && <Text style={styles.planDayDuration}>{item.duration} דק'</Text>}
-                </View>
-                {item.isRest ? (
-                  <Text style={styles.planRestTxt}>מנוחה</Text>
-                ) : (
-                  <View style={styles.planDayRight}>
-                    <Ionicons name={TYPE_ICON[item.type] ?? 'barbell-outline'} size={18} color="#3a7a4a" />
-                    <Text style={styles.planDayWorkoutName}>{item.name}</Text>
-                    <Ionicons name="chevron-forward" size={16} color={C.textMuted} />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
-            <View style={{ height: 40 }} />
-          </ScrollView>
+              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+                {(plan ?? []).map((item, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    style={[styles.planDayCard, item.isRest && styles.planDayRest]}
+                    onPress={() => !item.isRest && setSelectedDay(item)}
+                  >
+                    <View style={styles.planDayLeft}>
+                      <Text style={styles.planDayName}>{item.day}</Text>
+                      {!item.isRest && <Text style={styles.planDayDuration}>{item.duration} דק'</Text>}
+                    </View>
+                    {item.isRest ? (
+                      <Text style={styles.planRestTxt}>מנוחה</Text>
+                    ) : (
+                      <View style={styles.planDayRight}>
+                        <Ionicons name={TYPE_ICON[item.type] ?? 'barbell-outline'} size={18} color="#3a7a4a" />
+                        <Text style={styles.planDayWorkoutName}>{item.name}</Text>
+                        <Ionicons name="chevron-forward" size={16} color={C.textMuted} />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+                <View style={{ height: 40 }} />
+              </ScrollView>
+            </>
+          )}
         </View>
-      </Modal>
-
-      {/* מסך פירוט אימון */}
-      <Modal visible={!!selectedDay} animationType="slide">
-        <WorkoutDayScreen day={selectedDay} onClose={() => setSelectedDay(null)} />
       </Modal>
 
       {/* Add workout modal */}
