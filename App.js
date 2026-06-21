@@ -634,7 +634,7 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
     <>
       {/* קו ירוק — לחיצה פותחת/סוגרת */}
       <TouchableOpacity
-        style={[fabSt.pill, { bottom: insets.bottom + 6 }]}
+        style={[fabSt.pill, { bottom: insets.bottom }]}
         onPress={() => isOpen.current ? closeDrawer() : openDrawer()}
         activeOpacity={0.7}
       >
