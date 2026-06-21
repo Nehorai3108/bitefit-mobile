@@ -223,6 +223,7 @@ export default function DashboardScreen({ navigation }) {
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [burned, setBurned] = useState(0);
+  const [showConsumed, setShowConsumed] = useState(false);
 
   const panHandlers = useSwipeNav(navigation, 'בית');
 
@@ -278,12 +279,10 @@ export default function DashboardScreen({ navigation }) {
         <View style={styles.header}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('History')}>
-              <Ionicons name="calendar-outline" size={18} color="#5b9bdc" />
-              <Text style={styles.histBtnTxt}>היסטוריה</Text>
+              <Ionicons name="calendar-outline" size={20} color="#5b9bdc" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.histBtn} onPress={() => navigation.navigate('Inventory')}>
-              <Ionicons name="cart-outline" size={18} color="#5b9bdc" />
-              <Text style={styles.histBtnTxt}>מלאי</Text>
+              <Ionicons name="cart-outline" size={20} color="#5b9bdc" />
             </TouchableOpacity>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -302,10 +301,12 @@ export default function DashboardScreen({ navigation }) {
         <WeekStrip selectedDate={selectedDate} onSelectDate={handleDateSelect} />
 
         {/* כרטיס קלוריות */}
-        <View style={styles.calCard}>
+        <TouchableOpacity style={styles.calCard} activeOpacity={0.85} onPress={() => setShowConsumed(v => !v)}>
           <View style={styles.calInfo}>
-            <Text style={styles.calNum}>{calLeft.toLocaleString()}</Text>
-            <Text style={styles.calLbl}>קלוריות נותרות</Text>
+            <Text style={[styles.calNum, showConsumed && { color: '#56bd6b' }]}>
+              {showConsumed ? cal.toLocaleString() : calLeft.toLocaleString()}
+            </Text>
+            <Text style={styles.calLbl}>{showConsumed ? 'קלוריות שאכלת' : 'קלוריות נותרות'}</Text>
             <View style={styles.calRow}>
               <View style={styles.calItem}>
                 <Text style={styles.calVal}>{calTarget.toLocaleString()}</Text>
@@ -325,7 +326,7 @@ export default function DashboardScreen({ navigation }) {
           </View>
           <ProgressRing size={110} pct={calPct} color="#5b9bdc"
             label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
-        </View>
+        </TouchableOpacity>
 
         {/* מאקרו */}
         <View style={styles.macrosRow}>
@@ -395,7 +396,7 @@ const makeStyles = (C) => StyleSheet.create({
   weekDayTxtActive:{ color: C.bg },
   todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#5b9bdc', marginTop: 3 },
 
-  histBtn:    { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: C.surface, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: C.border2 },
+  histBtn:    { alignItems: 'center', justifyContent: 'center', backgroundColor: C.surface, borderRadius: 10, padding: 8, borderWidth: 1, borderColor: C.border2 },
   histBtnTxt: { color: '#5b9bdc', fontSize: 13, fontWeight: '700' },
 
   calCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: C.surface, borderRadius: 20, margin: 16, marginTop: 4, padding: 20 },
