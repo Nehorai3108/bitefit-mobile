@@ -51,7 +51,7 @@ export default function InventoryScreen({ navigation }) {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { if (visible) load(); }, [visible, load]);
+  useEffect(() => { load(); }, [load]);
 
   const handleDelete = (item) => {
     setItems(prev => prev.filter(i => i.item_id !== item.item_id));
