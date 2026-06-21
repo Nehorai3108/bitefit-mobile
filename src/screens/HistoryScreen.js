@@ -350,8 +350,10 @@ export default function HistoryScreen({ visible, onClose }) {
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
-        {/* Header — כאן יושב ה-PanResponder כי ה-ScrollView מתחתיו גוזל מגעים */}
-        <View style={s.header} {...swipeClose}>
+        {/* רצועת גרירה — ללא ילדים, מבטיחה שה-PanResponder לא יתחרה עם כפתורים */}
+        <View style={s.dragStrip} {...swipeClose} />
+        {/* Header */}
+        <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>היסטוריית תזונה</Text>
         </View>
@@ -428,7 +430,8 @@ function DayDetail({ selected, onClose }) {
 const makeS = (C) => StyleSheet.create({
   container:  { flex: 1, backgroundColor: C.bg },
   center:     { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header:     { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.surface2 },
+  dragStrip:  { height: 52, width: '100%' },   // אזור גרירה ייעודי — מכסה את ה-safe-area העליון
+  header:     { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.surface2 },
   title:      { color: C.text, fontSize: 20, fontWeight: '800' },
 
   tabBar:       { flexDirection: 'row', marginHorizontal: 16, marginVertical: 12, backgroundColor: C.surface2, borderRadius: 12, padding: 3 },

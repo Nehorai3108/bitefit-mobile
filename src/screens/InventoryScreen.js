@@ -74,7 +74,8 @@ export default function InventoryScreen({ visible, onClose }) {
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={s.container}>
-        <View style={s.header} {...swipeClose}>
+        <View style={s.dragStrip} {...swipeClose} />
+        <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
           <Text style={s.count}>{items.length} פריטים</Text>
@@ -435,7 +436,8 @@ function CookCard({ recipe: r, matchColor }) {
 }
 
 const makeS = (C) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: C.bg },
+  container:  { flex: 1, backgroundColor: C.bg },
+  dragStrip:  { height: 52, width: '100%' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 8, padding: 24 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: C.surface2 },
   title: { color: C.text, fontSize: 20, fontWeight: '800', flex: 1 },
