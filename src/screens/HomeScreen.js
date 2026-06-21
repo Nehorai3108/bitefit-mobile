@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry, searchMealRecipes } from '../api/client';
+import { fetchDailyPlan, fetchMealSuggestions, addFoodEntry, searchMealRecipes, fetchDayTarget, fetchWeekSummary, recordDayIntake } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const todayWorkoutKey = () => {
@@ -146,6 +146,9 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
         image_url: recipe?.image_url ?? null,
       });
       setAte(true);
+      // עדכון לדג'ר שבועי ברקע
+      const cal = Math.round(nn.calories ?? 0);
+      if (cal > 0) recordDayIntake(cal).catch(() => {});
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לרשום'); }
   };
 
@@ -248,6 +251,8 @@ export default function HomeScreen({ navigation }) {
   const [searchResults, setSearchResults] = useState(null); // null = not searching
   const [searching, setSearching] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState(null);
+  const [adaptedTarget, setAdaptedTarget] = useState(null);   // { calories, bank_adjustment, source }
+  const [weekSummary, setWeekSummary]     = useState(null);   // { bank_balance, ledger }
 
   useFocusEffect(
     useCallback(() => {
@@ -260,8 +265,14 @@ export default function HomeScreen({ navigation }) {
 
   const load = useCallback(async () => {
     try {
-      const planData = await fetchDailyPlan().catch(() => null);
+      const [planData, dayTarget, week] = await Promise.all([
+        fetchDailyPlan().catch(() => null),
+        fetchDayTarget(),
+        fetchWeekSummary(),
+      ]);
       setPlan(planData);
+      if (dayTarget) setAdaptedTarget(dayTarget);
+      if (week)      setWeekSummary(week);
 
       // Fetch suggestions for all meals in parallel
       const results = await Promise.allSettled(
@@ -350,7 +361,7 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 
-  const totalTarget = plan?.total_target ?? 2500;
+  const totalTarget = adaptedTarget?.calories ?? plan?.total_target ?? 2500;
   const activeMealKey = MEALS[activeMeal]?.key;
   const activeMealData = plan?.plan?.[activeMealKey];
   const activeRecipes = mealRecipes[activeMealKey] ?? [];
@@ -370,7 +381,25 @@ export default function HomeScreen({ navigation }) {
         {/* Title */}
         <View style={styles.titleSection}>
           <Text style={styles.pageTitle}>תפריט יומי מותאם אישית</Text>
-          <Text style={styles.pageSub}>יעד: {totalTarget} קק"ל ליום</Text>
+          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
+            <Text style={styles.pageSub}>יעד היום: {totalTarget} קק"ל</Text>
+            {adaptedTarget?.bank_adjustment !== 0 && adaptedTarget?.bank_adjustment != null && (
+              <View style={[styles.bankChip, { backgroundColor: adaptedTarget.bank_adjustment > 0 ? '#1a3a2a' : '#3a1a1a' }]}>
+                <Text style={[styles.bankChipTxt, { color: adaptedTarget.bank_adjustment > 0 ? '#56bd6b' : '#ef7d6c' }]}>
+                  {adaptedTarget.bank_adjustment > 0 ? '+' : ''}{adaptedTarget.bank_adjustment} מבנק
+                </Text>
+              </View>
+            )}
+          </View>
+          {weekSummary?.bank_balance != null && (
+            <Text style={styles.weekBank}>
+              {weekSummary.bank_balance > 50
+                ? `השבוע אכלת ${weekSummary.bank_balance} קק"ל יותר מהיעד`
+                : weekSummary.bank_balance < -50
+                ? `השבוע חסרים לך ${Math.abs(weekSummary.bank_balance)} קק"ל מהיעד`
+                : 'השבוע אתה בדיוק על היעד ✓'}
+            </Text>
+          )}
         </View>
 
         {/* Buttons */}
@@ -514,6 +543,9 @@ const makeStyles = (C) => StyleSheet.create({
   clearBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: C.border },
   clearTxt: { color: '#aaa', fontSize: 15 },
   divider: { height: 1, backgroundColor: C.surface2, marginHorizontal: 16, marginBottom: 10 },
+  bankChip: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+  bankChipTxt: { fontSize: 11, fontWeight: '700' },
+  weekBank: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 4 },
   workoutDoneCard: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, marginHorizontal: 16, marginBottom: 14, padding: 14, borderRadius: 14, borderWidth: 1.5, backgroundColor: C.surface },
   workoutDoneIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   workoutDoneBody: { flex: 1, alignItems: 'flex-end' },

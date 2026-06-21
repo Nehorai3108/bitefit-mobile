@@ -206,6 +206,19 @@ export const addInventoryBulk = (items) =>
 export const fetchCookSuggestions = () =>
   api.get('/inventory/cook').then(r => r.data);
 
+// Adaptation Engine — יעד יומי מותאם + מאזן שבועי
+export const fetchDayTarget = () =>
+  api.get('/adaptation/day-target').then(r => r.data).catch(() => null);
+
+export const fetchWeekSummary = () =>
+  api.get('/adaptation/week-summary').then(r => r.data).catch(() => null);
+
+export const recordDayIntake = (consumed_calories) =>
+  api.post('/adaptation/record-day', { consumed_calories }).then(r => r.data).catch(() => null);
+
+export const fetchMealSubtargets = () =>
+  api.get('/adaptation/meal-subtargets').then(r => r.data).catch(() => null);
+
 // Meal balance — מאזן קלורי חכם פר-ארוחה
 export const fetchMealBalance = (dateIso) => {
   const t = dateIso ?? new Date().toISOString().split('T')[0];
