@@ -65,10 +65,7 @@ function ExerciseCard({ ex, index, color, C }) {
           <Text style={[sh.exName, { color: C.text }]}>{ex.name}</Text>
           {ex.muscles ? <Text style={[sh.muscles, { color: C.textMuted }]}>{ex.muscles}</Text> : null}
         </View>
-        {/* איור קטן */}
-        <View style={[sh.illCircle, { backgroundColor: color + '10' }]}>
-          <ExerciseIllustration name={ex.name} color={color} size={52} />
-        </View>
+        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={C.textMuted} style={{ marginLeft: 2 }} />
       </View>
 
       {/* שורת נתונים */}
@@ -90,12 +87,14 @@ function ExerciseCard({ ex, index, color, C }) {
           </View>
         )}
         <View style={{ flex: 1 }} />
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={C.textMuted} />
       </View>
 
       {/* פירוט מורחב */}
       {expanded && (
         <View style={[sh.expandBox, { borderTopColor: C.border2 }]}>
+          {/* איור תנועה כפול */}
+          <ExerciseIllustration name={ex.name} color={color} size={96} />
+
           {ex.tip ? (
             <View style={[sh.tipBox, { backgroundColor: color + '0d', borderColor: color + '33' }]}>
               <Text style={[sh.tipLabel, { color }]}>טכניקה: </Text>
@@ -193,7 +192,6 @@ const sh = StyleSheet.create({
   card:       { borderRadius: 14, padding: 14, marginBottom: 10, borderRightWidth: 4,
                 shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.07, shadowRadius: 5, elevation: 2 },
   cardTop:    { flexDirection: 'row-reverse', gap: 10, alignItems: 'center', marginBottom: 10 },
-  illCircle:  { width: 58, height: 58, borderRadius: 12, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   num:        { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   numTxt:     { fontSize: 13, fontWeight: '800' },
   exName:     { fontSize: 15, fontWeight: '700', textAlign: 'right' },
