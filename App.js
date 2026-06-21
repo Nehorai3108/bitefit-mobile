@@ -7,6 +7,7 @@ import {
   TouchableOpacity, View, Modal, Text, StyleSheet,
   Pressable, TextInput, ActivityIndicator, Alert,
   ScrollView, KeyboardAvoidingView, Platform, Image,
+  Animated, PanResponder,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
@@ -596,46 +597,63 @@ const TABS = [
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
 ];
 
-function FloatingTabBar({ state, navigation, onAddPress }) {
+const DRAWER_OPEN  = 0;
+const DRAWER_CLOSED = 90;
+
+function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
-  const [open, setOpen] = useState(false);
+  const translateY = useRef(new Animated.Value(DRAWER_CLOSED)).current;
+  const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const go = (name) => { navigation.navigate(name); setOpen(false); };
+  const open  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: DRAWER_OPEN,   useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const close = () => { isOpen.current = false; Animated.spring(translateY, { toValue: DRAWER_CLOSED, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+
+  const pan = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dy) > 8 && Math.abs(gs.dy) > Math.abs(gs.dx),
+    onPanResponderRelease: (_, gs) => {
+      if (gs.dy < -20) open();
+      else if (gs.dy > 20) close();
+    },
+  })).current;
+
+  const go = (name) => { navigation.navigate(name); close(); };
 
   return (
-    <View pointerEvents="box-none" style={fabSt.wrap}>
-      {open && (
-        <View style={[fabSt.menu, { backgroundColor: C.surface }]}>
-          {realRoutes.map(route => {
-            const def = TABS.find(t => t.name === route.name);
-            if (!def) return null;
-            const focused = activeRoute === route.name;
-            return (
-              <TouchableOpacity key={route.name} style={[fabSt.menuItem, focused && fabSt.menuItemActive]} onPress={() => go(route.name)}>
-                <Ionicons name={focused ? def.activeIcon : def.icon} size={22} color={focused ? '#fff' : '#3a7a4a'} />
-              </TouchableOpacity>
-            );
-          })}
-          <TouchableOpacity style={[fabSt.menuItem, { backgroundColor: '#3a7a4a' }]} onPress={() => { onAddPress(); setOpen(false); }}>
-            <Ionicons name="add" size={22} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      )}
-      <TouchableOpacity style={fabSt.fab} onPress={() => setOpen(v => !v)} activeOpacity={0.85}>
-        <Ionicons name={open ? 'close' : 'menu'} size={26} color="#fff" />
-      </TouchableOpacity>
-    </View>
+    <Animated.View style={[fabSt.drawer, { backgroundColor: C.surface, transform: [{ translateY }] }]} {...pan.panHandlers}>
+      {/* handle */}
+      <View style={fabSt.handle} />
+
+      {/* tab icons */}
+      <View style={fabSt.row}>
+        {realRoutes.map(route => {
+          const def = TABS.find(t => t.name === route.name);
+          if (!def) return null;
+          const focused = activeRoute === route.name;
+          return (
+            <TouchableOpacity key={route.name} style={fabSt.item} onPress={() => go(route.name)}>
+              <Ionicons name={focused ? def.activeIcon : def.icon} size={24} color={focused ? '#3a7a4a' : C.textMuted} />
+              <Text style={[fabSt.label, { color: focused ? '#3a7a4a' : C.textMuted }]}>{route.name}</Text>
+            </TouchableOpacity>
+          );
+        })}
+        <TouchableOpacity style={fabSt.item} onPress={() => { onAddPress(); close(); }}>
+          <View style={fabSt.addCircle}><Ionicons name="add" size={22} color="#fff" /></View>
+          <Text style={[fabSt.label, { color: C.textMuted }]}>הוסף</Text>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
   );
 }
 
 const fabSt = StyleSheet.create({
-  wrap:         { position: 'absolute', bottom: 28, alignSelf: 'center', alignItems: 'center' },
-  fab:          { width: 58, height: 58, borderRadius: 29, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 8 },
-  menu:         { flexDirection: 'row', borderRadius: 32, paddingHorizontal: 10, paddingVertical: 8, gap: 8, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 6 },
-  menuItem:     { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
-  menuItemActive:{ backgroundColor: '#3a7a4a' },
+  drawer:   { position: 'absolute', bottom: 0, left: 0, right: 0, borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingBottom: 24, shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
+  handle:   { width: 40, height: 4, borderRadius: 2, backgroundColor: '#ccc', alignSelf: 'center', marginTop: 10, marginBottom: 6 },
+  row:      { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 8, paddingTop: 8 },
+  item:     { alignItems: 'center', gap: 4, flex: 1 },
+  label:    { fontSize: 10, fontWeight: '600' },
+  addCircle:{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center' },
 });
 
 function TabNavigator() {
@@ -652,7 +670,7 @@ function TabNavigator() {
   return (
     <>
       <Tab.Navigator
-        tabBar={props => <FloatingTabBar {...props} onAddPress={() => setShowAdd(true)} />}
+        tabBar={props => <SwipeUpNav {...props} onAddPress={() => setShowAdd(true)} />}
         screenOptions={{ headerShown: false }}
       >
         {TABS.map(tab => (
