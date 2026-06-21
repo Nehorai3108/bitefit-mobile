@@ -77,20 +77,24 @@ function MacroCard({ label, eaten, target, color }) {
   );
 }
 
-// ─── סרגל ימי שבוע אינטראקטיבי ─────────────────────────────────────────────────
+// ─── סרגל ימי שבוע אינטראקטיבי — 7 ימים אחרונים כולל היום ────────────────────
 function WeekStrip({ selectedDate, onSelectDate }) {
-  const days    = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
-  const today   = new Date();
+  const HE_DAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+  const today    = new Date();
   const todayStr = toIso(today);
-  const todayIdx = today.getDay();
-  const sunday   = new Date(today);
-  sunday.setDate(today.getDate() - todayIdx);
+
+  // 7 ימים אחרונים (לפני 6 ימים עד היום — ללא ימים עתידיים)
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (6 - i));
+    return d;
+  });
 
   return (
     <View style={styles.weekStrip}>
-      {days.map((d, i) => {
-        const date    = new Date(sunday); date.setDate(sunday.getDate() + i);
-        const dateStr = toIso(date);
+      {dates.map((date, i) => {
+        const dateStr    = toIso(date);
+        const dayLabel   = HE_DAYS[date.getDay()];
         const isToday    = dateStr === todayStr;
         const isSelected = dateStr === selectedDate;
         return (
@@ -100,7 +104,7 @@ function WeekStrip({ selectedDate, onSelectDate }) {
             onPress={() => onSelectDate(dateStr)}
             activeOpacity={0.7}
           >
-            <Text style={[styles.weekDayName, isSelected && styles.weekDayTxtActive]}>{d}</Text>
+            <Text style={[styles.weekDayName, isSelected && styles.weekDayTxtActive]}>{dayLabel}</Text>
             <Text style={[
               styles.weekDayNum,
               isSelected && styles.weekDayTxtActive,
@@ -108,7 +112,6 @@ function WeekStrip({ selectedDate, onSelectDate }) {
             ]}>
               {date.getDate()}
             </Text>
-            {/* נקודה כחולה מתחת ליום הנוכחי (כשלא מסומן) */}
             {isToday && !isSelected && <View style={styles.todayDot} />}
           </TouchableOpacity>
         );

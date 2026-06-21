@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
   StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
@@ -72,7 +73,8 @@ const SUGGESTIONS = [
   'כמה חלבון אני צריך ביום?',
 ];
 
-export default function ChatScreen() {
+export default function ChatScreen({ navigation }) {
+  const panHandlers = useSwipeNav(navigation, 'צ׳אט');
   const [messages, setMessages] = useState([
     { id: '0', role: 'assistant', text: 'שלום! אני התזונאי ה-AI שלך 🥗\nאשאל, אייעץ ואעזור לך לאכול טוב יותר. איך אוכל לעזור?' }
   ]);
@@ -130,6 +132,7 @@ export default function ChatScreen() {
   };
 
   return (
+    <View style={{ flex: 1 }} {...panHandlers}>
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -192,6 +195,7 @@ export default function ChatScreen() {
         />
       </View>
     </KeyboardAvoidingView>
+    </View>
   );
 }
 

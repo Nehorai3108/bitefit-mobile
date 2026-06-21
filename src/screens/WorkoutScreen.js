@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   TextInput, Modal, Alert, ActivityIndicator,
@@ -47,7 +48,8 @@ function decorate(row) {
   };
 }
 
-export default function WorkoutScreen() {
+export default function WorkoutScreen({ navigation }) {
+  const panHandlers = useSwipeNav(navigation, 'אימון');
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -101,6 +103,7 @@ export default function WorkoutScreen() {
   };
 
   return (
+    <View style={{ flex: 1 }} {...panHandlers}>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>אימונים</Text>
@@ -235,6 +238,7 @@ export default function WorkoutScreen() {
           </View>
         </View>
       </Modal>
+    </View>
     </View>
   );
 }

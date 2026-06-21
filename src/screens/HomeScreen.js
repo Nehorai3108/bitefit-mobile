@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Image, ActivityIndicator, RefreshControl, Alert, Modal, TextInput,
@@ -217,7 +218,8 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
   );
 }
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
+  const panHandlers = useSwipeNav(navigation, 'תזונה');
   const [plan, setPlan] = useState(null);
   const [activeMeal, setActiveMeal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -327,6 +329,7 @@ export default function HomeScreen() {
   const activeRecipes = mealRecipes[activeMealKey] ?? [];
 
   return (
+    <View style={{ flex: 1 }} {...panHandlers}>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.dateText}>{new Date().toLocaleDateString('he-IL')}</Text>
@@ -448,6 +451,7 @@ export default function HomeScreen() {
           </View>
         )}
       </ScrollView>
+    </View>
     </View>
   );
 }

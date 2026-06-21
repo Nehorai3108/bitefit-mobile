@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, StyleSheet, ActivityIndicator,
   TouchableOpacity, TextInput, Alert,
@@ -74,7 +75,8 @@ function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
   );
 }
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
+  const panHandlers = useSwipeNav(navigation, 'פרופיל');
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -175,6 +177,7 @@ export default function ProfileScreen() {
   const tabs = ['פרטים אישיים', 'העדפות תזונה', 'יעדים'];
 
   return (
+    <View style={{ flex: 1 }} {...panHandlers}>
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -374,6 +377,7 @@ export default function ProfileScreen() {
           {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveTxt}>שמור {tab === 0 ? 'פרטים אישיים' : 'העדפות תזונה'}</Text>}
         </TouchableOpacity>
       )}
+    </View>
     </View>
   );
 }
