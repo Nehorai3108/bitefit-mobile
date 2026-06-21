@@ -598,18 +598,25 @@ const TABS = [
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
 ];
 
-const DRAWER_H = 90;
-
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
   const insets = useSafeAreaInsets();
-  const translateY = useRef(new Animated.Value(DRAWER_H)).current;
+  const measuredH = useRef(0);
+  const translateY = useRef(new Animated.Value(300)).current;
   const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,        useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: DRAWER_H, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,               useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: measuredH.current, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+
+  const onLayout = (e) => {
+    const h = e.nativeEvent.layout.height;
+    if (h && !isOpen.current) {
+      measuredH.current = h;
+      translateY.setValue(h); // הסתר מיד לאחר מדידה
+    }
+  };
 
   const pan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -624,12 +631,15 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
   return (
     <>
       {/* פס ירוק עדין — תמיד נראה, לחיצה/גרירה פותחת */}
-      <View style={[fabSt.pill, { bottom: insets.bottom + 10 }]} {...pan.panHandlers}>
+      <View style={[fabSt.pill, { bottom: insets.bottom + 6 }]} {...pan.panHandlers}>
         <View style={fabSt.pillBar} />
       </View>
 
-      {/* מגירת ניווט */}
-      <Animated.View style={[fabSt.drawer, { backgroundColor: C.surface, bottom: insets.bottom + 24, transform: [{ translateY }] }]}>
+      {/* מגירת ניווט — מוסתרת לחלוטין עד פתיחה */}
+      <Animated.View
+        onLayout={onLayout}
+        style={[fabSt.drawer, { backgroundColor: C.surface, bottom: insets.bottom + 20, transform: [{ translateY }] }]}
+      >
         <View style={fabSt.handleWrap} {...pan.panHandlers}>
           <View style={fabSt.handle} />
         </View>
@@ -657,7 +667,7 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
 
 const fabSt = StyleSheet.create({
   pill:       { position: 'absolute', alignSelf: 'center', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 24, zIndex: 99 },
-  pillBar:    { width: 44, height: 4, borderRadius: 2, backgroundColor: '#3a7a4a', opacity: 0.5 },
+  pillBar:    { width: 44, height: 4, borderRadius: 2, backgroundColor: '#3a7a4a', opacity: 0.45 },
   drawer:     { position: 'absolute', left: 16, right: 16, borderRadius: 22, shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.12, shadowRadius: 10, elevation: 10 },
   handleWrap: { paddingVertical: 8, alignItems: 'center' },
   handle:     { width: 36, height: 4, borderRadius: 2, backgroundColor: '#ccc' },
