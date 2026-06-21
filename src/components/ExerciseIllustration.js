@@ -572,6 +572,69 @@ const LegRaiseUp = ({ c }) => (
   </G>
 );
 
+/* ── LATERAL RAISE ──────────────────────────────────────── */
+// Arms at sides (start)
+const LateralDown = ({ c }) => (
+  <G>
+    <Gnd c={c} />
+    <Hd x={50} y={12} c={c} />
+    <Ln x1={50} y1={22} x2={50} y2={26} c={c} />
+    <Ln x1={50} y1={26} x2={50} y2={56} c={c} />
+    <Jt x={38} y={28} c={c} /><Jt x={62} y={28} c={c} />
+    <Ln x1={38} y1={28} x2={50} y2={26} c={c} />
+    <Ln x1={62} y1={28} x2={50} y2={26} c={c} />
+    {/* arms down at sides with dumbbells */}
+    <Ln x1={38} y1={28} x2={34} y2={54} c={c} />
+    <Jt x={34} y={54} c={c} />
+    <Ln x1={34} y1={54} x2={32} y2={72} c={c} />
+    <Db cx={32} cy={80} c={c} />
+    <Ln x1={62} y1={28} x2={66} y2={54} c={c} />
+    <Jt x={66} y={54} c={c} />
+    <Ln x1={66} y1={54} x2={68} y2={72} c={c} />
+    <Db cx={68} cy={80} c={c} />
+    <Jt x={44} y={56} c={c} /><Jt x={56} y={56} c={c} />
+    <Ln x1={44} y1={56} x2={50} y2={56} c={c} />
+    <Ln x1={56} y1={56} x2={50} y2={56} c={c} />
+    <Ln x1={44} y1={56} x2={41} y2={84} c={c} />
+    <Jt x={41} y={84} c={c} />
+    <Ln x1={41} y1={84} x2={39} y2={114} c={c} />
+    <Ln x1={56} y1={56} x2={59} y2={84} c={c} />
+    <Jt x={59} y={84} c={c} />
+    <Ln x1={59} y1={84} x2={61} y2={114} c={c} />
+  </G>
+);
+
+// Arms raised to shoulder height — T shape (end)
+const LateralUp = ({ c }) => (
+  <G>
+    <Gnd c={c} />
+    <Hd x={50} y={12} c={c} />
+    <Ln x1={50} y1={22} x2={50} y2={26} c={c} />
+    <Ln x1={50} y1={26} x2={50} y2={56} c={c} />
+    <Jt x={38} y={28} c={c} /><Jt x={62} y={28} c={c} />
+    <Ln x1={38} y1={28} x2={50} y2={26} c={c} />
+    <Ln x1={62} y1={28} x2={50} y2={26} c={c} />
+    {/* arms out horizontal — T shape */}
+    <Ln x1={38} y1={28} x2={20} y2={28} c={c} />
+    <Jt x={20} y={28} c={c} />
+    <Ln x1={20} y1={28} x2={8}  y2={30} c={c} />
+    <Db cx={4} cy={30} c={c} />
+    <Ln x1={62} y1={28} x2={80} y2={28} c={c} />
+    <Jt x={80} y={28} c={c} />
+    <Ln x1={80} y1={28} x2={92} y2={30} c={c} />
+    <Db cx={96} cy={30} c={c} />
+    <Jt x={44} y={56} c={c} /><Jt x={56} y={56} c={c} />
+    <Ln x1={44} y1={56} x2={50} y2={56} c={c} />
+    <Ln x1={56} y1={56} x2={50} y2={56} c={c} />
+    <Ln x1={44} y1={56} x2={41} y2={84} c={c} />
+    <Jt x={41} y={84} c={c} />
+    <Ln x1={41} y1={84} x2={39} y2={114} c={c} />
+    <Ln x1={56} y1={56} x2={59} y2={84} c={c} />
+    <Jt x={59} y={84} c={c} />
+    <Ln x1={59} y1={84} x2={61} y2={114} c={c} />
+  </G>
+);
+
 /* ── ARROW ──────────────────────────────────────────────── */
 const Arrow = ({ color }) => (
   <Svg width={28} height={28} viewBox="0 0 28 28">
@@ -583,33 +646,35 @@ const Arrow = ({ color }) => (
 
 /* ── Mapping ────────────────────────────────────────────── */
 const PAIRS = {
-  squat:    [SquatStand, SquatDown],
-  bench:    [BenchDown,  BenchUp],
-  pullup:   [PullupHang, PullupTop],
-  deadlift: [DeadStart,  DeadEnd],
-  ohp:      [OHPStart,   OHPEnd],
-  curl:     [CurlDown,   CurlUp],
-  plank:    [PlankA,     PlankB],
-  lunge:    [LungeStand, LungeDown],
-  row:      [RowStart,   RowEnd],
-  run:      [RunA,       RunB],
-  crunch:   [CrunchFlat, CrunchUp],
-  legraise: [LegRaiseFlat, LegRaiseUp],
+  squat:    [SquatStand,    SquatDown],
+  bench:    [BenchDown,     BenchUp],
+  pullup:   [PullupHang,    PullupTop],
+  deadlift: [DeadStart,     DeadEnd],
+  ohp:      [OHPStart,      OHPEnd],
+  lateral:  [LateralDown,   LateralUp],
+  curl:     [CurlDown,      CurlUp],
+  plank:    [PlankA,        PlankB],
+  lunge:    [LungeStand,    LungeDown],
+  row:      [RowStart,      RowEnd],
+  run:      [RunA,          RunB],
+  crunch:   [CrunchFlat,    CrunchUp],
+  legraise: [LegRaiseFlat,  LegRaiseUp],
 };
 
 function pickKey(name = '') {
-  if (/סקוואט|לגפרס|בולגר/.test(name))                  return 'squat';
-  if (/לחיצת חזה|פרפר|מקבילים|לחיצות/.test(name))      return 'bench';
-  if (/פולאפ|פולי עליון|משיכת פולי/.test(name))         return 'pullup';
-  if (/דדליפט/.test(name))                              return 'deadlift';
-  if (/כתפיים|לחיצת כתפיים/.test(name))                 return 'ohp';
-  if (/ביצפס|כפיפות.*יד|פטיש/.test(name))              return 'curl';
-  if (/פלאנק/.test(name))                               return 'plank';
-  if (/לאנג/.test(name))                                return 'lunge';
-  if (/חתיר|שכיבה.*מוט/.test(name))                    return 'row';
-  if (/ריצה|ספרינט|הליכה|ברפי|קפיצה/.test(name))       return 'run';
-  if (/בטן|כפיפות בטן|סיבוב|Russian/.test(name))        return 'crunch';
-  if (/הרמת רגל|הרמות רגל/.test(name))                  return 'legraise';
+  if (/סקוואט|לגפרס|בולגר/.test(name))                      return 'squat';
+  if (/לחיצת חזה|פרפר|מקבילים|לחיצות/.test(name))          return 'bench';
+  if (/פולאפ|פולי עליון|משיכת פולי/.test(name))             return 'pullup';
+  if (/דדליפט/.test(name))                                  return 'deadlift';
+  if (/כריות|כריה|lateral/i.test(name))                     return 'lateral';
+  if (/לחיצת כתפיים|כתפיים עם/.test(name))                  return 'ohp';
+  if (/ביצפס|כפיפות.*יד|פטיש/.test(name))                  return 'curl';
+  if (/פלאנק/.test(name))                                   return 'plank';
+  if (/לאנג/.test(name))                                    return 'lunge';
+  if (/חתיר|שכיבה.*מוט/.test(name))                        return 'row';
+  if (/ריצה|ספרינט|הליכה|ברפי|קפיצה|טיפוס|ברכיים גבוהות/.test(name)) return 'run';
+  if (/בטן|כפיפות בטן|סיבוב|Russian/.test(name))            return 'crunch';
+  if (/הרמת רגל|הרמות רגל/.test(name))                      return 'legraise';
   return null;
 }
 
