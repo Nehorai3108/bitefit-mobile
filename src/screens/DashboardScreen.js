@@ -4,6 +4,7 @@ import {
   ActivityIndicator, RefreshControl, Image, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Svg, { Circle } from 'react-native-svg';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   fetchFoodLogSummaryByDate, fetchFoodLogByDate,
@@ -43,23 +44,24 @@ function toIso(date) {
 function ProgressRing({ size = 90, pct = 0, color = '#3a7a4a', label, sub }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const filled = Math.round(pct * 100);
+  const stroke = size * 0.09;
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = Math.min(pct, 1) * circ;
   return (
-    <View style={[styles.ringWrap, { width: size, height: size }]}>
-      <View style={[styles.ringBg, { width: size, height: size, borderRadius: size / 2, borderColor: C.surface3 }]} />
-      <View style={[styles.ringFg, {
-        width: size - 14, height: size - 14,
-        borderRadius: (size - 14) / 2,
-        borderColor: color,
-        borderTopColor:    filled > 75 ? color : '#111',
-        borderRightColor:  filled > 50 ? color : '#111',
-        borderBottomColor: filled > 25 ? color : '#111',
-        borderLeftColor:   filled > 0  ? color : '#111',
-        transform: [{ rotate: `${filled * 3.6}deg` }],
-      }]} />
-      <View style={styles.ringCenter}>
-        {label ? <Text style={[styles.ringLabel, { color }]}>{label}</Text> : null}
-        {sub   ? <Text style={styles.ringSub}>{sub}</Text> : null}
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Circle cx={size/2} cy={size/2} r={r} stroke={C.surface3} strokeWidth={stroke} fill="none" />
+        <Circle cx={size/2} cy={size/2} r={r}
+          stroke={color} strokeWidth={stroke} fill="none"
+          strokeDasharray={`${dash} ${circ}`}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size/2} ${size/2})`}
+        />
+      </Svg>
+      <View style={{ alignItems: 'center' }}>
+        {label ? <Text style={[styles.ringLabel, { color, fontSize: size * 0.18 }]}>{label}</Text> : null}
+        {sub   ? <Text style={[styles.ringSub, { fontSize: size * 0.11 }]}>{sub}</Text> : null}
       </View>
     </View>
   );

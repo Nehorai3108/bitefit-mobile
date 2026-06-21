@@ -588,90 +588,88 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 }
 
 // ─── Tab Navigator ─────────────────────────────────────────────────────────────
+const TABS = [
+  { name: 'בית',    icon: 'home-outline',       activeIcon: 'home' },
+  { name: 'תזונה',  icon: 'restaurant-outline', activeIcon: 'restaurant' },
+  { name: 'צ׳אט',   icon: 'chatbubble-outline', activeIcon: 'chatbubble' },
+  { name: 'אימון',  icon: 'barbell-outline',    activeIcon: 'barbell' },
+  { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
+];
+
+function FloatingTabBar({ state, navigation, onAddPress }) {
+  const { C } = useTheme();
+  const [open, setOpen] = useState(false);
+  const realRoutes = state.routes.filter(r => r.name !== '__add__');
+  const activeRoute = state.routes[state.index]?.name;
+
+  const go = (name) => { navigation.navigate(name); setOpen(false); };
+
+  return (
+    <View pointerEvents="box-none" style={fabSt.wrap}>
+      {open && (
+        <View style={[fabSt.menu, { backgroundColor: C.surface }]}>
+          {realRoutes.map(route => {
+            const def = TABS.find(t => t.name === route.name);
+            if (!def) return null;
+            const focused = activeRoute === route.name;
+            return (
+              <TouchableOpacity key={route.name} style={[fabSt.menuItem, focused && fabSt.menuItemActive]} onPress={() => go(route.name)}>
+                <Ionicons name={focused ? def.activeIcon : def.icon} size={22} color={focused ? '#fff' : '#3a7a4a'} />
+              </TouchableOpacity>
+            );
+          })}
+          <TouchableOpacity style={[fabSt.menuItem, { backgroundColor: '#3a7a4a' }]} onPress={() => { onAddPress(); setOpen(false); }}>
+            <Ionicons name="add" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
+      )}
+      <TouchableOpacity style={fabSt.fab} onPress={() => setOpen(v => !v)} activeOpacity={0.85}>
+        <Ionicons name={open ? 'close' : 'menu'} size={26} color="#fff" />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const fabSt = StyleSheet.create({
+  wrap:         { position: 'absolute', bottom: 28, alignSelf: 'center', alignItems: 'center' },
+  fab:          { width: 58, height: 58, borderRadius: 29, backgroundColor: '#3a7a4a', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 8 },
+  menu:         { flexDirection: 'row', borderRadius: 32, paddingHorizontal: 10, paddingVertical: 8, gap: 8, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 6 },
+  menuItem:     { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
+  menuItemActive:{ backgroundColor: '#3a7a4a' },
+});
+
 function TabNavigator() {
   const { C } = useTheme();
-  const [showAdd, setShowAdd]           = useState(false);
-  const [showBarcode, setShowBarcode]   = useState(false);
-  const [showManual, setShowManual]     = useState(false);
-  const [showCamera, setShowCamera] = useState(false);
+  const [showAdd, setShowAdd]       = useState(false);
+  const [showBarcode, setShowBarcode] = useState(false);
+  const [showManual, setShowManual]   = useState(false);
+  const [showCamera, setShowCamera]   = useState(false);
 
-  const handleCamera = () => { setShowAdd(false); setShowCamera(true); };
-
+  const handleCamera  = () => { setShowAdd(false); setShowCamera(true); };
   const handleBarcode = () => { setShowAdd(false); setShowBarcode(true); };
   const handleManual  = () => { setShowAdd(false); setShowManual(true); };
-
-  const TABS = [
-    { name: 'בית',    component: DashboardScreen, icon: 'home-outline',       activeIcon: 'home' },
-    { name: 'תזונה',  component: HomeScreen,      icon: 'restaurant-outline', activeIcon: 'restaurant' },
-    { name: 'צ׳אט',   component: ChatScreen,      icon: 'chatbubble-outline', activeIcon: 'chatbubble' },
-    { name: 'אימון',  component: WorkoutScreen,   icon: 'barbell-outline',    activeIcon: 'barbell' },
-    { name: 'פרופיל', component: ProfileScreen,   icon: 'person-outline',     activeIcon: 'person' },
-  ];
 
   return (
     <>
       <Tab.Navigator
-        screenOptions={({ route }) => {
-          const tab = TABS.find(t => t.name === route.name);
-          return {
-            headerShown: false,
-            tabBarShowLabel: false,
-            tabBarStyle: {
-              backgroundColor: C.tabBar,
-              borderTopColor: C.tabBorder,
-              borderTopWidth: 1,
-              height: 62,
-              paddingBottom: 8,
-              paddingTop: 8,
-            },
-            tabBarActiveTintColor: '#3a7a4a',
-            tabBarInactiveTintColor: '#444',
-            tabBarIcon: ({ color, focused }) =>
-              tab ? <Ionicons name={focused ? tab.activeIcon : tab.icon} size={26} color={color} /> : null,
-          };
-        }}
+        tabBar={props => <FloatingTabBar {...props} onAddPress={() => setShowAdd(true)} />}
+        screenOptions={{ headerShown: false }}
       >
-        {/* First two tabs */}
-        {TABS.slice(0, 2).map(tab => (
-          <Tab.Screen key={tab.name} name={tab.name} component={tab.component} />
+        {TABS.map(tab => (
+          <Tab.Screen key={tab.name} name={tab.name} component={
+            tab.name === 'בית'    ? DashboardScreen :
+            tab.name === 'תזונה'  ? HomeScreen :
+            tab.name === 'צ׳אט'   ? ChatScreen :
+            tab.name === 'אימון'  ? WorkoutScreen : ProfileScreen
+          } />
         ))}
-
-        {/* "+" button */}
-        <Tab.Screen
-          name="__add__"
-          component={DashboardScreen}
-          options={{
-            tabBarLabel: 'הוסף',
-            tabBarButton: () => (
-              <TouchableOpacity
-                style={s.plusWrap}
-                onPress={() => setShowAdd(true)}
-                activeOpacity={0.7}
-              >
-                <Ionicons name="add-circle-outline" size={26} color="#444" />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-
-        {/* Remaining tabs */}
-        {TABS.slice(2).map(tab => (
-          <Tab.Screen key={tab.name} name={tab.name} component={tab.component} />
-        ))}
+        <Tab.Screen name="__add__" component={DashboardScreen} options={{ tabBarButton: () => null }} />
       </Tab.Navigator>
 
-      {/* Modals */}
-      <AddFoodSheet
-        visible={showAdd}
-        onClose={() => setShowAdd(false)}
-        onCamera={handleCamera}
-        onBarcode={handleBarcode}
-        onManual={handleManual}
-      />
+      <AddFoodSheet visible={showAdd} onClose={() => setShowAdd(false)} onCamera={handleCamera} onBarcode={handleBarcode} onManual={handleManual} />
       <ManualEntryModal visible={showManual} onClose={() => setShowManual(false)} />
       <BarcodeScanModal  visible={showBarcode} onClose={() => setShowBarcode(false)} />
       <CameraPhotoModal  visible={showCamera}  onClose={() => setShowCamera(false)} />
-
     </>
   );
 }
