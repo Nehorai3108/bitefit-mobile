@@ -601,20 +601,22 @@ const TABS = [
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
   const insets = useSafeAreaInsets();
-  const measuredH = useRef(0);
+  const bottomOffset = insets.bottom + 20;
+  const closedY = useRef(300);
   const translateY = useRef(new Animated.Value(300)).current;
   const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,               useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: measuredH.current, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,              useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: closedY.current, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
 
   const onLayout = (e) => {
     const h = e.nativeEvent.layout.height;
-    if (h && !isOpen.current) {
-      measuredH.current = h;
-      translateY.setValue(h); // הסתר מיד לאחר מדידה
+    if (h) {
+      // צריך לזוז יותר מ-height כדי לעבור את ה-bottom offset
+      closedY.current = h + bottomOffset;
+      if (!isOpen.current) translateY.setValue(closedY.current);
     }
   };
 
