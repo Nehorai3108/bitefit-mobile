@@ -601,24 +601,14 @@ const TABS = [
 function SwipeUpNav({ state, navigation, onAddPress }) {
   const { C } = useTheme();
   const insets = useSafeAreaInsets();
-  const bottomOffset = insets.bottom + 20;
-  const closedY = useRef(300);
-  const translateY = useRef(new Animated.Value(300)).current;
+  const CLOSED = 250;
+  const translateY = useRef(new Animated.Value(CLOSED)).current;
   const isOpen = useRef(false);
   const realRoutes = state.routes.filter(r => r.name !== '__add__');
   const activeRoute = state.routes[state.index]?.name;
 
-  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,              useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: closedY.current, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
-
-  const onLayout = (e) => {
-    const h = e.nativeEvent.layout.height;
-    if (h) {
-      // צריך לזוז יותר מ-height כדי לעבור את ה-bottom offset
-      closedY.current = h + bottomOffset;
-      if (!isOpen.current) translateY.setValue(closedY.current);
-    }
-  };
+  const openDrawer  = () => { isOpen.current = true;  Animated.spring(translateY, { toValue: 0,      useNativeDriver: true, tension: 80, friction: 10 }).start(); };
+  const closeDrawer = () => { isOpen.current = false; Animated.spring(translateY, { toValue: CLOSED, useNativeDriver: true, tension: 80, friction: 10 }).start(); };
 
   const pan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -643,7 +633,6 @@ function SwipeUpNav({ state, navigation, onAddPress }) {
 
       {/* מגירת ניווט — מוסתרת לחלוטין עד פתיחה */}
       <Animated.View
-        onLayout={onLayout}
         style={[fabSt.drawer, { backgroundColor: C.surface, bottom: insets.bottom + 20, transform: [{ translateY }] }]}
       >
         <View style={fabSt.handleWrap} {...pan.panHandlers}>
