@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView,
   ActivityIndicator, TextInput, Alert, Pressable, Image,
-  KeyboardAvoidingView, Platform, PanResponder,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import {
@@ -36,15 +37,12 @@ const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 export default function InventoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  const swipeClose = useRef(PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderRelease: (_, gs) => {
-      if (gs.dx > 60 && Math.abs(gs.dx) > Math.abs(gs.dy) * 1.5)
-        closeRef.current();
-    },
-  })).current.panHandlers;
+  const onSwipe = ({ nativeEvent: e }) => {
+    if (e.state === State.END &&
+        e.translationX > 60 &&
+        Math.abs(e.translationX) > Math.abs(e.translationY) * 1.5)
+      onClose();
+  };
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -77,8 +75,8 @@ export default function InventoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <PanGestureHandler onHandlerStateChange={onSwipe}>
       <View style={s.container}>
-        <View style={s.dragStrip} {...swipeClose} />
         <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
@@ -148,6 +146,7 @@ export default function InventoryScreen({ visible, onClose }) {
         />
         <CookModal visible={showCook} onClose={() => setShowCook(false)} />
       </View>
+      </PanGestureHandler>
     </Modal>
   );
 }

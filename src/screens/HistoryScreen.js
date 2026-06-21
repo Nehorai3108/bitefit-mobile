@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal,
-  ScrollView, ActivityIndicator, Image, PanResponder,
+  ScrollView, ActivityIndicator, Image,
 } from 'react-native';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchFoodHistory, fetchFoodLogByDate, fetchProfileTargets } from '../api/client';
@@ -292,25 +293,18 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
   );
 }
 
-// החלקה ימינה לסגירה
-function useSwipeClose(onClose) {
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  return useRef(PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onPanResponderRelease: (_, gs) => {
-      if (gs.dx > 60 && Math.abs(gs.dx) > Math.abs(gs.dy) * 1.5)
-        closeRef.current();
-    },
-  })).current.panHandlers;
-}
-
 // ─── Main HistoryScreen ───────────────────────────────────────────────────────
 export default function HistoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
-  const swipeClose = useSwipeClose(onClose);
   const now = new Date();
+
+  const onSwipe = ({ nativeEvent: e }) => {
+    if (e.state === State.END &&
+        e.translationX > 60 &&
+        Math.abs(e.translationX) > Math.abs(e.translationY) * 1.5)
+      onClose();
+  };
 
   const [tab,     setTab]     = useState(0);   // 0=שבועי 1=חודשי
   const [year,    setYear]    = useState(now.getFullYear());
@@ -351,9 +345,8 @@ export default function HistoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
+      <PanGestureHandler onHandlerStateChange={onSwipe}>
       <View style={s.container}>
-        {/* רצועת גרירה — ללא ילדים, מבטיחה שה-PanResponder לא יתחרה עם כפתורים */}
-        <View style={s.dragStrip} {...swipeClose} />
         {/* Header */}
         <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
@@ -380,6 +373,7 @@ export default function HistoryScreen({ visible, onClose }) {
 
         {selected && <DayDetail selected={selected} onClose={() => setSelected(null)} />}
       </View>
+      </PanGestureHandler>
     </Modal>
   );
 }
