@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal,
-  ScrollView, ActivityIndicator, Image,
+  ScrollView, ActivityIndicator, Image, PanResponder,
 } from 'react-native';
 import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
@@ -127,10 +127,6 @@ function WeeklyView({ history, target, C, s, onOpenDay }) {
         <Text style={s.summaryTitle}>סיכום שבועי</Text>
         <View style={s.summaryRow}>
           <View style={s.summaryItem}>
-            <Text style={[s.summaryVal, { color: '#5b9bdc' }]}>{totalCal.toLocaleString()}</Text>
-            <Text style={s.summaryLbl}>סה"כ קק"ל</Text>
-          </View>
-          <View style={s.summaryItem}>
             <Text style={[s.summaryVal, { color: '#5b9bdc' }]}>{avgCal}</Text>
             <Text style={s.summaryLbl}>ממוצע יומי</Text>
           </View>
@@ -230,10 +226,6 @@ function MonthlyView({ history, target, C, s, year, month, onPrev, onNext, onOpe
           <Text style={s.summaryTitle}>סיכום חודשי</Text>
           <View style={s.summaryRow}>
             <View style={s.summaryItem}>
-              <Text style={[s.summaryVal, { color: '#5b9bdc' }]}>{totalCal.toLocaleString()}</Text>
-              <Text style={s.summaryLbl}>סה"כ קק"ל</Text>
-            </View>
-            <View style={s.summaryItem}>
               <Text style={[s.summaryVal, { color: '#5b9bdc' }]}>{Math.round(totalCal / loggedCount)}</Text>
               <Text style={s.summaryLbl}>ממוצע יומי</Text>
             </View>
@@ -300,10 +292,22 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
   );
 }
 
+// החלקה ימינה לסגירה
+function useSwipeClose(onClose) {
+  return useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gs) =>
+      gs.dx > 20 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
+    onPanResponderRelease: (_, gs) => {
+      if (gs.dx > 80) onClose();
+    },
+  })).current.panHandlers;
+}
+
 // ─── Main HistoryScreen ───────────────────────────────────────────────────────
 export default function HistoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
+  const swipeClose = useSwipeClose(onClose);
   const now = new Date();
 
   const [tab,     setTab]     = useState(0);   // 0=שבועי 1=חודשי
@@ -345,7 +349,7 @@ export default function HistoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={s.container}>
+      <View style={s.container} {...swipeClose}>
         {/* Header */}
         <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>

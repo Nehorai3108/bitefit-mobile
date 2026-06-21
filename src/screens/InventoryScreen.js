@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView,
   ActivityIndicator, TextInput, Alert, Pressable, Image,
-  KeyboardAvoidingView, Platform,
+  KeyboardAvoidingView, Platform, PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -36,6 +36,11 @@ const UNITS = ['יח׳', 'ק"ג', 'גרם', 'חבילה', 'בקבוק'];
 export default function InventoryScreen({ visible, onClose }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
+  const swipeClose = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gs) =>
+      gs.dx > 20 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
+    onPanResponderRelease: (_, gs) => { if (gs.dx > 80) onClose(); },
+  })).current.panHandlers;
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -68,7 +73,7 @@ export default function InventoryScreen({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={s.container}>
+      <View style={s.container} {...swipeClose}>
         <View style={s.header}>
           <TouchableOpacity onPress={onClose}><Ionicons name="close" size={26} color={C.text} /></TouchableOpacity>
           <Text style={s.title}>המלאי שלי</Text>
