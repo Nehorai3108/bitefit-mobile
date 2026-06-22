@@ -104,6 +104,7 @@ function RecipeCard({ recipe }) {
       <Text style={styles.recipeTitle}>{recipe.title}</Text>
       <Text style={styles.recipeMeta}>
         {recipe.total_calories} קק"ל · {recipe.total_protein}g חלבון
+        {recipe.meal_target ? `  (יעד הארוחה: ${recipe.meal_target})` : ''}
       </Text>
 
       <Text style={styles.recipeSection}>מצרכים</Text>
