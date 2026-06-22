@@ -69,6 +69,72 @@ function FoodDetectedCard({ foodData }) {
   );
 }
 
+function RecipeCard({ recipe }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
+  const [logged, setLogged] = useState(false);
+  const [logging, setLogging] = useState(false);
+
+  const handleLog = async () => {
+    setLogging(true);
+    try {
+      for (const food of recipe.foods) {
+        await addFoodEntry({
+          food_id: food.name ?? 'chat_recipe',
+          food_name: food.name_he ?? food.name,
+          grams: food.grams ?? 100,
+          calories: food.calories ?? 0,
+          protein: food.protein ?? 0,
+          carbs: food.carbs ?? 0,
+          fat: food.fat ?? 0,
+          meal_type: recipe.meal_type?.toUpperCase() ?? 'LUNCH',
+          image_url: food.image_url ?? null,
+        });
+      }
+      setLogged(true);
+    } catch (e) {
+      Alert.alert('שגיאה', 'לא הצלחתי לשמור ביומן: ' + e.message);
+    } finally {
+      setLogging(false);
+    }
+  };
+
+  return (
+    <View style={styles.recipeCard}>
+      <Text style={styles.recipeTitle}>{recipe.title}</Text>
+      <Text style={styles.recipeMeta}>
+        {recipe.total_calories} קק"ל · {recipe.total_protein}g חלבון
+      </Text>
+
+      <Text style={styles.recipeSection}>מצרכים</Text>
+      {recipe.foods.map((f, i) => (
+        <Text key={i} style={styles.recipeIng}>
+          • {f.name_he ?? f.name} — {f.grams}g · {Math.round(f.calories ?? 0)} קק"ל
+        </Text>
+      ))}
+
+      {recipe.instructions?.length > 0 && (
+        <>
+          <Text style={styles.recipeSection}>אופן ההכנה</Text>
+          {recipe.instructions.map((s, i) => (
+            <Text key={i} style={styles.recipeStep}>{i + 1}. {s}</Text>
+          ))}
+        </>
+      )}
+
+      {!logged ? (
+        <TouchableOpacity style={styles.logBtn} onPress={handleLog} disabled={logging}>
+          {logging
+            ? <ActivityIndicator size="small" color="#fff" />
+            : <Text style={styles.logBtnTxt}>הוסף ליומן</Text>}
+        </TouchableOpacity>
+      ) : (
+        <Text style={styles.loggedTxt}>✓ נשמר ביומן</Text>
+      )}
+    </View>
+  );
+}
+
 const SUGGESTIONS = [
   'כמה קלוריות יש בשוואורמה?',
   'מה כדאי לאכול לפני אימון?',
@@ -123,6 +189,7 @@ export default function ChatScreen({ navigation }) {
         role: 'assistant',
         text: reply,
         foodData: res?.food_data ?? null,
+        recipe: res?.recipe ?? null,
       }]);
     } catch (e) {
       setMessages(prev => [...prev, {
@@ -159,6 +226,9 @@ export default function ChatScreen({ navigation }) {
               <Text style={styles.bubbleText}>{item.text}</Text>
               {item.foodData?.foods?.length > 0 && (
                 <FoodDetectedCard foodData={item.foodData} />
+              )}
+              {item.recipe?.foods?.length > 0 && (
+                <RecipeCard recipe={item.recipe} />
               )}
             </View>
           </View>
@@ -233,4 +303,10 @@ const makeStyles = (C) => StyleSheet.create({
   logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8 },
+  recipeCard: { marginTop: 8, padding: 12, backgroundColor: '#0a2a1a', borderRadius: 10, borderWidth: 1, borderColor: '#1d4a32' },
+  recipeTitle: { color: '#eaeaea', fontSize: 15, fontWeight: '800', textAlign: 'right' },
+  recipeMeta: { color: '#56bd6b', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 2 },
+  recipeSection: { color: '#8fd6a0', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 10, marginBottom: 4 },
+  recipeIng: { color: '#cfcfcf', fontSize: 13, textAlign: 'right', lineHeight: 20 },
+  recipeStep: { color: '#cfcfcf', fontSize: 13, textAlign: 'right', lineHeight: 20 },
 });
