@@ -213,6 +213,16 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Pro upgrade banner */}
+        <TouchableOpacity style={styles.proBanner} onPress={() => navigation.navigate('Paywall')} activeOpacity={0.9}>
+          <Ionicons name="star" size={22} color="#e0a800" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.proBannerTitle}>שדרג ל-BiteFit Pro</Text>
+            <Text style={styles.proBannerSub}>צילום וצ׳אט ללא הגבלה · 7 ימים חינם</Text>
+          </View>
+          <Ionicons name="chevron-back" size={20} color="#fff" />
+        </TouchableOpacity>
+
         {/* TAB 0: Personal */}
         {tab === 0 && (
           <View style={styles.section}>
@@ -410,6 +420,11 @@ const makeStyles = (C) => StyleSheet.create({
   tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#3a7a4a' },
   scroll: { flex: 1 },
   section: { padding: 16 },
+  proBanner: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12,
+    backgroundColor: '#3a7a4a', marginHorizontal: 16, marginTop: 14, marginBottom: 2,
+    borderRadius: 16, padding: 14 },
+  proBannerTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right' },
+  proBannerSub: { color: '#d8ecdc', fontSize: 12, textAlign: 'right', marginTop: 2 },
   fieldLabel: { color: '#aaa', fontSize: 13, textAlign: 'right', marginBottom: 8, marginTop: 16 },
   textInput: { backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 12, fontSize: 15, textAlign: 'right', borderWidth: 1, borderColor: C.border },
   row3: { flexDirection: 'row', gap: 12 },
