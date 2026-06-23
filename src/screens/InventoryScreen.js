@@ -11,6 +11,7 @@ import {
   addInventoryBulk, fetchCookSuggestions, addFoodEntry,
 } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+import { compressForUpload } from '../utils/compressImage';
 
 const MEAL_BY_HOUR = () => {
   const h = new Date().getHours();
@@ -234,7 +235,9 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.6, base64: false });
       setPhase('processing');
-      const r = await scanReceipt(photo.uri);
+      // Receipts need legible text — resize less aggressively than food photos.
+      const compressed = await compressForUpload(photo.uri, { maxDim: 1600, compress: 0.7 });
+      const r = await scanReceipt(compressed);
       if (r.items?.length > 0) { setResult(r.items); setPhase('review'); }
       else { Alert.alert('לא זוהו מוצרים', r.error ?? 'נסה לצלם את הקבלה בתאורה טובה'); setPhase('camera'); }
     } catch { Alert.alert('שגיאה', 'לא ניתן לסרוק את הקבלה'); setPhase('camera'); }

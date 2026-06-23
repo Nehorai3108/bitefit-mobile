@@ -6,6 +6,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { identifyFood } from '../api/client';
+import { compressForUpload } from '../utils/compressImage';
 
 export default function CameraScreen() {
   const [image, setImage] = useState(null);
@@ -37,7 +38,9 @@ export default function CameraScreen() {
   const analyze = async (uri) => {
     setLoading(true);
     try {
-      const res = await identifyFood(uri);
+      // Resize + compress before upload to cut vision-token cost (no accuracy loss).
+      const compressed = await compressForUpload(uri);
+      const res = await identifyFood(compressed);
       if (res.items?.length > 0) {
         setItems(res.items);
       } else {

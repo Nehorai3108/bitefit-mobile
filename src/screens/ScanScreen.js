@@ -7,6 +7,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { lookupBarcode, identifyFood, addFoodEntry } from '../api/client';
+import { compressForUpload } from '../utils/compressImage';
 
 // ─── Barcode Tab ────────────────────────────────────────────────────────────
 function BarcodeTab() {
@@ -118,7 +119,8 @@ function CameraTab() {
       setImage(uri); setItems(null);
       setLoading(true);
       try {
-        const r = await identifyFood(uri);
+        const compressed = await compressForUpload(uri);
+        const r = await identifyFood(compressed);
         setItems(r.items?.length > 0 ? r.items : []);
         if (!r.items?.length) Alert.alert('לא זוהה', r.error ?? 'לא נמצאו פריטי מזון');
       } catch { Alert.alert('שגיאה', 'לא ניתן לנתח'); setItems([]); }
