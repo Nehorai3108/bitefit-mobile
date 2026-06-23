@@ -122,7 +122,8 @@ function CameraTab() {
         const compressed = await compressForUpload(uri);
         const r = await identifyFood(compressed);
         setItems(r.items?.length > 0 ? r.items : []);
-        if (!r.items?.length) Alert.alert('לא זוהה', r.error ?? 'לא נמצאו פריטי מזון');
+        if (r.limit_reached) Alert.alert('הגעת למכסה היומית', r.message ?? 'שדרג ל-Pro לצילום ללא הגבלה.');
+        else if (!r.items?.length) Alert.alert('לא זוהה', r.error ?? 'לא נמצאו פריטי מזון');
       } catch { Alert.alert('שגיאה', 'לא ניתן לנתח'); setItems([]); }
       finally { setLoading(false); }
     }

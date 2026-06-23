@@ -41,7 +41,10 @@ export default function CameraScreen() {
       // Resize + compress before upload to cut vision-token cost (no accuracy loss).
       const compressed = await compressForUpload(uri);
       const res = await identifyFood(compressed);
-      if (res.items?.length > 0) {
+      if (res.limit_reached) {
+        Alert.alert('הגעת למכסה היומית', res.message ?? 'שדרג ל-Pro לצילום ללא הגבלה.');
+        setItems([]);
+      } else if (res.items?.length > 0) {
         setItems(res.items);
       } else {
         Alert.alert('לא זוהה אוכל', res.error ?? 'לא נמצאו פריטי מזון בתמונה');
