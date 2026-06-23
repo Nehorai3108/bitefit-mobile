@@ -217,7 +217,7 @@ export default function ProfileScreen({ navigation }) {
         <TouchableOpacity style={styles.proBanner} onPress={() => navigation.navigate('Paywall')} activeOpacity={0.9}>
           <Ionicons name="star" size={22} color="#e0a800" />
           <View style={{ flex: 1 }}>
-            <Text style={styles.proBannerTitle}>שדרג ל-BiteFit Pro</Text>
+            <Text style={styles.proBannerTitle}>שדרג ל-NutriSmart Pro</Text>
             <Text style={styles.proBannerSub}>צילום וצ׳אט ללא הגבלה · 7 ימים חינם</Text>
           </View>
           <Ionicons name="chevron-back" size={20} color="#fff" />

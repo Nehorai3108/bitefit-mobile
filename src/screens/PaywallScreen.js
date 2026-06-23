@@ -9,16 +9,16 @@ const GREEN = '#3a7a4a';
 const GOLD = '#e0a800';
 
 const FEATURES = [
-  { icon: 'camera', title: 'צילום מזון ללא הגבלה', sub: 'בחינם: 3 ביום' },
-  { icon: 'chatbubbles', title: 'צ׳אט Biti ללא הגבלה', sub: 'בחינם: 30 ביום' },
-  { icon: 'trending-up', title: 'תוכנית מסתגלת חכמה', sub: 'יעד מותאם לכל ארוחה' },
-  { icon: 'restaurant', title: 'מתכונים מותאמים אישית', sub: 'לפי היעד הקלורי שלך' },
-  { icon: 'bar-chart', title: 'היסטוריה וניתוחים מלאים', sub: 'בחינם: 7 ימים אחרונים' },
+  { icon: 'camera', title: 'צילום מזון ללא הגבלה' },
+  { icon: 'chatbubbles', title: 'צ׳אט Biti ללא הגבלה' },
+  { icon: 'trending-up', title: 'תוכנית מסתגלת חכמה' },
+  { icon: 'restaurant', title: 'מתכונים מותאמים אישית' },
+  { icon: 'bar-chart', title: 'היסטוריה וניתוחים מלאים' },
 ];
 
 const PLANS = {
-  annual:  { label: 'שנתי',  price: '₪199', per: 'לשנה',  note: 'חיסכון 43% · ₪16.6 לחודש', best: true },
-  monthly: { label: 'חודשי', price: '₪29',  per: 'לחודש', note: 'ביטול בכל עת', best: false },
+  annual:  { label: 'שנתי',  price: '₪199', per: 'לשנה',  best: true },
+  monthly: { label: 'חודשי', price: '₪29',  per: 'לחודש', best: false },
 };
 
 export default function PaywallScreen({ navigation }) {
@@ -46,8 +46,7 @@ export default function PaywallScreen({ navigation }) {
         <View style={styles.crown}>
           <Ionicons name="star" size={30} color={GOLD} />
         </View>
-        <Text style={styles.title}>BiteFit Pro</Text>
-        <Text style={styles.subtitle}>פתח את כל היכולות החכמות{'\n'}והגע ליעד מהר יותר</Text>
+        <Text style={styles.title}>NutriSmart Pro</Text>
 
         {/* features */}
         <View style={styles.features}>
@@ -58,7 +57,6 @@ export default function PaywallScreen({ navigation }) {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.featureTitle}>{f.title}</Text>
-                <Text style={styles.featureSub}>{f.sub}</Text>
               </View>
               <Ionicons name="checkmark-circle" size={20} color={GREEN} />
             </View>
@@ -84,7 +82,6 @@ export default function PaywallScreen({ navigation }) {
                   <Text style={styles.planLabel}>{p.label}</Text>
                 </View>
                 <Text style={styles.planPrice}>{p.price} <Text style={styles.planPer}>{p.per}</Text></Text>
-                <Text style={styles.planNote}>{p.note}</Text>
               </TouchableOpacity>
             );
           })}
@@ -111,15 +108,13 @@ const makeStyles = (C) => StyleSheet.create({
   close: { position: 'absolute', top: 50, left: 16, zIndex: 10, padding: 6 },
   crown: { alignSelf: 'center', width: 64, height: 64, borderRadius: 20, backgroundColor: C.surface2,
     alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  title: { fontSize: 30, fontWeight: '900', color: C.text, textAlign: 'center' },
-  subtitle: { fontSize: 15, color: C.textMuted, textAlign: 'center', marginTop: 8, lineHeight: 22, marginBottom: 24 },
+  title: { fontSize: 30, fontWeight: '900', color: C.text, textAlign: 'center', marginBottom: 24 },
 
   features: { backgroundColor: C.surface, borderRadius: 16, padding: 8, borderWidth: 1, borderColor: C.border },
   featureRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, padding: 10 },
   featureIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: C.surface2,
     alignItems: 'center', justifyContent: 'center' },
   featureTitle: { fontSize: 15, fontWeight: '700', color: C.text, textAlign: 'right' },
-  featureSub: { fontSize: 12, color: C.textMuted, textAlign: 'right', marginTop: 1 },
 
   plans: { flexDirection: 'row', gap: 10, marginTop: 20 },
   planCard: { flex: 1, backgroundColor: C.surface, borderRadius: 16, padding: 14,
@@ -136,7 +131,6 @@ const makeStyles = (C) => StyleSheet.create({
   planLabel: { fontSize: 15, fontWeight: '700', color: C.text },
   planPrice: { fontSize: 22, fontWeight: '900', color: C.text, textAlign: 'right', marginTop: 8 },
   planPer: { fontSize: 13, fontWeight: '600', color: C.textMuted },
-  planNote: { fontSize: 12, color: C.textMuted, textAlign: 'right', marginTop: 4 },
 
   cta: { backgroundColor: GREEN, borderRadius: 16, paddingVertical: 16, marginTop: 24, alignItems: 'center' },
   ctaTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
