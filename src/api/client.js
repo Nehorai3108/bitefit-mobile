@@ -88,7 +88,13 @@ api.interceptors.response.use(
   }
 );
 
-const today = () => new Date().toISOString().split('T')[0];
+// LOCAL date (phone timezone), not UTC. The server stamps entries with Israel
+// local date; using toISOString() (UTC) caused a date mismatch near midnight,
+// making just-logged food appear "missing". getMonth/getDate are local.
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 
 // Daily menu
 export const fetchDailyPlan = () =>
@@ -143,15 +149,11 @@ export const searchFoodNutrition = (q) =>
   api.get('/food-log/search-food', { params: { q } }).then(r => r.data);
 
 // Food log
-export const fetchFoodLogSummary = () => {
-  const t = new Date().toISOString().split('T')[0];
-  return api.get(`/food-log/${t}/summary`).then(r => r.data);
-};
+export const fetchFoodLogSummary = () =>
+  api.get(`/food-log/${today()}/summary`).then(r => r.data);
 
-export const fetchFoodLog = () => {
-  const t = new Date().toISOString().split('T')[0];
-  return api.get(`/food-log/${t}`).then(r => r.data);
-};
+export const fetchFoodLog = () =>
+  api.get(`/food-log/${today()}`).then(r => r.data);
 
 export const fetchFoodLogByDate = (dateIso) =>
   api.get(`/food-log/${dateIso}`).then(r => r.data);

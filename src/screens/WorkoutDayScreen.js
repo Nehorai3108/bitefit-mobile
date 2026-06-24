@@ -167,10 +167,8 @@ export default function WorkoutDayScreen({ day, onClose }) {
     } catch (e) {
       // keep the local "done" state even if the server save fails
     }
-    Alert.alert('כל הכבוד!', `סיימת את "${day.name}"\nהאימון נשמר ביומן האימונים`, [
-      { text: 'סגור', onPress: onClose },
-      { text: 'המשך לצפות', style: 'cancel' },
-    ]);
+    // No popup — just return to the main workouts page (which reloads on close).
+    onClose?.();
   };
 
   if (!day) return null;
