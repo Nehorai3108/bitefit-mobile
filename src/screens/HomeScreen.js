@@ -274,11 +274,18 @@ export default function HomeScreen({ navigation }) {
       if (dayTarget) setAdaptedTarget(dayTarget);
       if (week)      setWeekSummary(week);
 
+      // Daily rotation: a seed that changes once every 24h (stable within the
+      // day) so recipes vary day-to-day but don't reshuffle on each reload.
+      const now = new Date();
+      const daySeed = Math.floor(
+        Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000
+      );
+
       // Fetch suggestions for all meals in parallel
       const results = await Promise.allSettled(
         MEALS.map(({ key }) => {
           const targetCal = planData?.plan?.[key]?.target_calories ?? 500;
-          return fetchMealSuggestions(key, targetCal, 0)
+          return fetchMealSuggestions(key, targetCal, daySeed)
             .then(r => ({ key, recipes: r.recipes ?? [] }));
         })
       );
@@ -413,22 +420,6 @@ export default function HomeScreen({ navigation }) {
               : <Text style={styles.generateTxt}>הכן לי תפריט להיום</Text>}
           </TouchableOpacity>
         </View>
-
-        {/* Workout completed card */}
-        {completedWorkout && (
-          <View style={[styles.workoutDoneCard, { borderColor: TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a' }]}>
-            <View style={[styles.workoutDoneIcon, { backgroundColor: (TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a') + '20' }]}>
-              <Ionicons name={TYPE_ICON[completedWorkout.type] ?? 'barbell-outline'} size={22} color={TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a'} />
-            </View>
-            <View style={styles.workoutDoneBody}>
-              <Text style={[styles.workoutDoneTitle, { color: TYPE_COLOR[completedWorkout.type] ?? '#3a7a4a' }]}>אימון הושלם היום ✓</Text>
-              <Text style={[styles.workoutDoneName, { color: C.text }]}>{completedWorkout.name}</Text>
-              {completedWorkout.duration ? (
-                <Text style={[styles.workoutDoneMeta, { color: C.textMuted }]}>{completedWorkout.duration} דק' · {completedWorkout.muscles}</Text>
-              ) : null}
-            </View>
-          </View>
-        )}
 
         <View style={styles.divider} />
 
