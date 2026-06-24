@@ -3,12 +3,17 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
+import { addWorkout } from '../api/client';
 import ExerciseIllustration from '../components/ExerciseIllustration';
 
 const todayKey = () => {
   const d = new Date();
   return `@bitefit_workout_done_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
 };
+
+// MET לפי סוג אימון (ברירת מחדל strength) — להערכת קלוריות שנשרפו
+const MET = { strength: 4.5, running: 9.0, hiit: 8.0, mixed: 6.0 };
+const estCalories = (type, mins) => Math.round((mins / 60) * (MET[type] ?? 4.5) * 75);
 
 const TYPE_COLOR = {
   strength: '#3a7a4a',
@@ -140,6 +145,7 @@ export default function WorkoutDayScreen({ day, onClose }) {
   }, [day?.name]);
 
   const markDone = async () => {
+    const mins = parseInt(day.duration) || 0;
     const entry = {
       name: day.name,
       type: day.type,
@@ -149,7 +155,19 @@ export default function WorkoutDayScreen({ day, onClose }) {
     };
     await AsyncStorage.setItem(todayKey(), JSON.stringify(entry));
     setDone(true);
-    Alert.alert('כל הכבוד! 💪', `סיימת את "${day.name}"\nהאימון נשמר בדף הבית`, [
+    // Persist to the server so the workout shows up on the workouts page.
+    try {
+      await addWorkout({
+        workout_type: day.type || 'strength',
+        intensity: 'moderate',
+        duration_minutes: mins,
+        calories_burned: estCalories(day.type, mins),
+        mode: 'type',
+      });
+    } catch (e) {
+      // keep the local "done" state even if the server save fails
+    }
+    Alert.alert('כל הכבוד!', `סיימת את "${day.name}"\nהאימון נשמר ביומן האימונים`, [
       { text: 'סגור', onPress: onClose },
       { text: 'המשך לצפות', style: 'cancel' },
     ]);

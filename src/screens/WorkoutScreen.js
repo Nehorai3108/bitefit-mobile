@@ -270,7 +270,7 @@ export default function WorkoutScreen({ navigation }) {
         <View style={{ flex: 1, backgroundColor: C.bg }}>
           {selectedDay ? (
             // מסך פירוט אימון — בתוך אותו מודאל
-            <WorkoutDayScreen day={selectedDay} onClose={() => setSelectedDay(null)} />
+            <WorkoutDayScreen day={selectedDay} onClose={() => { setSelectedDay(null); load(); }} />
           ) : (
             <>
               <View style={styles.planViewHeader}>
