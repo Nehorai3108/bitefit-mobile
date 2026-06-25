@@ -711,6 +711,9 @@ function TabNavigator() {
   const handleBarcode = () => { setShowAdd(false); setShowBarcode(true); };
   const handleManual  = () => { setShowAdd(false); setShowManual(true); };
 
+  // Let the tutorial open this sheet for the interactive "add" step.
+  useEffect(() => registerAddOpener(() => setShowAdd(true)), []);
+
   return (
     <>
       <Tab.Navigator
@@ -753,6 +756,7 @@ import InventoryScreen from './src/screens/InventoryScreen';
 import PaywallScreen   from './src/screens/PaywallScreen';
 import SettingsScreen  from './src/screens/SettingsScreen';
 import TutorialOverlay, { useTutorial } from './src/components/TutorialOverlay';
+import { registerAddOpener } from './src/tutorialBridge';
 
 function MainNavigator() {
   return (
