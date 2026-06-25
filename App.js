@@ -752,6 +752,7 @@ import HistoryScreen   from './src/screens/HistoryScreen';
 import InventoryScreen from './src/screens/InventoryScreen';
 import PaywallScreen   from './src/screens/PaywallScreen';
 import SettingsScreen  from './src/screens/SettingsScreen';
+import TutorialOverlay, { useTutorial } from './src/components/TutorialOverlay';
 
 function MainNavigator() {
   return (
@@ -782,7 +783,18 @@ function RootNavigator() {
 
   if (!token)      return <AuthNavigator />;
   if (!onboarded)  return <OnboardingScreen />;
-  return <MainNavigator />;
+  return <MainWithTutorial />;
+}
+
+// Main app + a one-time guided tutorial for new users.
+function MainWithTutorial() {
+  const [showTutorial, dismissTutorial] = useTutorial(true);
+  return (
+    <>
+      <MainNavigator />
+      {showTutorial && <TutorialOverlay onClose={dismissTutorial} />}
+    </>
+  );
 }
 
 // באנר "השרת מתעורר" — מופיע כשבקשה נמשכת מעבר ל-4 שניות (cold start של Render)

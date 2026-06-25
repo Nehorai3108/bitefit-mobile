@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { cancelAll, initNotifications } from '../notifications';
 
 const NOTIF_KEY = '@notifications_enabled';
+const TUTORIAL_KEY = '@tutorial_seen_v1';
 const SUPPORT_EMAIL = 'dviryona8@gmail.com';
 
 export default function SettingsScreen({ navigation }) {
@@ -32,6 +33,11 @@ export default function SettingsScreen({ navigation }) {
   const contact = () => {
     Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=NutriSmart - פנייה`).catch(() =>
       Alert.alert('צור קשר', `כתוב לנו: ${SUPPORT_EMAIL}`));
+  };
+
+  const replayTutorial = async () => {
+    try { await AsyncStorage.removeItem(TUTORIAL_KEY); } catch {}
+    Alert.alert('הדרכה', 'ההדרכה תופיע מחדש בפעם הבאה שתפתח את האפליקציה.');
   };
 
   const cancelSub = () => {
@@ -90,6 +96,8 @@ export default function SettingsScreen({ navigation }) {
 
         <Text style={styles.section}>כללי</Text>
         <View style={styles.card}>
+          <Row icon="help-circle" label="צפה בהדרכה שוב" color="#2e86de" onPress={replayTutorial} />
+          <View style={styles.sep} />
           <Row icon="mail" label="צור קשר" color="#3a7a4a" onPress={contact} />
           <View style={styles.sep} />
           <Row icon="log-out-outline" label="התנתקות" danger onPress={doLogout} />
