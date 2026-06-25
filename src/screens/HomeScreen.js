@@ -93,9 +93,10 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
               <Text style={styles.detailSectionTitle}>מצרכים{scaled ? ' (מותאם ליעד שלך)' : (portions > 1 ? ` (ל-${portions} מנות)` : '')}</Text>
               {ingredients.map((ing, i) => (
                 <View key={i} style={styles.ingredientRow}>
-                  <Text style={styles.ingredientQty}>{ing.display_he ?? `${ing.quantity ?? ''}ג`}</Text>
+                  <Text style={styles.ingredientName}>
+                    {ing.display_he ?? `${ing.quantity ?? ''}ג ${ing.food_name ?? ing.food_name_en ?? ''}`}
+                  </Text>
                   <View style={styles.ingredientBullet} />
-                  <Text style={styles.ingredientName}>{ing.food_name ?? ing.food_name_en}</Text>
                 </View>
               ))}
             </View>
