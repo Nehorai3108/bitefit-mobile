@@ -10,6 +10,7 @@ import {
   Animated, PanResponder,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
@@ -298,13 +299,14 @@ function CameraPhotoModal({ visible, onClose }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'results'
   const [items, setItems] = useState([]);
-  const [photoUrl, setPhotoUrl] = useState(null);
+  const [photoUrl, setPhotoUrl] = useState(null);       // local URI for display
+  const [savedImageUrl, setSavedImageUrl] = useState(null); // server URL for storage
   const [meal, setMeal]   = useState('LUNCH');
   const [saving, setSaving] = useState(false);
   const cameraRef = useRef(null);
 
   useEffect(() => {
-    if (visible) { setPhase('camera'); setItems([]); setPhotoUrl(null); }
+    if (visible) { setPhase('camera'); setItems([]); setPhotoUrl(null); setSavedImageUrl(null); }
   }, [visible]);
 
   const takePhoto = async () => {
@@ -312,8 +314,20 @@ function CameraPhotoModal({ visible, onClose }) {
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.7, base64: false });
       setPhase('processing');
+      // Build a small embedded thumbnail (data URI) of the captured photo. A data
+      // URI always renders in <Image> — no file system, no server, no 404 — so the
+      // exact shot is stored on the entry and shown in the diary, reliably.
+      let dataUri = null;
+      try {
+        const thumb = await manipulateAsync(
+          photo.uri, [{ resize: { width: 400 } }],
+          { compress: 0.5, format: SaveFormat.JPEG, base64: true },
+        );
+        if (thumb.base64) dataUri = `data:image/jpeg;base64,${thumb.base64}`;
+      } catch {}
       const r = await identifyFood(photo.uri);
-      setPhotoUrl(r.image_url ?? null);
+      setPhotoUrl(dataUri ?? photo.uri);   // embedded thumbnail (preferred) or local URI
+      setSavedImageUrl(r.image_url ?? null);
       if (r.items?.length > 0) {
         // Keep the AI's original values as a base so editing grams scales cleanly.
         setItems(r.items.map(it => {
@@ -340,7 +354,7 @@ function CameraPhotoModal({ visible, onClose }) {
     try {
       for (const item of items) {
         await addFoodEntry({
-          food_id:   item.name ?? 'camera_food',
+          food_id:   'camera_food',
           food_name: item.name_he ?? item.name ?? 'מזון מצולם',
           grams:     item.grams ?? 100,
           calories:  item.calories ?? 0,
@@ -348,7 +362,9 @@ function CameraPhotoModal({ visible, onClose }) {
           carbs:     item.carbs ?? 0,
           fat:       item.fat ?? 0,
           meal_type: meal,
-          image_url: photoUrl,
+          // Prefer the actual local photo (renders instantly, always the exact
+          // shot); fall back to the server-saved copy if the local URI is gone.
+          image_url: photoUrl ?? savedImageUrl,
         });
       }
       onClose();
