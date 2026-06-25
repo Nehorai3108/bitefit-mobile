@@ -40,13 +40,16 @@ const MEAL_TYPES = [
 
 // ─── Meal Chip Row ─────────────────────────────────────────────────────────────
 function MealChips({ value, onChange }) {
+  const { C } = useTheme();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
       {MEAL_TYPES.map(m => (
         <TouchableOpacity key={m.key}
-          style={[s.mealChip, value === m.key && s.mealChipActive]}
+          style={[s.mealChip, { backgroundColor: C.surface2, borderColor: C.border },
+                  value === m.key && s.mealChipActive]}
           onPress={() => onChange(m.key)}>
-          <Text style={[s.mealChipTxt, value === m.key && s.mealChipTxtActive]}>{m.label}</Text>
+          <Text style={[s.mealChipTxt, { color: C.textMuted },
+                  value === m.key && s.mealChipTxtActive]}>{m.label}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -55,6 +58,7 @@ function MealChips({ value, onChange }) {
 
 // ─── Manual Entry Modal ────────────────────────────────────────────────────────
 function ManualEntryModal({ visible, onClose }) {
+  const { C } = useTheme();
   const [query, setQuery]   = useState('');
   const [grams, setGrams]   = useState('100');
   const [meal, setMeal]     = useState('LUNCH');
@@ -66,12 +70,20 @@ function ManualEntryModal({ visible, onClose }) {
   const close = () => { reset(); onClose(); };
 
   const search = async () => {
-    if (!query.trim()) return;
+    const raw = query.trim();
+    if (!raw) return;
+    // Parse a quantity from the query ("סטייק 200 גרם" → grams 200, search "סטייק")
+    const gMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:גרם|ג'|ג|gr|g)?/);
+    const cleanQuery = raw.replace(/\d+(?:\.\d+)?\s*(?:גרם|ג'|ג|gr|g)?/g, '').trim() || raw;
     setSearching(true); setFood(null);
     try {
-      const res = await searchFoodNutrition(query.trim());
-      if (res.found) setFood(res);
-      else Alert.alert('לא נמצא', 'נסה שם אחר או בעברית');
+      const res = await searchFoodNutrition(cleanQuery);
+      if (res.found) {
+        setFood(res);
+        if (gMatch) setGrams(String(parseFloat(gMatch[1])));
+      } else {
+        Alert.alert('לא נמצא', 'נסה שם אחר או בעברית');
+      }
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לחפש'); }
     finally { setSearching(false); }
   };
@@ -104,9 +116,9 @@ function ManualEntryModal({ visible, onClose }) {
     <Modal visible={visible} animationType="slide" transparent onRequestClose={close}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, justifyContent: 'flex-end' }}>
         <Pressable style={s.overlay} onPress={close} />
-        <View style={s.sheet}>
-          <View style={s.sheetHandle} />
-          <Text style={s.sheetTitle}>חיפוש ידני</Text>
+        <View style={[s.sheet, { backgroundColor: C.bg }]}>
+          <View style={[s.sheetHandle, { backgroundColor: C.border }]} />
+          <Text style={[s.sheetTitle, { color: C.text }]}>חיפוש ידני</Text>
 
           <View style={s.searchRow}>
             <TouchableOpacity style={s.searchBtn} onPress={search}>
@@ -115,9 +127,9 @@ function ManualEntryModal({ visible, onClose }) {
                 : <Text style={s.searchBtnTxt}>חפש</Text>}
             </TouchableOpacity>
             <TextInput
-              style={s.input}
+              style={[s.input, { backgroundColor: C.surface, color: C.text, borderColor: C.border }]}
               placeholder="שם מזון בעברית..."
-              placeholderTextColor="#444"
+              placeholderTextColor={C.placeholder}
               value={query}
               onChangeText={setQuery}
               onSubmitEditing={search}
@@ -127,20 +139,20 @@ function ManualEntryModal({ visible, onClose }) {
           </View>
 
           {food && (
-            <View style={s.foodCard}>
-              <Text style={s.foodName}>{food.name_he}</Text>
-              <Text style={s.foodMeta}>{food.calories_per_100g} קק"ל / 100g</Text>
+            <View style={[s.foodCard, { backgroundColor: C.surface }]}>
+              <Text style={[s.foodName, { color: C.text }]}>{food.name_he}</Text>
+              <Text style={[s.foodMeta, { color: C.textMuted }]}>{food.calories_per_100g} קק"ל / 100g</Text>
               <View style={s.gramsRow}>
                 <Text style={s.calBig}>{cal} קק"ל</Text>
                 <View style={s.gramsInput}>
                   <TextInput
-                    style={s.gramsField}
+                    style={[s.gramsField, { backgroundColor: C.inputBg, color: C.text, borderColor: C.border }]}
                     value={grams}
                     onChangeText={setGrams}
                     keyboardType="numeric"
                     textAlign="center"
                   />
-                  <Text style={s.gramsLbl}>גרם</Text>
+                  <Text style={[s.gramsLbl, { color: C.textMuted }]}>גרם</Text>
                 </View>
               </View>
               <MealChips value={meal} onChange={setMeal} />
