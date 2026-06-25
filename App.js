@@ -751,6 +751,7 @@ function AuthNavigator() {
 import HistoryScreen   from './src/screens/HistoryScreen';
 import InventoryScreen from './src/screens/InventoryScreen';
 import PaywallScreen   from './src/screens/PaywallScreen';
+import SettingsScreen  from './src/screens/SettingsScreen';
 
 function MainNavigator() {
   return (
@@ -762,6 +763,8 @@ function MainNavigator() {
         options={{ animation: 'slide_from_right' }} />
       <RootStack.Screen name="Paywall"   component={PaywallScreen}
         options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
+      <RootStack.Screen name="Settings"  component={SettingsScreen}
+        options={{ animation: 'slide_from_right' }} />
     </RootStack.Navigator>
   );
 }

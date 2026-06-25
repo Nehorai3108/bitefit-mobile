@@ -302,14 +302,9 @@ export default function ProfileScreen({ navigation }) {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={{ flexDirection: 'row', gap: 4 }}>
-          <TouchableOpacity onPress={toggle} style={{ padding: 8 }}>
-            <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={22} color={C.textMuted} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleLogout} style={{ padding: 8 }}>
-            <Ionicons name="log-out-outline" size={22} color="#ef7d6c" />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={{ padding: 8 }}>
+          <Ionicons name="settings-outline" size={22} color={C.textMuted} />
+        </TouchableOpacity>
         <View style={styles.avatarCard}>
           <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#3a7a4a" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
