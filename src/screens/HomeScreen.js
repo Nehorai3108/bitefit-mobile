@@ -19,12 +19,12 @@ const TYPE_ICON = { strength: 'barbell-outline', cardio: 'bicycle-outline', hiit
 const TYPE_COLOR = { strength: '#3a7a4a', cardio: '#2e86de', hiit: '#e74c3c', rest: '#8e44ad' };
 
 const MEALS = [
-  { key: 'BREAKFAST',       label: 'בוקר' },
-  { key: 'MORNING_SNACK',   label: 'חטיף בוקר' },
-  { key: 'LUNCH',           label: 'צהריים' },
-  { key: 'AFTERNOON_SNACK', label: 'חטיף צ' },
-  { key: 'DINNER',          label: 'ערב' },
-  { key: 'EVENING_SNACK',   label: 'חטיף ע' },
+  { key: 'BREAKFAST',       label: 'בוקר',      ratio: 0.25 },
+  { key: 'MORNING_SNACK',   label: 'חטיף בוקר',  ratio: 0.10 },
+  { key: 'LUNCH',           label: 'צהריים',    ratio: 0.35 },
+  { key: 'AFTERNOON_SNACK', label: 'חטיף צ',    ratio: 0.10 },
+  { key: 'DINNER',          label: 'ערב',       ratio: 0.20 },
+  { key: 'EVENING_SNACK',   label: 'חטיף ע',    ratio: 0.10 },
 ];
 
 // Full recipe detail: ingredients in household units + nutrition + instructions
@@ -373,6 +373,10 @@ export default function HomeScreen({ navigation }) {
   const activeMealKey = MEALS[activeMeal]?.key;
   const activeMealData = plan?.plan?.[activeMealKey];
   const activeRecipes = mealRecipes[activeMealKey] ?? [];
+  // Robust meal target: use the plan's value, but fall back to the day target ×
+  // the meal ratio so it's never "יעד: 0" when the daily plan didn't load.
+  const activeMealTarget =
+    Math.round(activeMealData?.target_calories || totalTarget * (MEALS[activeMeal]?.ratio ?? 0.2));
 
   return (
     <View style={{ flex: 1 }} {...panHandlers}>
@@ -435,12 +439,10 @@ export default function HomeScreen({ navigation }) {
         </ScrollView>
 
         {/* Meal target */}
-        {activeMealData && (
-          <Text style={styles.mealHint}>
-            יעד:{' '}
-            <Text style={styles.mealHintCal}>{activeMealData.target_calories} קק"ל</Text>
-          </Text>
-        )}
+        <Text style={styles.mealHint}>
+          יעד:{' '}
+          <Text style={styles.mealHintCal}>{activeMealTarget} קק"ל</Text>
+        </Text>
 
         {/* Recipe search — pick any dish, scaled to this meal's target */}
         <View style={styles.searchRow}>
@@ -474,7 +476,7 @@ export default function HomeScreen({ navigation }) {
                 <RecipeCard
                   key={recipe?.recipe_id ?? idx}
                   recipe={recipe}
-                  targetCal={activeMealData?.target_calories ?? 0}
+                  targetCal={activeMealTarget}
                   index={idx}
                   total={searchResults.length}
                   mealType={activeMealKey}
@@ -493,7 +495,7 @@ export default function HomeScreen({ navigation }) {
               <RecipeCard
                 key={recipe?.recipe_id ?? idx}
                 recipe={recipe}
-                targetCal={activeMealData?.target_calories ?? 0}
+                targetCal={activeMealTarget}
                 index={idx}
                 total={activeRecipes.length}
                 mealType={activeMealKey}
@@ -600,7 +602,7 @@ const makeStyles = (C) => StyleSheet.create({
   detailSection: { marginTop: 22 },
   detailSectionTitle: { color: C.text, fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
   ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: C.surface2 },
-  ingredientName: { color: '#ddd', fontSize: 15, textAlign: 'right' },
+  ingredientName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right', flex: 1 },
   ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#3a7a4a' },
   ingredientQty: { color: '#3a7a4a', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
   detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
