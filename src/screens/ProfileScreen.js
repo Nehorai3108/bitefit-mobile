@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { fetchProfile, saveProfile, fetchProfileTargets } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -106,8 +107,53 @@ const _parseDate = (s) => {
   return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(2000, 0, 1);
 };
 
+// ── Number wheel field (height / weight): tap to open a scroll-wheel picker ──
+function WheelField({ value, onChange, min, max, step = 1, unit }) {
+  const { C, isDark } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
+  const [show, setShow] = useState(false);
+
+  const options = useMemo(() => {
+    const arr = [];
+    for (let v = min; v <= max + 1e-9; v += step) arr.push(Math.round(v * 10) / 10);
+    return arr;
+  }, [min, max, step]);
+
+  // snap the current value to the nearest available option so the wheel highlights it
+  const selected = useMemo(() => {
+    const v = parseFloat(value) || min;
+    return options.reduce((best, o) => (Math.abs(o - v) < Math.abs(best - v) ? o : best), options[0]);
+  }, [value, options]);
+
+  return (
+    <View>
+      <TouchableOpacity style={styles.dateField} onPress={() => setShow(s => !s)}>
+        <Ionicons name="chevron-expand-outline" size={18} color={C.textMuted} />
+        <Text style={[styles.dateTxt, { color: C.text }]}>{selected} {unit}</Text>
+      </TouchableOpacity>
+      {show && (
+        <View style={styles.wheelBox}>
+          <Picker
+            selectedValue={selected}
+            onValueChange={(v) => onChange(v)}
+            itemStyle={{ color: C.text, fontSize: 20, height: 150 }}
+            dropdownIconColor={C.text}
+          >
+            {options.map(o => (
+              <Picker.Item key={o} label={`${o} ${unit}`} value={o} color={isDark ? '#fff' : '#1a1a1a'} />
+            ))}
+          </Picker>
+          <TouchableOpacity style={styles.dateDone} onPress={() => setShow(false)}>
+            <Text style={styles.dateDoneTxt}>סיום</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
 function DateField({ value, onChange }) {
-  const { C } = useTheme();
+  const { C, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [show, setShow] = useState(false);
   const date = _parseDate(value);
@@ -134,7 +180,8 @@ function DateField({ value, onChange }) {
             maximumDate={new Date()}
             minimumDate={new Date(1920, 0, 1)}
             onChange={onPick}
-            themeVariant="dark"
+            themeVariant={isDark ? 'dark' : 'light'}
+            textColor={C.text}
           />
           {Platform.OS === 'ios' && (
             <TouchableOpacity style={styles.dateDone} onPress={() => setShow(false)}>
@@ -299,11 +346,11 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.row3}>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>משקל נוכחי (ק"ג)</Text>
-                <NumberInput value={weight} onChange={setWeight} min={30} max={300} step={0.5} />
+                <WheelField value={weight} onChange={setWeight} min={30} max={300} step={0.5} unit='ק"ג' />
               </View>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>גובה (ס"מ)</Text>
-                <NumberInput value={height} onChange={setHeight} min={100} max={250} step={0.5} />
+                <WheelField value={height} onChange={setHeight} min={100} max={250} step={0.5} unit='ס"מ' />
               </View>
             </View>
 
@@ -328,7 +375,7 @@ export default function ProfileScreen({ navigation }) {
             <View style={styles.row3}>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>משקל יעד (ק"ג)</Text>
-                <NumberInput value={targetWeight} onChange={setTargetWeight} min={30} max={300} step={0.5} />
+                <WheelField value={targetWeight} onChange={setTargetWeight} min={30} max={300} step={0.5} unit='ק"ג' />
               </View>
               <View style={styles.col}>
                 <Text style={styles.fieldLabel}>כמה שבועות עד היעד?</Text>
@@ -507,6 +554,7 @@ const makeStyles = (C) => StyleSheet.create({
   dateDone: { alignSelf: 'flex-end', paddingHorizontal: 18, paddingVertical: 8, marginTop: 4,
     backgroundColor: '#3a7a4a', borderRadius: 8 },
   dateDoneTxt: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  wheelBox: { backgroundColor: C.surface, borderRadius: 10, borderWidth: 1, borderColor: C.border, marginTop: 6, paddingBottom: 8 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
   optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
