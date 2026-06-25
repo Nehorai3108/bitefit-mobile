@@ -2,9 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, ScrollView, StyleSheet, ActivityIndicator,
-  TouchableOpacity, TextInput, Alert,
+  TouchableOpacity, TextInput, Alert, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { fetchProfile, saveProfile, fetchProfileTargets } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -59,23 +60,89 @@ function snap(value, step) {
 function NumberInput({ value, onChange, min = 0, max = 999, step = 1, unit }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const dec = (parseFloat(value) || 0) - step;
-  const inc = (parseFloat(value) || 0) + step;
+  // local text buffer so the field can be empty while typing (no jump to 0)
+  const [text, setText] = useState(String(value ?? ''));
+  useEffect(() => { setText(String(value ?? '')); }, [value]);
+
+  const commit = () => {
+    let n = parseFloat(text);
+    if (isNaN(n)) n = value || min;
+    n = Math.max(min, Math.min(max, n));
+    onChange(snap(n, step));
+    setText(String(n));
+  };
+  const dec = () => onChange(Math.max(min, snap((parseFloat(value) || 0) - step, step)));
+  const inc = () => onChange(Math.min(max, snap((parseFloat(value) || 0) + step, step)));
+
   return (
     <View style={styles.numInput}>
-      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.max(min, snap(dec, step)))}>
+      <TouchableOpacity style={styles.numBtn} onPress={dec}>
         <Text style={styles.numBtnTxt}>−</Text>
       </TouchableOpacity>
       <TextInput
         style={styles.numValue}
-        value={String(value ?? '')}
-        onChangeText={v => onChange(parseFloat(v) || 0)}
+        value={text}
+        onChangeText={setText}
+        onFocus={() => setText('')}
+        onBlur={commit}
+        onSubmitEditing={commit}
         keyboardType="decimal-pad"
+        selectTextOnFocus
+        returnKeyType="done"
       />
       {unit && <Text style={styles.numUnit}>{unit}</Text>}
-      <TouchableOpacity style={styles.numBtn} onPress={() => onChange(Math.min(max, snap(inc, step)))}>
+      <TouchableOpacity style={styles.numBtn} onPress={inc}>
         <Text style={styles.numBtnTxt}>+</Text>
       </TouchableOpacity>
+    </View>
+  );
+}
+
+// ── Date of birth field: opens a calendar / scroll-wheel picker ──────────────
+const _fmtDate = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const _parseDate = (s) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(2000, 0, 1);
+};
+
+function DateField({ value, onChange }) {
+  const { C } = useTheme();
+  const styles = useMemo(() => makeStyles(C), [C]);
+  const [show, setShow] = useState(false);
+  const date = _parseDate(value);
+  const label = value ? date.toLocaleDateString('he-IL') : 'בחר תאריך לידה';
+
+  const onPick = (event, d) => {
+    if (Platform.OS !== 'ios') setShow(false);   // Android dialog closes itself
+    if (event?.type === 'dismissed') return;
+    if (d) onChange(_fmtDate(d));
+  };
+
+  return (
+    <View>
+      <TouchableOpacity style={styles.dateField} onPress={() => setShow(s => !s)}>
+        <Ionicons name="calendar-outline" size={18} color={C.textMuted} />
+        <Text style={[styles.dateTxt, { color: value ? C.text : C.textFaint }]}>{label}</Text>
+      </TouchableOpacity>
+      {show && (
+        <View>
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+            maximumDate={new Date()}
+            minimumDate={new Date(1920, 0, 1)}
+            onChange={onPick}
+            themeVariant="dark"
+          />
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity style={styles.dateDone} onPress={() => setShow(false)}>
+              <Text style={styles.dateDoneTxt}>סיום</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -256,7 +323,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
 
             <Text style={styles.fieldLabel}>תאריך לידה</Text>
-            <TextInput style={styles.textInput} value={dob} onChangeText={setDob} placeholder="YYYY-MM-DD" placeholderTextColor={C.textFaint} />
+            <DateField value={dob} onChange={setDob} />
 
             <View style={styles.row3}>
               <View style={styles.col}>
@@ -434,6 +501,12 @@ const makeStyles = (C) => StyleSheet.create({
   numBtnTxt: { color: '#3a7a4a', fontSize: 20, fontWeight: '700' },
   numValue: { flex: 1, color: C.text, fontSize: 15, textAlign: 'center', height: 44 },
   numUnit: { color: C.textMuted, fontSize: 12, paddingRight: 8 },
+  dateField: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, backgroundColor: C.surface,
+    borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 14, height: 46 },
+  dateTxt: { fontSize: 16, flex: 1, textAlign: 'right' },
+  dateDone: { alignSelf: 'flex-end', paddingHorizontal: 18, paddingVertical: 8, marginTop: 4,
+    backgroundColor: '#3a7a4a', borderRadius: 8 },
+  dateDoneTxt: { color: '#fff', fontWeight: '700', fontSize: 14 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
   optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
