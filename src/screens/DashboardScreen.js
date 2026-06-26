@@ -337,6 +337,18 @@ export default function DashboardScreen({ navigation }) {
           <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#3a7a4a" />
         </View>
 
+        {/* תפריט יום מותאם — הבידול המרכזי */}
+        <TouchableOpacity style={styles.planCta} activeOpacity={0.9} onPress={() => navigation.navigate('FullDayPlan')}>
+          <View style={styles.planCtaIcon}>
+            <Ionicons name="restaurant" size={22} color="#fff" />
+          </View>
+          <View style={{ flex: 1, alignItems: 'flex-end' }}>
+            <Text style={styles.planCtaTitle}>בנה לי תפריט יום מדויק</Text>
+            <Text style={styles.planCtaSub}>מותאם ליעדי הקלוריות והמאקרו שלך</Text>
+          </View>
+          <Ionicons name="chevron-back" size={20} color="#3a7a4a" />
+        </TouchableOpacity>
+
         {/* מאזן ארוחות — רק ליום הנוכחי */}
         {isToday && <MealBalanceCard />}
 
@@ -389,6 +401,13 @@ const makeStyles = (C) => StyleSheet.create({
   dateSub:   { color: C.textDim, fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 10 },
   logo:      { fontSize: 20, fontWeight: '800', color: '#3a7a4a' },
   logoImg:   { width: 34, height: 34, borderRadius: 9 },
+  planCta:   { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, marginHorizontal: 16,
+    marginBottom: 16, padding: 14, borderRadius: 16, backgroundColor: C.surface,
+    borderWidth: 1, borderColor: '#3a7a4a55' },
+  planCtaIcon:  { width: 44, height: 44, borderRadius: 12, backgroundColor: '#3a7a4a',
+    alignItems: 'center', justifyContent: 'center' },
+  planCtaTitle: { color: C.text, fontSize: 15.5, fontWeight: '800', textAlign: 'right' },
+  planCtaSub:   { color: C.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 2 },
 
   weekStrip:       { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
   weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },

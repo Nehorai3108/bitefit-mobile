@@ -797,6 +797,7 @@ import HistoryScreen   from './src/screens/HistoryScreen';
 import InventoryScreen from './src/screens/InventoryScreen';
 import PaywallScreen   from './src/screens/PaywallScreen';
 import SettingsScreen  from './src/screens/SettingsScreen';
+import FullDayPlanScreen from './src/screens/FullDayPlanScreen';
 import TutorialOverlay, { useTutorial } from './src/components/TutorialOverlay';
 import { registerAddOpener } from './src/tutorialBridge';
 
@@ -811,6 +812,8 @@ function MainNavigator() {
       <RootStack.Screen name="Paywall"   component={PaywallScreen}
         options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
       <RootStack.Screen name="Settings"  component={SettingsScreen}
+        options={{ animation: 'slide_from_right' }} />
+      <RootStack.Screen name="FullDayPlan" component={FullDayPlanScreen}
         options={{ animation: 'slide_from_right' }} />
     </RootStack.Navigator>
   );

@@ -100,6 +100,10 @@ const today = () => {
 export const fetchDailyPlan = () =>
   api.get('/daily-menu/plan').then(r => r.data);
 
+// Full-day plan: one recipe per meal, optimized to hit the day's macro targets.
+export const fetchFullDayPlan = (seed = 0) =>
+  api.get('/daily-menu/full-day-plan', { params: { seed } }).then(r => r.data);
+
 export const fetchMealSuggestions = (mealType, targetCalories, seed = 0) =>
   api.get(`/daily-menu/suggestions/${mealType}`, {
     params: { target_calories: targetCalories, seed }
