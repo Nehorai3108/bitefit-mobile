@@ -156,6 +156,30 @@ function ManualEntryModal({ visible, onClose }) {
                   <Text style={[s.gramsLbl, { color: C.textMuted }]}>גרם</Text>
                 </View>
               </View>
+              {/* Quick portion presets — tap the amount you actually ate. */}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 12 }}>
+                {['-10', '+10', '50', '100', '150', '200', '250'].map(p => {
+                  const isStep = p.startsWith('-') || p.startsWith('+');
+                  const onPress = () => {
+                    if (isStep) {
+                      const cur = parseFloat(grams) || 0;
+                      setGrams(String(Math.max(5, cur + parseInt(p, 10))));
+                    } else {
+                      setGrams(p);
+                    }
+                  };
+                  const active = !isStep && grams === p;
+                  return (
+                    <TouchableOpacity key={p} onPress={onPress}
+                      style={[s.portionChip, { backgroundColor: C.surface2, borderColor: C.border },
+                              active && { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' }]}>
+                      <Text style={[s.portionChipTxt, { color: C.textMuted }, active && { color: '#fff' }]}>
+                        {isStep ? p : `${p}g`}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
               <MealChips value={meal} onChange={setMeal} />
               <TouchableOpacity style={s.saveBtn} onPress={save} disabled={saving}>
                 {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>הוסף לתזונה</Text>}
@@ -356,7 +380,7 @@ function CameraPhotoModal({ visible, onClose }) {
         await addFoodEntry({
           food_id:   'camera_food',
           food_name: item.name_he ?? item.name ?? 'מזון מצולם',
-          grams:     item.grams ?? 100,
+          grams:     parseFloat(item.grams) || 100,
           calories:  item.calories ?? 0,
           protein:   item.protein ?? 0,
           carbs:     item.carbs ?? 0,
@@ -383,7 +407,15 @@ function CameraPhotoModal({ visible, onClose }) {
     };
   };
   const adjustGrams = (i, delta) =>
-    setItems(prev => prev.map((it, idx) => idx === i ? scaleItem(it, Math.max(5, (it.grams || 0) + delta)) : it));
+    setItems(prev => prev.map((it, idx) => idx === i ? scaleItem(it, Math.max(5, (parseFloat(it.grams) || 0) + delta)) : it));
+  // Type an exact gram amount — calories/macros rescale live from the base values.
+  const setGramsExact = (i, text) =>
+    setItems(prev => prev.map((it, idx) => {
+      if (idx !== i) return it;
+      if (text === '') return { ...it, grams: '' };
+      const g = parseFloat(text);
+      return isNaN(g) ? it : scaleItem(it, Math.max(1, g));
+    }));
   const removeItem = (i) => setItems(prev => prev.filter((_, idx) => idx !== i));
 
   // עריכת שם מאכל שזוהה לא נכון (למשל מלפפון שזוהה כמלון)
@@ -479,10 +511,20 @@ function CameraPhotoModal({ visible, onClose }) {
                   <Ionicons name="trash-outline" size={18} color="#ef7d6c" />
                 </TouchableOpacity>
 
-                {/* Grams stepper */}
+                {/* Grams stepper — tap +/- or type the exact amount you ate */}
                 <View style={s.gramsStepper}>
                   <TouchableOpacity onPress={() => adjustGrams(i, 10)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
-                  <Text style={s.stepVal}>{item.grams}g</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput
+                      style={[s.stepVal, s.stepValInput]}
+                      value={String(item.grams ?? '')}
+                      onChangeText={t => setGramsExact(i, t)}
+                      keyboardType="numeric"
+                      textAlign="center"
+                      selectTextOnFocus
+                    />
+                    <Text style={s.stepVal}>g</Text>
+                  </View>
                   <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 </View>
 
@@ -895,6 +937,8 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: '#333',
   },
   gramsLbl: { color: '#888', fontSize: 14 },
+  portionChip:    { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, borderWidth: 1, marginLeft: 8 },
+  portionChipTxt: { fontSize: 13, fontWeight: '700' },
   mealChip: {
     paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20,
     backgroundColor: '#23384c', marginRight: 8, borderWidth: 1, borderColor: '#2e455c',
@@ -924,6 +968,7 @@ const s = StyleSheet.create({
   stepBtn:       { paddingHorizontal: 10, paddingVertical: 6 },
   stepTxt:       { color: '#3a7a4a', fontSize: 18, fontWeight: '800' },
   stepVal:       { color: '#fff', fontSize: 13, fontWeight: '700', minWidth: 44, textAlign: 'center' },
+  stepValInput:  { minWidth: 38, paddingVertical: 2, borderBottomWidth: 1, borderBottomColor: '#3a7a4a' },
 
   // Camera photo shutter
   shutterBtn:   { position: 'absolute', bottom: 48, alignSelf: 'center', width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
