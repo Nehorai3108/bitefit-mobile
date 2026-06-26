@@ -104,6 +104,12 @@ export const fetchDailyPlan = () =>
 export const fetchFullDayPlan = (seed = 0) =>
   api.get('/daily-menu/full-day-plan', { params: { seed } }).then(r => r.data);
 
+// Swap a single meal for an alternative at the same calorie target.
+export const swapMeal = (mealType, targetCalories, excludeRecipeId, seed = 0) =>
+  api.get(`/daily-menu/swap-meal/${mealType}`, {
+    params: { target_calories: targetCalories, exclude_recipe_id: excludeRecipeId, seed },
+  }).then(r => r.data);
+
 export const fetchMealSuggestions = (mealType, targetCalories, seed = 0) =>
   api.get(`/daily-menu/suggestions/${mealType}`, {
     params: { target_calories: targetCalories, seed }

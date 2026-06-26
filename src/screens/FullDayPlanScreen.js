@@ -4,7 +4,7 @@ import {
   ActivityIndicator, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchFullDayPlan, addFoodEntry } from '../api/client';
+import { fetchFullDayPlan, swapMeal, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const MEAL_ORDER = [
@@ -38,11 +38,18 @@ function StatBar({ label, value, target, color, unit, C }) {
   );
 }
 
-function MealCard({ label, mealKey, data, C, styles }) {
+function MealCard({ label, mealKey, data, C, styles, onSwap }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
+  const [swapping, setSwapping] = useState(false);
   const recipe = data?.recipe;
   if (!recipe) return null;
+
+  const doSwap = async () => {
+    setSwapping(true);
+    try { await onSwap(mealKey, data.target_calories, recipe.recipe_id); }
+    finally { setSwapping(false); }
+  };
   const n = recipe.total_nutrition ?? {};
   const ingredients = recipe.ingredients ?? [];
 
@@ -99,10 +106,18 @@ function MealCard({ label, mealKey, data, C, styles }) {
               </Text>
             </>
           ) : null}
-          <TouchableOpacity style={[styles.ateBtn, ate && styles.ateBtnDone]} onPress={logMeal}>
-            <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#56bd6b' : '#fff'} />
-            <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן' : 'הוסף ליומן'}</Text>
-          </TouchableOpacity>
+          <View style={styles.mealActions}>
+            <TouchableOpacity style={styles.swapBtn} onPress={doSwap} disabled={swapping}>
+              {swapping
+                ? <ActivityIndicator size="small" color="#3a7a4a" />
+                : <><Ionicons name="swap-horizontal" size={16} color="#3a7a4a" />
+                    <Text style={styles.swapTxt}>החלף מנה</Text></>}
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.ateBtn, { flex: 1 }, ate && styles.ateBtnDone]} onPress={logMeal}>
+              <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#56bd6b' : '#fff'} />
+              <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן' : 'הוסף ליומן'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>
@@ -123,6 +138,30 @@ export default function FullDayPlanScreen({ navigation }) {
     } catch {
       Alert.alert('שגיאה', 'לא הצלחתי לבנות תפריט. נסה שוב.');
     } finally { setLoading(false); }
+  };
+
+  // Recompute day totals from the current meals (after a swap).
+  const recomputeTotals = (planObj) => {
+    const tot = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+    Object.values(planObj.plan ?? {}).forEach(m => {
+      const n = m?.recipe?.total_nutrition ?? {};
+      tot.calories += n.calories ?? 0; tot.protein += n.protein ?? 0;
+      tot.carbs += n.carbs ?? 0; tot.fat += n.fat ?? 0;
+    });
+    return tot;
+  };
+
+  const handleSwap = async (mealKey, targetCalories, currentId) => {
+    try {
+      const res = await swapMeal(mealKey, targetCalories, currentId, Math.floor(Math.random() * 100000));
+      if (!res?.recipe) return;
+      setPlan(prev => {
+        const next = { ...prev, plan: { ...prev.plan,
+          [mealKey]: { ...prev.plan[mealKey], recipe: res.recipe } } };
+        next.totals = recomputeTotals(next);
+        return next;
+      });
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי להחליף מנה'); }
   };
 
   const t = plan?.targets ?? {};
@@ -171,7 +210,7 @@ export default function FullDayPlanScreen({ navigation }) {
             </View>
 
             {MEAL_ORDER.map(m => (
-              <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles} />
+              <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles} onSwap={handleSwap} />
             ))}
           </>
         )}
@@ -219,10 +258,14 @@ const makeStyles = (C) => StyleSheet.create({
   ingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#3a7a4a' },
   ingTxt: { color: C.textMuted, fontSize: 14, flex: 1, textAlign: 'right' },
   instr: { color: C.textMuted, fontSize: 14, lineHeight: 21, textAlign: 'right' },
+  mealActions: { flexDirection: 'row-reverse', gap: 8, marginTop: 14 },
   ateBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 11, marginTop: 14 },
+    backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 11 },
   ateBtnDone: { backgroundColor: '#3a7a4a22' },
   ateTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  swapBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 5,
+    paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a', minWidth: 110 },
+  swapTxt: { color: '#3a7a4a', fontSize: 13.5, fontWeight: '700' },
 
   genBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: '#3a7a4a', borderRadius: 16, paddingVertical: 16, marginTop: 8 },
