@@ -38,7 +38,7 @@ function StatBar({ label, value, target, color, unit, C }) {
   );
 }
 
-function MealCard({ label, mealKey, data, C, styles, onSwap }) {
+function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
   const [swapping, setSwapping] = useState(false);
@@ -73,6 +73,12 @@ function MealCard({ label, mealKey, data, C, styles, onSwap }) {
 
   return (
     <View style={styles.mealCard}>
+      {compensate > 0 && (
+        <TouchableOpacity style={styles.compensateBtn} onPress={() => onCompensate(mealKey)}>
+          <Ionicons name="trending-down" size={15} color="#fff" />
+          <Text style={styles.compensateTxt}>קזז {compensate} קק"ל מ{label}</Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity style={styles.mealHead} activeOpacity={0.8} onPress={() => setOpen(o => !o)}>
         {recipe.image_url
           ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
@@ -124,11 +130,35 @@ function MealCard({ label, mealKey, data, C, styles, onSwap }) {
   );
 }
 
-export default function FullDayPlanScreen({ navigation }) {
+export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
+  // Calories to compensate (you ate something off-plan) — set from the home
+  // over-budget alert. The user picks a meal to shrink by this amount.
+  const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
+
+  // Shrink one meal's recipe to absorb the off-plan calories, keeping the day on target.
+  const compensateMeal = (mealKey) => {
+    setPlan(prev => {
+      const meal = prev.plan[mealKey];
+      const n = meal?.recipe?.total_nutrition ?? {};
+      const cal = n.calories ?? 0;
+      if (cal <= 0) return prev;
+      const factor = Math.max(0.3, (cal - compensate) / cal);
+      const r = meal.recipe;
+      const scaledN = {};
+      ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
+      const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
+        ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+      const next = { ...prev, plan: { ...prev.plan,
+        [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng, _shrunk: true } } } };
+      next.totals = recomputeTotals(next);
+      return next;
+    });
+    setCompensate(0);
+  };
 
   const generate = async (newSeed) => {
     setLoading(true);
@@ -200,6 +230,14 @@ export default function FullDayPlanScreen({ navigation }) {
 
         {plan && !loading && (
           <>
+            {compensate > 0 && (
+              <View style={styles.compBanner}>
+                <Ionicons name="alert-circle" size={20} color="#e0a800" />
+                <Text style={styles.compBannerTxt}>
+                  אכלת {compensate} קק"ל מחוץ לתפריט. בחר ארוחה לקיזוז כדי להישאר על היעד.
+                </Text>
+              </View>
+            )}
             {/* Day summary — the precision showcase */}
             <View style={styles.summary}>
               <Text style={styles.summaryTitle}>סיכום היום מול היעד</Text>
@@ -210,7 +248,8 @@ export default function FullDayPlanScreen({ navigation }) {
             </View>
 
             {MEAL_ORDER.map(m => (
-              <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles} onSwap={handleSwap} />
+              <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles}
+                onSwap={handleSwap} compensate={compensate} onCompensate={compensateMeal} />
             ))}
           </>
         )}
@@ -239,6 +278,12 @@ const makeStyles = (C) => StyleSheet.create({
   loading: { alignItems: 'center', paddingVertical: 60 },
   loadingTxt: { color: C.textMuted, fontSize: 15, marginTop: 14 },
 
+  compBanner: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, backgroundColor: '#e0a80018',
+    borderWidth: 1, borderColor: '#e0a80055', borderRadius: 14, padding: 12, marginBottom: 14 },
+  compBannerTxt: { color: C.text, fontSize: 13.5, fontWeight: '600', flex: 1, textAlign: 'right', lineHeight: 19 },
+  compensateBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: '#e0a800', paddingVertical: 9 },
+  compensateTxt: { color: '#fff', fontSize: 13.5, fontWeight: '800' },
   summary: { backgroundColor: C.surface, borderRadius: 16, padding: 16, marginBottom: 16,
     borderWidth: 1, borderColor: C.border },
   summaryTitle: { color: C.text, fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 14 },

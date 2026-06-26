@@ -268,6 +268,7 @@ export default function DashboardScreen({ navigation }) {
   const adjustedTarget = isToday ? calTarget + burned : calTarget;
   const calLeft       = Math.max(adjustedTarget - cal, 0);
   const calPct        = adjustedTarget > 0 ? Math.min(cal / adjustedTarget, 1) : 0;
+  const overage       = isToday ? Math.max(0, Math.round(cal - adjustedTarget)) : 0;
 
   return (
     <View style={{ flex: 1 }} {...panHandlers}>
@@ -336,6 +337,19 @@ export default function DashboardScreen({ navigation }) {
           <MacroCard label="פחמימות" eaten={summary?.carbs ?? 0}  target={targets?.carbs ?? 250} color="#f0935f" />
           <MacroCard label="חלבון"   eaten={summary?.protein ?? 0} target={targets?.protein ?? 150} color="#3a7a4a" />
         </View>
+
+        {/* התראת חריגה אוטומטית — קיזוז מהתפריט */}
+        {overage > 50 && (
+          <TouchableOpacity style={styles.overBanner} activeOpacity={0.9}
+            onPress={() => navigation.navigate('FullDayPlan', { overage })}>
+            <Ionicons name="alert-circle" size={22} color="#e0a800" />
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Text style={styles.overTitle}>חרגת ב-{overage.toLocaleString()} קק"ל מהיעד</Text>
+              <Text style={styles.overSub}>הקש כדי לקזז מהתפריט ולחזור למסלול</Text>
+            </View>
+            <Ionicons name="chevron-back" size={20} color="#e0a800" />
+          </TouchableOpacity>
+        )}
 
         {/* תפריט יום מותאם — הבידול המרכזי */}
         <TouchableOpacity style={styles.planCta} activeOpacity={0.9} onPress={() => navigation.navigate('FullDayPlan')}>
@@ -408,6 +422,11 @@ const makeStyles = (C) => StyleSheet.create({
     alignItems: 'center', justifyContent: 'center' },
   planCtaTitle: { color: C.text, fontSize: 15.5, fontWeight: '800', textAlign: 'right' },
   planCtaSub:   { color: C.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 2 },
+  overBanner:   { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, marginHorizontal: 16,
+    marginBottom: 12, padding: 14, borderRadius: 16, backgroundColor: '#e0a80018',
+    borderWidth: 1, borderColor: '#e0a80055' },
+  overTitle:    { color: C.text, fontSize: 15, fontWeight: '800', textAlign: 'right' },
+  overSub:      { color: C.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 2 },
 
   weekStrip:       { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
   weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
