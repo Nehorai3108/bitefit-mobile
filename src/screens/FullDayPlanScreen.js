@@ -1,11 +1,17 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
-  ActivityIndicator, Alert,
+  ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchFullDayPlan, swapMeal, addFoodEntry } from '../api/client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchFullDayPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+
+const planKey = () => {
+  const d = new Date();
+  return `@day_plan_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+};
 
 const MEAL_ORDER = [
   { key: 'BREAKFAST',       label: 'ארוחת בוקר' },
@@ -41,15 +47,10 @@ function StatBar({ label, value, target, color, unit, C }) {
 function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
-  const [swapping, setSwapping] = useState(false);
   const recipe = data?.recipe;
   if (!recipe) return null;
 
-  const doSwap = async () => {
-    setSwapping(true);
-    try { await onSwap(mealKey, data.target_calories, recipe.recipe_id); }
-    finally { setSwapping(false); }
-  };
+  const doSwap = () => onSwap(mealKey, data.target_calories, recipe.recipe_id, label);
   const n = recipe.total_nutrition ?? {};
   const ingredients = recipe.ingredients ?? [];
 
@@ -113,11 +114,9 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
             </>
           ) : null}
           <View style={styles.mealActions}>
-            <TouchableOpacity style={styles.swapBtn} onPress={doSwap} disabled={swapping}>
-              {swapping
-                ? <ActivityIndicator size="small" color="#3a7a4a" />
-                : <><Ionicons name="swap-horizontal" size={16} color="#3a7a4a" />
-                    <Text style={styles.swapTxt}>החלף מנה</Text></>}
+            <TouchableOpacity style={styles.swapBtn} onPress={doSwap}>
+              <Ionicons name="swap-horizontal" size={16} color="#3a7a4a" />
+              <Text style={styles.swapTxt}>החלף מנה</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.ateBtn, { flex: 1 }, ate && styles.ateBtnDone]} onPress={logMeal}>
               <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#56bd6b' : '#fff'} />
@@ -130,6 +129,75 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
   );
 }
 
+// Swap chooser: type a dish you want, or get a fresh suggestion.
+function SwapModal({ target, C, styles, onClose, onPick, onRandom }) {
+  const [q, setQ] = useState('');
+  const [results, setResults] = useState([]);
+  const [busy, setBusy] = useState(false);
+  if (!target) return null;
+
+  const search = async () => {
+    if (!q.trim()) return;
+    setBusy(true);
+    try {
+      const res = await searchMealRecipes(q.trim(), target.targetCalories);
+      setResults(res?.recipes ?? []);
+    } catch { Alert.alert('שגיאה', 'החיפוש נכשל'); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <TouchableOpacity style={styles.swapOverlay} activeOpacity={1} onPress={onClose} />
+        <View style={styles.swapSheet}>
+          <View style={styles.swapHandle} />
+          <Text style={styles.swapTitle}>החלפת {target.label}</Text>
+          <Text style={styles.swapSub}>כתוב מה בא לך לאכול, ונתאים את הכמות ליעד הקלורי של הארוחה.</Text>
+
+          <View style={styles.swapSearchRow}>
+            <TouchableOpacity style={styles.swapSearchBtn} onPress={search}>
+              {busy ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.swapSearchBtnTxt}>חפש</Text>}
+            </TouchableOpacity>
+            <TextInput
+              style={styles.swapInput}
+              placeholder="למשל: שקשוקה, סלט טונה, פסטה..."
+              placeholderTextColor={C.placeholder}
+              value={q}
+              onChangeText={setQ}
+              onSubmitEditing={search}
+              returnKeyType="search"
+              textAlign="right"
+            />
+          </View>
+
+          <ScrollView style={{ maxHeight: 280 }} keyboardShouldPersistTaps="handled">
+            {results.map((r, i) => {
+              const n = r.total_nutrition ?? {};
+              return (
+                <TouchableOpacity key={i} style={styles.swapResult} onPress={() => onPick(r)}>
+                  {r.image_url
+                    ? <Image source={{ uri: r.image_url }} style={styles.swapThumb} />
+                    : <View style={[styles.swapThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={16} color={C.textMuted} /></View>}
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.swapResultName} numberOfLines={1}>{r.name_he ?? r.name_en}</Text>
+                    <Text style={styles.swapResultMacros}>{Math.round(n.calories ?? 0)} קק"ל · ח{Math.round(n.protein ?? 0)} פ{Math.round(n.carbs ?? 0)} ש{Math.round(n.fat ?? 0)}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          <TouchableOpacity style={styles.swapRandomBtn} onPress={onRandom}>
+            <Ionicons name="shuffle" size={16} color="#3a7a4a" />
+            <Text style={styles.swapRandomTxt}>תן לי הצעה אחרת</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
 export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
@@ -138,6 +206,31 @@ export default function FullDayPlanScreen({ navigation, route }) {
   // Calories to compensate (you ate something off-plan) — set from the home
   // over-budget alert. The user picks a meal to shrink by this amount.
   const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
+  const [swapTarget, setSwapTarget] = useState(null);  // {mealKey,targetCalories,currentId,label}
+
+  // Load today's saved plan on mount so it persists across navigation/app restarts.
+  useEffect(() => {
+    AsyncStorage.getItem(planKey())
+      .then(v => { if (v) setPlan(JSON.parse(v)); })
+      .catch(() => {});
+  }, []);
+
+  // Sync the over-budget amount when arriving from the home alert.
+  useEffect(() => {
+    if (route?.params?.overage) setCompensate(route.params.overage);
+  }, [route?.params?.overage]);
+
+  // Persist the plan whenever it changes (today only).
+  useEffect(() => {
+    if (plan) AsyncStorage.setItem(planKey(), JSON.stringify(plan)).catch(() => {});
+  }, [plan]);
+
+  const replaceMeal = (mealKey, recipe) => setPlan(prev => {
+    const next = { ...prev, plan: { ...prev.plan,
+      [mealKey]: { ...prev.plan[mealKey], recipe } } };
+    next.totals = recomputeTotals(next);
+    return next;
+  });
 
   // Shrink one meal's recipe to absorb the off-plan calories, keeping the day on target.
   const compensateMeal = (mealKey) => {
@@ -181,17 +274,23 @@ export default function FullDayPlanScreen({ navigation, route }) {
     return tot;
   };
 
-  const handleSwap = async (mealKey, targetCalories, currentId) => {
+  // Open the swap chooser for a meal (user can type a dish or get a suggestion).
+  const openSwap = (mealKey, targetCalories, currentId, label) =>
+    setSwapTarget({ mealKey, targetCalories, currentId, label });
+
+  const pickSwap = (recipe) => {
+    if (swapTarget) replaceMeal(swapTarget.mealKey, recipe);
+    setSwapTarget(null);
+  };
+
+  const randomSwap = async () => {
+    if (!swapTarget) return;
     try {
-      const res = await swapMeal(mealKey, targetCalories, currentId, Math.floor(Math.random() * 100000));
-      if (!res?.recipe) return;
-      setPlan(prev => {
-        const next = { ...prev, plan: { ...prev.plan,
-          [mealKey]: { ...prev.plan[mealKey], recipe: res.recipe } } };
-        next.totals = recomputeTotals(next);
-        return next;
-      });
+      const res = await swapMeal(swapTarget.mealKey, swapTarget.targetCalories,
+        swapTarget.currentId, Math.floor(Math.random() * 100000));
+      if (res?.recipe) replaceMeal(swapTarget.mealKey, res.recipe);
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להחליף מנה'); }
+    finally { setSwapTarget(null); }
   };
 
   const t = plan?.targets ?? {};
@@ -249,7 +348,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
             {MEAL_ORDER.map(m => (
               <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles}
-                onSwap={handleSwap} compensate={compensate} onCompensate={compensateMeal} />
+                onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
             ))}
           </>
         )}
@@ -259,6 +358,9 @@ export default function FullDayPlanScreen({ navigation, route }) {
           <Text style={styles.genTxt}>{plan ? 'צור תפריט אחר' : 'צור לי תפריט'}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <SwapModal target={swapTarget} C={C} styles={styles}
+        onClose={() => setSwapTarget(null)} onPick={pickSwap} onRandom={randomSwap} />
     </View>
   );
 }
@@ -315,4 +417,24 @@ const makeStyles = (C) => StyleSheet.create({
   genBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: '#3a7a4a', borderRadius: 16, paddingVertical: 16, marginTop: 8 },
   genTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
+
+  swapOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' },
+  swapSheet: { backgroundColor: C.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    padding: 18, paddingBottom: 32 },
+  swapHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: C.border, alignSelf: 'center', marginBottom: 14 },
+  swapTitle: { color: C.text, fontSize: 18, fontWeight: '800', textAlign: 'right' },
+  swapSub: { color: C.textMuted, fontSize: 13.5, textAlign: 'right', marginTop: 4, marginBottom: 14, lineHeight: 19 },
+  swapSearchRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
+  swapSearchBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 18, justifyContent: 'center' },
+  swapSearchBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  swapInput: { flex: 1, backgroundColor: C.surface, borderRadius: 12, paddingHorizontal: 14,
+    paddingVertical: 12, color: C.text, fontSize: 15, borderWidth: 1, borderColor: C.border },
+  swapResult: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: C.border },
+  swapThumb: { width: 46, height: 46, borderRadius: 10 },
+  swapResultName: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
+  swapResultMacros: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  swapRandomBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 13, marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a' },
+  swapRandomTxt: { color: '#3a7a4a', fontSize: 14.5, fontWeight: '700' },
 });
