@@ -198,6 +198,47 @@ function SwapModal({ target, C, styles, onClose, onPick, onRandom }) {
   );
 }
 
+// "I ate something off-plan" — enter the calories to compensate for.
+function OffPlanModal({ visible, C, styles, onClose, onConfirm }) {
+  const [val, setVal] = useState('');
+  if (!visible) return null;
+  const kcal = parseInt(val, 10);
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <TouchableOpacity style={styles.swapOverlay} activeOpacity={1} onPress={onClose} />
+        <View style={styles.swapSheet}>
+          <View style={styles.swapHandle} />
+          <Text style={styles.swapTitle}>אכלתי משהו לא מתוכנן</Text>
+          <Text style={styles.swapSub}>כמה קלוריות? נראה לך מאיזו ארוחה לקזז כדי להישאר על היעד.</Text>
+          <TextInput
+            style={styles.swapInput}
+            placeholder='קלוריות (למשל 200)'
+            placeholderTextColor={C.placeholder}
+            value={val}
+            onChangeText={setVal}
+            keyboardType="numeric"
+            textAlign="right"
+          />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginVertical: 12 }}>
+            {[100, 150, 200, 300, 400].map(v => (
+              <TouchableOpacity key={v} style={styles.offChip} onPress={() => setVal(String(v))}>
+                <Text style={styles.offChipTxt}>{v}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <TouchableOpacity
+            style={[styles.genBtn, { marginTop: 4, opacity: kcal > 0 ? 1 : 0.5 }]}
+            disabled={!(kcal > 0)}
+            onPress={() => { onConfirm(kcal); setVal(''); }}>
+            <Text style={styles.genTxt}>המשך לקיזוז</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
 export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
@@ -207,6 +248,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
   // over-budget alert. The user picks a meal to shrink by this amount.
   const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
   const [swapTarget, setSwapTarget] = useState(null);  // {mealKey,targetCalories,currentId,label}
+  const [compInput, setCompInput] = useState(false);   // "I ate something off-plan" entry
 
   // Load today's saved plan on mount so it persists across navigation/app restarts.
   useEffect(() => {
@@ -346,6 +388,13 @@ export default function FullDayPlanScreen({ navigation, route }) {
               ))}
             </View>
 
+            {compensate === 0 && (
+              <TouchableOpacity style={styles.offPlanBtn} onPress={() => setCompInput(true)}>
+                <Ionicons name="add-circle-outline" size={18} color="#e0a800" />
+                <Text style={styles.offPlanTxt}>אכלתי משהו לא מתוכנן</Text>
+              </TouchableOpacity>
+            )}
+
             {MEAL_ORDER.map(m => (
               <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles}
                 onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
@@ -361,6 +410,10 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
       <SwapModal target={swapTarget} C={C} styles={styles}
         onClose={() => setSwapTarget(null)} onPick={pickSwap} onRandom={randomSwap} />
+
+      <OffPlanModal visible={compInput} C={C} styles={styles}
+        onClose={() => setCompInput(false)}
+        onConfirm={(kcal) => { setCompInput(false); setCompensate(kcal); }} />
     </View>
   );
 }
@@ -437,4 +490,11 @@ const makeStyles = (C) => StyleSheet.create({
   swapRandomBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
     paddingVertical: 13, marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a' },
   swapRandomTxt: { color: '#3a7a4a', fontSize: 14.5, fontWeight: '700' },
+  offPlanBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 7,
+    paddingVertical: 13, marginBottom: 12, borderRadius: 14, borderWidth: 1, borderColor: '#e0a80088',
+    backgroundColor: '#e0a80012' },
+  offPlanTxt: { color: '#e0a800', fontSize: 14.5, fontWeight: '800' },
+  offChip: { paddingHorizontal: 18, paddingVertical: 9, borderRadius: 18, borderWidth: 1,
+    borderColor: C.border, backgroundColor: C.surface, marginLeft: 8 },
+  offChipTxt: { color: C.text, fontSize: 14, fontWeight: '700' },
 });
