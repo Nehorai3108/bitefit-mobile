@@ -357,8 +357,8 @@ export default function DashboardScreen({ navigation }) {
             <Ionicons name="restaurant" size={22} color="#fff" />
           </View>
           <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <Text style={styles.planCtaTitle}>בנה לי תפריט יום מדויק</Text>
-            <Text style={styles.planCtaSub}>מותאם ליעדי הקלוריות והמאקרו שלך</Text>
+            <Text style={styles.planCtaTitle}>בנה לי תפריט שבועי מדויק</Text>
+            <Text style={styles.planCtaSub}>7 ימים מותאמים ליעדי הקלוריות והמאקרו שלך</Text>
           </View>
           <Ionicons name="chevron-back" size={20} color="#3a7a4a" />
         </TouchableOpacity>

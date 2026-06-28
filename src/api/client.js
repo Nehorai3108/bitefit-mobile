@@ -104,6 +104,10 @@ export const fetchDailyPlan = () =>
 export const fetchFullDayPlan = (seed = 0) =>
   api.get('/daily-menu/full-day-plan', { params: { seed } }).then(r => r.data);
 
+// Weekly plan: 7 macro-optimized days.
+export const fetchWeeklyPlan = (seed = 0) =>
+  api.get('/daily-menu/weekly-plan', { params: { seed } }).then(r => r.data);
+
 // Swap a single meal for an alternative at the same calorie target.
 export const swapMeal = (mealType, targetCalories, excludeRecipeId, seed = 0) =>
   api.get(`/daily-menu/swap-meal/${mealType}`, {

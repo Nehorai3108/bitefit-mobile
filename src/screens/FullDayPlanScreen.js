@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchFullDayPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
+import { fetchWeeklyPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const planKey = () => {
@@ -239,76 +239,36 @@ function OffPlanModal({ visible, C, styles, onClose, onConfirm }) {
   );
 }
 
+const WEEK_KEY = '@week_plan_v1';
+
 export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const [plan, setPlan] = useState(null);
+  const [week, setWeek] = useState(null);   // { days:[...], targets }
+  const [sel, setSel] = useState(0);        // selected day index
   const [loading, setLoading] = useState(false);
-  // Calories to compensate (you ate something off-plan) — set from the home
-  // over-budget alert. The user picks a meal to shrink by this amount.
   const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
-  const [swapTarget, setSwapTarget] = useState(null);  // {mealKey,targetCalories,currentId,label}
-  const [compInput, setCompInput] = useState(false);   // "I ate something off-plan" entry
+  const [swapTarget, setSwapTarget] = useState(null);
+  const [compInput, setCompInput] = useState(false);
 
-  // Load today's saved plan on mount so it persists across navigation/app restarts.
+  // Load the saved weekly plan on mount.
   useEffect(() => {
-    AsyncStorage.getItem(planKey())
-      .then(v => { if (v) setPlan(JSON.parse(v)); })
+    AsyncStorage.getItem(WEEK_KEY)
+      .then(v => { if (v) setWeek(JSON.parse(v)); })
       .catch(() => {});
   }, []);
 
-  // Sync the over-budget amount when arriving from the home alert.
   useEffect(() => {
     if (route?.params?.overage) setCompensate(route.params.overage);
   }, [route?.params?.overage]);
 
-  // Persist the plan whenever it changes (today only).
   useEffect(() => {
-    if (plan) AsyncStorage.setItem(planKey(), JSON.stringify(plan)).catch(() => {});
-  }, [plan]);
+    if (week) AsyncStorage.setItem(WEEK_KEY, JSON.stringify(week)).catch(() => {});
+  }, [week]);
 
-  const replaceMeal = (mealKey, recipe) => setPlan(prev => {
-    const next = { ...prev, plan: { ...prev.plan,
-      [mealKey]: { ...prev.plan[mealKey], recipe } } };
-    next.totals = recomputeTotals(next);
-    return next;
-  });
-
-  // Shrink one meal's recipe to absorb the off-plan calories, keeping the day on target.
-  const compensateMeal = (mealKey) => {
-    setPlan(prev => {
-      const meal = prev.plan[mealKey];
-      const n = meal?.recipe?.total_nutrition ?? {};
-      const cal = n.calories ?? 0;
-      if (cal <= 0) return prev;
-      const factor = Math.max(0.3, (cal - compensate) / cal);
-      const r = meal.recipe;
-      const scaledN = {};
-      ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
-      const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
-        ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
-      const next = { ...prev, plan: { ...prev.plan,
-        [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng, _shrunk: true } } } };
-      next.totals = recomputeTotals(next);
-      return next;
-    });
-    setCompensate(0);
-  };
-
-  const generate = async (newSeed) => {
-    setLoading(true);
-    try {
-      const res = await fetchFullDayPlan(newSeed ?? Math.floor(Math.random() * 100000));
-      setPlan(res);
-    } catch {
-      Alert.alert('שגיאה', 'לא הצלחתי לבנות תפריט. נסה שוב.');
-    } finally { setLoading(false); }
-  };
-
-  // Recompute day totals from the current meals (after a swap).
   const recomputeTotals = (planObj) => {
     const tot = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    Object.values(planObj.plan ?? {}).forEach(m => {
+    Object.values(planObj ?? {}).forEach(m => {
       const n = m?.recipe?.total_nutrition ?? {};
       tot.calories += n.calories ?? 0; tot.protein += n.protein ?? 0;
       tot.carbs += n.carbs ?? 0; tot.fat += n.fat ?? 0;
@@ -316,15 +276,47 @@ export default function FullDayPlanScreen({ navigation, route }) {
     return tot;
   };
 
-  // Open the swap chooser for a meal (user can type a dish or get a suggestion).
-  const openSwap = (mealKey, targetCalories, currentId, label) =>
-    setSwapTarget({ mealKey, targetCalories, currentId, label });
+  // Apply a mutation to the selected day's meals, recompute its totals.
+  const updateDay = (mutatePlan) => setWeek(prev => {
+    const days = [...prev.days];
+    const d = days[sel];
+    const newPlan = mutatePlan(d.plan);
+    days[sel] = { ...d, plan: newPlan, totals: recomputeTotals(newPlan) };
+    return { ...prev, days };
+  });
 
-  const pickSwap = (recipe) => {
-    if (swapTarget) replaceMeal(swapTarget.mealKey, recipe);
-    setSwapTarget(null);
+  const replaceMeal = (mealKey, recipe) =>
+    updateDay(p => ({ ...p, [mealKey]: { ...p[mealKey], recipe } }));
+
+  const compensateMeal = (mealKey) => {
+    updateDay(p => {
+      const meal = p[mealKey];
+      const cal = meal?.recipe?.total_nutrition?.calories ?? 0;
+      if (cal <= 0) return p;
+      const factor = Math.max(0.3, (cal - compensate) / cal);
+      const r = meal.recipe;
+      const scaledN = {};
+      ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
+      const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
+        ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+      return { ...p, [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng } } };
+    });
+    setCompensate(0);
   };
 
+  const generate = async (newSeed) => {
+    setLoading(true);
+    try {
+      const res = await fetchWeeklyPlan(newSeed ?? Math.floor(Math.random() * 100000));
+      setWeek(res); setSel(0);
+    } catch {
+      Alert.alert('שגיאה', 'לא הצלחתי לבנות תפריט. נסה שוב.');
+    } finally { setLoading(false); }
+  };
+
+  const openSwap = (mealKey, targetCalories, currentId, label) =>
+    setSwapTarget({ mealKey, targetCalories, currentId, label });
+  const pickSwap = (recipe) => { if (swapTarget) replaceMeal(swapTarget.mealKey, recipe); setSwapTarget(null); };
   const randomSwap = async () => {
     if (!swapTarget) return;
     try {
@@ -335,8 +327,9 @@ export default function FullDayPlanScreen({ navigation, route }) {
     finally { setSwapTarget(null); }
   };
 
-  const t = plan?.targets ?? {};
-  const tot = plan?.totals ?? {};
+  const day = week?.days?.[sel];
+  const t = week?.targets ?? {};
+  const tot = day?.totals ?? {};
 
   return (
     <View style={styles.container}>
@@ -346,18 +339,31 @@ export default function FullDayPlanScreen({ navigation, route }) {
             <Ionicons name="chevron-forward" size={26} color={C.text} />
           </TouchableOpacity>
         )}
-        <Text style={styles.title}>תפריט היום שלי</Text>
+        <Text style={styles.title}>התפריט השבועי שלי</Text>
         <View style={{ width: 38 }} />
       </View>
 
+      {/* Day selector */}
+      {week && !loading && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.daysRow}>
+          {week.days.map((d, i) => (
+            <TouchableOpacity key={i} onPress={() => setSel(i)}
+              style={[styles.dayChip, i === sel && styles.dayChipActive]}>
+              <Text style={[styles.dayChipTxt, i === sel && styles.dayChipTxtActive]}>{d.day_name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
+
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
-        {!plan && !loading && (
+        {!week && !loading && (
           <View style={styles.hero}>
             <View style={styles.heroIcon}><Ionicons name="restaurant" size={30} color="#3a7a4a" /></View>
-            <Text style={styles.heroTitle}>תפריט יום מותאם אישית</Text>
+            <Text style={styles.heroTitle}>תפריט שבועי מותאם אישית</Text>
             <Text style={styles.heroBody}>
-              נבנה לך יום שלם — בוקר, חטיפים, צהריים וערב — שמדויק ליעדי הקלוריות
-              והמאקרו שלך, לפי ההעדפות והאלרגיות שלך. בלחיצה אחת.
+              נבנה לך שבוע שלם — 7 ימים, כל יום עם בוקר, חטיפים, צהריים וערב — מדויק
+              ליעדי הקלוריות והמאקרו שלך, לפי ההעדפות והאלרגיות. בלחיצה אחת.
             </Text>
           </View>
         )}
@@ -365,11 +371,11 @@ export default function FullDayPlanScreen({ navigation, route }) {
         {loading && (
           <View style={styles.loading}>
             <ActivityIndicator size="large" color="#3a7a4a" />
-            <Text style={styles.loadingTxt}>בונה תפריט מדויק...</Text>
+            <Text style={styles.loadingTxt}>בונה תפריט שבועי מדויק...</Text>
           </View>
         )}
 
-        {plan && !loading && (
+        {day && !loading && (
           <>
             {compensate > 0 && (
               <View style={styles.compBanner}>
@@ -379,9 +385,8 @@ export default function FullDayPlanScreen({ navigation, route }) {
                 </Text>
               </View>
             )}
-            {/* Day summary — the precision showcase */}
             <View style={styles.summary}>
-              <Text style={styles.summaryTitle}>סיכום היום מול היעד</Text>
+              <Text style={styles.summaryTitle}>סיכום יום {day.day_name} מול היעד</Text>
               <StatBar label="קלוריות" value={tot.calories ?? 0} target={t.calories ?? 0} color="#3a7a4a" unit="" C={C} />
               {MACROS.map(m => (
                 <StatBar key={m.key} label={m.label} value={tot[m.key] ?? 0} target={t[m.key] ?? 0} color={m.color} unit="g" C={C} />
@@ -396,15 +401,15 @@ export default function FullDayPlanScreen({ navigation, route }) {
             )}
 
             {MEAL_ORDER.map(m => (
-              <MealCard key={m.key} label={m.label} mealKey={m.key} data={plan.plan?.[m.key]} C={C} styles={styles}
+              <MealCard key={m.key} label={m.label} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
                 onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
             ))}
           </>
         )}
 
         <TouchableOpacity style={styles.genBtn} onPress={() => generate()} disabled={loading}>
-          <Ionicons name={plan ? 'refresh' : 'sparkles-outline'} size={18} color="#fff" />
-          <Text style={styles.genTxt}>{plan ? 'צור תפריט אחר' : 'צור לי תפריט'}</Text>
+          <Ionicons name={week ? 'refresh' : 'sparkles-outline'} size={18} color="#fff" />
+          <Text style={styles.genTxt}>{week ? 'בנה שבוע חדש' : 'בנה לי תפריט שבועי'}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -423,6 +428,13 @@ const makeStyles = (C) => StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingTop: 54, paddingHorizontal: 12, paddingBottom: 12 },
   title: { color: C.text, fontSize: 20, fontWeight: '800' },
+
+  daysRow: { paddingHorizontal: 12, paddingBottom: 10, gap: 8 },
+  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 18, borderWidth: 1,
+    borderColor: C.border, backgroundColor: C.surface, marginLeft: 8 },
+  dayChipActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
+  dayChipTxt: { color: C.textMuted, fontSize: 14, fontWeight: '700' },
+  dayChipTxtActive: { color: '#fff' },
 
   hero: { alignItems: 'center', paddingVertical: 30, paddingHorizontal: 12 },
   heroIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#3a7a4a22',
