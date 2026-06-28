@@ -44,7 +44,7 @@ function StatBar({ label, value, target, color, unit, C }) {
   );
 }
 
-function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate }) {
+function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate, last }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
   const recipe = data?.recipe;
