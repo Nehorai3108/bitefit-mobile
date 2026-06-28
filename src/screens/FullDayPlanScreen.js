@@ -16,11 +16,11 @@ const planKey = () => {
 };
 
 const MEAL_ORDER = [
-  { key: 'BREAKFAST',       label: 'ארוחת בוקר' },
-  { key: 'MORNING_SNACK',   label: 'חטיף בוקר' },
-  { key: 'LUNCH',           label: 'צהריים' },
-  { key: 'AFTERNOON_SNACK', label: 'חטיף אחה"צ' },
-  { key: 'DINNER',          label: 'ארוחת ערב' },
+  { key: 'BREAKFAST',       label: 'ארוחת בוקר',   time: '08:00' },
+  { key: 'MORNING_SNACK',   label: 'ביניים בוקר',  time: '11:00' },
+  { key: 'LUNCH',           label: 'ארוחת צהריים', time: '14:00' },
+  { key: 'AFTERNOON_SNACK', label: 'ביניים אחה"צ', time: '17:00' },
+  { key: 'DINNER',          label: 'ארוחת ערב',    time: '20:00' },
 ];
 
 const MACROS = [
@@ -46,7 +46,7 @@ function StatBar({ label, value, target, color, unit, C }) {
   );
 }
 
-function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate, onLogEaten, last }) {
+function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, onCompensate, onLogEaten, last }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
   const recipe = data?.recipe;
@@ -82,25 +82,43 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
           <Text style={styles.compensateTxt}>קזז {compensate} קק"ל מ{label}</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity style={styles.mealHead} activeOpacity={0.7} onPress={() => setOpen(o => !o)}>
-        <View style={styles.mealCalCol}>
-          <Text style={styles.mealCalNum}>{Math.round(n.calories ?? 0)}</Text>
-          <Text style={styles.mealCalUnit}>קק"ל</Text>
-        </View>
-        {recipe.image_url
-          ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
-          : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
+      <TouchableOpacity activeOpacity={0.7} onPress={() => setOpen(o => !o)}>
+        {/* Meal header strip: label + time (right), kcal (left) */}
+        <View style={styles.mealTopStrip}>
+          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
             <Text style={styles.mealLabel}>{label}</Text>
+            {time ? <Text style={styles.mealTime}>{time}</Text> : null}
             {recipe.eaten && <Text style={styles.eatenBadge}>אכלת ✓</Text>}
           </View>
-          <Text style={styles.mealName} numberOfLines={1}>{recipe.name_he ?? recipe.name_en}</Text>
-          <Text style={styles.mealMacros}>
-            חלבון {Math.round(n.protein ?? 0)} · פחמ' {Math.round(n.carbs ?? 0)} · שומן {Math.round(n.fat ?? 0)}
-          </Text>
+          <Text style={styles.mealKcal}>{Math.round(n.calories ?? 0)} קק"ל</Text>
         </View>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={C.textFaint} />
+
+        {/* Dish row */}
+        <View style={styles.mealDishRow}>
+          {recipe.image_url
+            ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
+            : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
+          <Text style={styles.mealName} numberOfLines={2}>{recipe.name_he ?? recipe.name_en}</Text>
+          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={C.textFaint} />
+        </View>
+
+        {/* Macro strip — nutrition-label style */}
+        <View style={styles.macroStrip}>
+          <View style={styles.macroCell}>
+            <Text style={[styles.macroCellNum, { color: '#3a7a4a' }]}>{Math.round(n.protein ?? 0)}g</Text>
+            <Text style={styles.macroCellLbl}>חלבון</Text>
+          </View>
+          <View style={styles.macroDivider} />
+          <View style={styles.macroCell}>
+            <Text style={[styles.macroCellNum, { color: '#d4a017' }]}>{Math.round(n.carbs ?? 0)}g</Text>
+            <Text style={styles.macroCellLbl}>פחמימות</Text>
+          </View>
+          <View style={styles.macroDivider} />
+          <View style={styles.macroCell}>
+            <Text style={[styles.macroCellNum, { color: '#ef7d6c' }]}>{Math.round(n.fat ?? 0)}g</Text>
+            <Text style={styles.macroCellLbl}>שומן</Text>
+          </View>
+        </View>
       </TouchableOpacity>
 
       {open && (
@@ -432,7 +450,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
             <View style={styles.mealsTable}>
               {MEAL_ORDER.map((m, idx) => (
-                <MealCard key={m.key} label={m.label} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
+                <MealCard key={m.key} label={m.label} time={m.time} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
                   last={idx === MEAL_ORDER.length - 1}
                   onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} onLogEaten={logEaten} />
               ))}
@@ -489,20 +507,25 @@ const makeStyles = (C) => StyleSheet.create({
     borderWidth: 1, borderColor: C.border },
   summaryTitle: { color: C.text, fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 14 },
 
-  mealsTable: { backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border,
-    overflow: 'hidden', marginBottom: 4 },
-  mealRow: { borderBottomWidth: 1, borderBottomColor: C.border },
-  mealHead: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 12 },
-  mealCalCol: { alignItems: 'center', minWidth: 46 },
-  mealCalNum: { color: '#3a7a4a', fontSize: 17, fontWeight: '800' },
-  mealCalUnit: { color: C.textFaint, fontSize: 10, fontWeight: '600' },
-  mealThumb: { width: 46, height: 46, borderRadius: 10 },
-  thumbEmpty: { backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center' },
-  mealLabel: { color: '#3a7a4a', fontSize: 11.5, fontWeight: '800', textAlign: 'right' },
+  mealsTable: { marginBottom: 4 },
+  mealRow: { backgroundColor: C.surface, borderRadius: 14, borderWidth: 1, borderColor: C.border,
+    overflow: 'hidden', marginBottom: 10 },
+  mealTopStrip: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: C.surface2, paddingVertical: 8, paddingHorizontal: 12 },
+  mealLabel: { color: C.text, fontSize: 14, fontWeight: '800', textAlign: 'right' },
+  mealTime: { color: C.textMuted, fontSize: 12, fontWeight: '600' },
+  mealKcal: { color: '#3a7a4a', fontSize: 14, fontWeight: '800' },
   eatenBadge: { color: '#fff', backgroundColor: '#3a7a4a', fontSize: 10, fontWeight: '800',
     paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
-  mealName: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginTop: 1 },
-  mealMacros: { color: C.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
+  mealDishRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 10 },
+  mealThumb: { width: 44, height: 44, borderRadius: 10 },
+  thumbEmpty: { backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center' },
+  mealName: { flex: 1, color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
+  macroStrip: { flexDirection: 'row-reverse', alignItems: 'center', paddingHorizontal: 12, paddingBottom: 12 },
+  macroCell: { flex: 1, alignItems: 'center' },
+  macroCellNum: { fontSize: 15, fontWeight: '800' },
+  macroCellLbl: { color: C.textMuted, fontSize: 10.5, fontWeight: '600', marginTop: 1 },
+  macroDivider: { width: 1, height: 26, backgroundColor: C.border },
 
   mealBody: { paddingHorizontal: 14, paddingBottom: 14, paddingTop: 2 },
   bodyTitle: { color: C.text, fontSize: 13, fontWeight: '800', textAlign: 'right', marginBottom: 8 },
