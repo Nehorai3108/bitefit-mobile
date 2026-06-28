@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
@@ -6,8 +6,52 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+
+const WEEK_KEY = '@week_plan_v1';
+const MEAL_KEYS = ['BREAKFAST', 'MORNING_SNACK', 'LUNCH', 'AFTERNOON_SNACK', 'DINNER'];
+
+// Insert a chat recipe into today's slot in the saved weekly plan.
+async function addRecipeToMenu(recipe) {
+  const raw = await AsyncStorage.getItem(WEEK_KEY);
+  if (!raw) return 'no_plan';
+  const week = JSON.parse(raw);
+  const todayIdx = new Date().getDay(); // 0=Sun … matches plan day order
+  const day = week.days?.[todayIdx];
+  if (!day) return 'no_plan';
+  let meal = (recipe.meal_type || 'LUNCH').toUpperCase();
+  if (!MEAL_KEYS.includes(meal)) meal = 'LUNCH';
+  const foods = recipe.foods ?? [];
+  const sum = (k) => foods.reduce((a, f) => a + (f[k] ?? 0), 0);
+  const planRecipe = {
+    recipe_id: 'chat',
+    name_he: recipe.title,
+    total_nutrition: {
+      calories: Math.round(recipe.total_calories ?? sum('calories')),
+      protein: Math.round((recipe.total_protein ?? sum('protein')) * 10) / 10,
+      carbs: Math.round(sum('carbs') * 10) / 10,
+      fat: Math.round(sum('fat') * 10) / 10,
+    },
+    ingredients: foods.map(f => ({
+      food_name: f.name_he ?? f.name, quantity: f.grams, unit: 'grams',
+      display_he: `${f.name_he ?? f.name}${f.grams ? ` (${Math.round(f.grams)}ג)` : ''}`,
+    })),
+    instructions: recipe.instructions,
+    image_url: recipe.image_url ?? null,
+    fromChat: true,
+  };
+  day.plan[meal] = { ...(day.plan[meal] || {}), recipe: planRecipe };
+  const t = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  Object.values(day.plan).forEach(m => {
+    const n = m?.recipe?.total_nutrition ?? {};
+    t.calories += n.calories ?? 0; t.protein += n.protein ?? 0; t.carbs += n.carbs ?? 0; t.fat += n.fat ?? 0;
+  });
+  day.totals = t;
+  await AsyncStorage.setItem(WEEK_KEY, JSON.stringify(week));
+  return meal;
+}
 
 function FoodDetectedCard({ foodData }) {
   const { C } = useTheme();
@@ -75,6 +119,25 @@ function RecipeCard({ recipe }) {
   const styles = useMemo(() => makeStyles(C), [C]);
   const [logged, setLogged] = useState(false);
   const [logging, setLogging] = useState(false);
+  const [addedToMenu, setAddedToMenu] = useState(false);
+
+  const handleAddToMenu = async () => {
+    try {
+      const res = await addRecipeToMenu(recipe);
+      if (res === 'no_plan') {
+        Alert.alert('אין תפריט פעיל', 'בנה קודם תפריט שבועי בטאב "תפריט", ואז אוכל להוסיף לשם.');
+        return;
+      }
+      setAddedToMenu(true);
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף לתפריט'); }
+  };
+
+  // Auto-add when the user explicitly asked to put it in the menu.
+  useEffect(() => {
+    if (recipe.to_menu) {
+      addRecipeToMenu(recipe).then(res => { if (res !== 'no_plan') setAddedToMenu(true); }).catch(() => {});
+    }
+  }, []);
 
   const handleLog = async () => {
     setLogging(true);
@@ -124,15 +187,24 @@ function RecipeCard({ recipe }) {
         </>
       )}
 
-      {!logged ? (
-        <TouchableOpacity style={styles.logBtn} onPress={handleLog} disabled={logging}>
-          {logging
-            ? <ActivityIndicator size="small" color="#fff" />
-            : <Text style={styles.logBtnTxt}>הוסף ליומן</Text>}
-        </TouchableOpacity>
-      ) : (
-        <Text style={styles.loggedTxt}>✓ נשמר ביומן</Text>
-      )}
+      <View style={{ flexDirection: 'row-reverse', gap: 8, marginTop: 12 }}>
+        {addedToMenu ? (
+          <Text style={[styles.loggedTxt, { flex: 1, marginTop: 0 }]}>✓ נוסף לתפריט</Text>
+        ) : (
+          <TouchableOpacity style={[styles.menuBtn, { flex: 1 }]} onPress={handleAddToMenu}>
+            <Text style={styles.menuBtnTxt}>הוסף לתפריט</Text>
+          </TouchableOpacity>
+        )}
+        {!logged ? (
+          <TouchableOpacity style={[styles.logBtn, { flex: 1, marginTop: 0 }]} onPress={handleLog} disabled={logging}>
+            {logging
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Text style={styles.logBtnTxt}>הוסף ליומן</Text>}
+          </TouchableOpacity>
+        ) : (
+          <Text style={[styles.loggedTxt, { flex: 1, marginTop: 0 }]}>✓ נשמר ביומן</Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -148,32 +220,13 @@ export default function ChatScreen({ navigation }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const panHandlers = useSwipeNav(navigation, 'צ׳אט');
-  const [messages, setMessages] = useState([
-    { id: '0', role: 'assistant', text: 'שלום! אני התזונאי ה-AI שלך 🥗\nאשאל, אייעץ ואעזור לך לאכול טוב יותר. איך אוכל לעזור?' }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
-  const insightLoaded = useRef(false);
-
-  // On first focus, replace the static greeting with a personalized,
-  // data-driven insight from Biti (remaining calories/protein, nudges).
-  useFocusEffect(useCallback(() => {
-    if (insightLoaded.current) return;
-    insightLoaded.current = true;
-    fetchDailyInsight()
-      .then(r => {
-        if (r?.message) {
-          setMessages(prev => prev.map(m =>
-            m.id === '0' ? { ...m, text: r.message } : m
-          ));
-        }
-      })
-      .catch(() => {});
-  }, []));
 
   const getHistory = (msgs) =>
-    msgs.slice(1).map(m => ({ role: m.role, content: m.text }));
+    msgs.map(m => ({ role: m.role, content: m.text }));
 
   const send = async (text) => {
     const msg = (text ?? input).trim();
@@ -302,9 +355,11 @@ const makeStyles = (C) => StyleSheet.create({
   inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: C.surface },
   input: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
   sendBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7, marginTop: 8, alignSelf: 'flex-start' },
+  logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, marginTop: 8, alignItems: 'center' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8 },
+  loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8, textAlign: 'center' },
+  menuBtn: { backgroundColor: '#2e6b3e', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, alignItems: 'center' },
+  menuBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
   recipeCard: { marginTop: 8, padding: 12, backgroundColor: '#0a2a1a', borderRadius: 10, borderWidth: 1, borderColor: '#1d4a32' },
   recipeTitle: { color: '#eaeaea', fontSize: 15, fontWeight: '800', textAlign: 'right' },
   recipeMeta: { color: '#56bd6b', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 2 },
