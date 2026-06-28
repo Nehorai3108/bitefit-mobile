@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchWeeklyPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
+import { openMealLog } from '../mealLogBridge';
 
 const planKey = () => {
   const d = new Date();
@@ -44,7 +45,7 @@ function StatBar({ label, value, target, color, unit, C }) {
   );
 }
 
-function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate, last }) {
+function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompensate, onLogEaten, last }) {
   const [open, setOpen] = useState(false);
   const [ate, setAte] = useState(false);
   const recipe = data?.recipe;
@@ -124,9 +125,13 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
             </TouchableOpacity>
             <TouchableOpacity style={[styles.ateBtn, { flex: 1 }, ate && styles.ateBtnDone]} onPress={logMeal}>
               <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#56bd6b' : '#fff'} />
-              <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן' : 'הוסף ליומן'}</Text>
+              <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן' : 'אכלתי את זה'}</Text>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity style={styles.logEatenBtn} onPress={() => onLogEaten(mealKey, label)}>
+            <Ionicons name="camera-outline" size={16} color="#e0a800" />
+            <Text style={styles.logEatenTxt}>אכלתי משהו אחר (צילום/חיפוש)</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -293,21 +298,25 @@ export default function FullDayPlanScreen({ navigation, route }) {
   const replaceMeal = (mealKey, recipe) =>
     updateDay(p => ({ ...p, [mealKey]: { ...p[mealKey], recipe } }));
 
-  const compensateMeal = (mealKey) => {
-    updateDay(p => {
-      const meal = p[mealKey];
-      const cal = meal?.recipe?.total_nutrition?.calories ?? 0;
-      if (cal <= 0) return p;
-      const factor = Math.max(0.3, (cal - compensate) / cal);
-      const r = meal.recipe;
-      const scaledN = {};
-      ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
-      const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
-        ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
-      return { ...p, [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng } } };
-    });
-    setCompensate(0);
-  };
+  // Shrink a meal's planned recipe by `kcal` so the day stays on target.
+  const shrinkMealByCalories = (mealKey, kcal) => updateDay(p => {
+    const meal = p[mealKey];
+    const cal = meal?.recipe?.total_nutrition?.calories ?? 0;
+    if (cal <= 0 || kcal <= 0) return p;
+    const factor = Math.max(0.15, (cal - kcal) / cal);
+    const r = meal.recipe;
+    const scaledN = {};
+    ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
+    const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
+      ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+    return { ...p, [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng, _reduced: true } } };
+  });
+
+  const compensateMeal = (mealKey) => { shrinkMealByCalories(mealKey, compensate); setCompensate(0); };
+
+  // Log food the user actually ate into a meal (camera/manual) → shrink that meal.
+  const logEaten = (mealKey, label) =>
+    openMealLog(mealKey, label, (kcal) => shrinkMealByCalories(mealKey, kcal));
 
   const generate = async (newSeed) => {
     setLoading(true);
@@ -339,11 +348,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        {navigation && (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 6 }}>
-            <Ionicons name="chevron-forward" size={26} color={C.text} />
-          </TouchableOpacity>
-        )}
+        <View style={{ width: 38 }} />
         <Text style={styles.title}>התפריט השבועי שלי</Text>
         <View style={{ width: 38 }} />
       </View>
@@ -410,7 +415,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
               {MEAL_ORDER.map((m, idx) => (
                 <MealCard key={m.key} label={m.label} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
                   last={idx === MEAL_ORDER.length - 1}
-                  onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
+                  onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} onLogEaten={logEaten} />
               ))}
             </View>
           </>
@@ -492,6 +497,10 @@ const makeStyles = (C) => StyleSheet.create({
   swapBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 5,
     paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a', minWidth: 110 },
   swapTxt: { color: '#3a7a4a', fontSize: 13.5, fontWeight: '700' },
+  logEatenBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 10, marginTop: 8, borderRadius: 12, borderWidth: 1, borderColor: '#e0a80088',
+    backgroundColor: '#e0a80010' },
+  logEatenTxt: { color: '#e0a800', fontSize: 13.5, fontWeight: '700' },
 
   genBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: '#3a7a4a', borderRadius: 16, paddingVertical: 16, marginTop: 8 },

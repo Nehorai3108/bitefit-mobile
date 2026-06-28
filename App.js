@@ -58,11 +58,12 @@ function MealChips({ value, onChange }) {
 }
 
 // ─── Manual Entry Modal ────────────────────────────────────────────────────────
-function ManualEntryModal({ visible, onClose }) {
+function ManualEntryModal({ visible, onClose, presetMeal, onLogged }) {
   const { C } = useTheme();
   const [query, setQuery]   = useState('');
   const [grams, setGrams]   = useState('100');
   const [meal, setMeal]     = useState('LUNCH');
+  useEffect(() => { if (visible && presetMeal) setMeal(presetMeal); }, [visible, presetMeal]);
   const [food, setFood]     = useState(null);
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -105,6 +106,7 @@ function ManualEntryModal({ visible, onClose }) {
         meal_type: meal,
         image_url: food.image_url ?? null,
       });
+      onLogged?.(Math.round(food.calories_per_100g * g / 100), meal);
       close();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לשמור'); }
     finally { setSaving(false); }
@@ -319,7 +321,7 @@ function BarcodeScanModal({ visible, onClose }) {
 }
 
 // ─── Camera Photo Modal (CameraView-based, same as barcode scanner) ───────────
-function CameraPhotoModal({ visible, onClose }) {
+function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'results'
   const [items, setItems] = useState([]);
@@ -330,8 +332,9 @@ function CameraPhotoModal({ visible, onClose }) {
   const cameraRef = useRef(null);
 
   useEffect(() => {
-    if (visible) { setPhase('camera'); setItems([]); setPhotoUrl(null); setSavedImageUrl(null); }
-  }, [visible]);
+    if (visible) { setPhase('camera'); setItems([]); setPhotoUrl(null); setSavedImageUrl(null);
+      if (presetMeal) setMeal(presetMeal); }
+  }, [visible, presetMeal]);
 
   const takePhoto = async () => {
     if (!cameraRef.current) return;
@@ -391,6 +394,8 @@ function CameraPhotoModal({ visible, onClose }) {
           image_url: photoUrl ?? savedImageUrl,
         });
       }
+      const totalCal = items.reduce((sum, it) => sum + (it.calories ?? 0), 0);
+      onLogged?.(Math.round(totalCal), meal);
       onClose();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setSaving(false); }
@@ -568,7 +573,7 @@ function CameraPhotoModal({ visible, onClose }) {
 }
 
 // ─── Add Food Sheet ────────────────────────────────────────────────────────────
-function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
+function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual, mealLabel }) {
   const [recents, setRecents] = useState([]);
   const [reloggingId, setReloggingId] = useState(null);
 
@@ -602,7 +607,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
       <Pressable style={s.overlay} onPress={onClose} />
       <View style={s.actionSheet}>
         <View style={s.sheetHandle} />
-        <Text style={s.sheetTitle}>הוסף מזון</Text>
+        <Text style={s.sheetTitle}>{mealLabel ? `הוספה ל${mealLabel}` : 'הוסף מזון'}</Text>
 
         {recents.length > 0 && (
           <View style={s.recentsWrap}>
@@ -662,7 +667,7 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual }) {
 // ─── Tab Navigator ─────────────────────────────────────────────────────────────
 const TABS = [
   { name: 'בית',    icon: 'home-outline',       activeIcon: 'home' },
-  { name: 'תזונה',  icon: 'restaurant-outline', activeIcon: 'restaurant' },
+  { name: 'תפריט',  icon: 'restaurant-outline', activeIcon: 'restaurant' },
   { name: 'צ׳אט',   icon: 'chatbubble-outline', activeIcon: 'chatbubble' },
   { name: 'אימון',  icon: 'barbell-outline',    activeIcon: 'barbell' },
   { name: 'פרופיל', icon: 'person-outline',     activeIcon: 'person' },
@@ -749,12 +754,26 @@ function TabNavigator() {
   const [showManual, setShowManual]   = useState(false);
   const [showCamera, setShowCamera]   = useState(false);
 
+  // When set, the next logged food belongs to a specific plan meal and reports
+  // its calories back so the menu can compensate that meal.
+  const [mealCtx, setMealCtx] = useState(null); // { mealKey, label, onLogged }
+
   const handleCamera  = () => { setShowAdd(false); setShowCamera(true); };
   const handleBarcode = () => { setShowAdd(false); setShowBarcode(true); };
   const handleManual  = () => { setShowAdd(false); setShowManual(true); };
 
   // Let the tutorial open this sheet for the interactive "add" step.
-  useEffect(() => registerAddOpener(() => setShowAdd(true)), []);
+  useEffect(() => registerAddOpener(() => { setMealCtx(null); setShowAdd(true); }), []);
+
+  // Let the menu open the add flow scoped to a meal (camera/manual) + callback.
+  useEffect(() => registerMealLogger((mealKey, label, onLogged) => {
+    setMealCtx({ mealKey, label, onLogged }); setShowAdd(true);
+  }), []);
+
+  const reportLogged = (kcal, mealType) => {
+    if (mealCtx?.onLogged) mealCtx.onLogged(kcal, mealType);
+    setMealCtx(null);
+  };
 
   return (
     <>
@@ -765,7 +784,7 @@ function TabNavigator() {
         {TABS.map(tab => (
           <Tab.Screen key={tab.name} name={tab.name} component={
             tab.name === 'בית'    ? DashboardScreen :
-            tab.name === 'תזונה'  ? HomeScreen :
+            tab.name === 'תפריט'  ? FullDayPlanScreen :
             tab.name === 'צ׳אט'   ? ChatScreen :
             tab.name === 'אימון'  ? WorkoutScreen : ProfileScreen
           } />
@@ -773,10 +792,14 @@ function TabNavigator() {
         <Tab.Screen name="__add__" component={DashboardScreen} options={{ tabBarButton: () => null }} />
       </Tab.Navigator>
 
-      <AddFoodSheet visible={showAdd} onClose={() => setShowAdd(false)} onCamera={handleCamera} onBarcode={handleBarcode} onManual={handleManual} />
-      <ManualEntryModal visible={showManual} onClose={() => setShowManual(false)} />
+      <AddFoodSheet visible={showAdd} onClose={() => { setShowAdd(false); setMealCtx(null); }}
+        mealLabel={mealCtx?.label}
+        onCamera={handleCamera} onBarcode={handleBarcode} onManual={handleManual} />
+      <ManualEntryModal visible={showManual} onClose={() => setShowManual(false)}
+        presetMeal={mealCtx?.mealKey} onLogged={reportLogged} />
       <BarcodeScanModal  visible={showBarcode} onClose={() => setShowBarcode(false)} />
-      <CameraPhotoModal  visible={showCamera}  onClose={() => setShowCamera(false)} />
+      <CameraPhotoModal  visible={showCamera}  onClose={() => setShowCamera(false)}
+        presetMeal={mealCtx?.mealKey} onLogged={reportLogged} />
     </>
   );
 }
@@ -800,6 +823,7 @@ import SettingsScreen  from './src/screens/SettingsScreen';
 import FullDayPlanScreen from './src/screens/FullDayPlanScreen';
 import TutorialOverlay, { useTutorial } from './src/components/TutorialOverlay';
 import { registerAddOpener } from './src/tutorialBridge';
+import { registerMealLogger } from './src/mealLogBridge';
 
 function MainNavigator() {
   return (

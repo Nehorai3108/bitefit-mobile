@@ -341,7 +341,7 @@ export default function DashboardScreen({ navigation }) {
         {/* התראת חריגה אוטומטית — קיזוז מהתפריט */}
         {overage > 50 && (
           <TouchableOpacity style={styles.overBanner} activeOpacity={0.9}
-            onPress={() => navigation.navigate('FullDayPlan', { overage })}>
+            onPress={() => navigation.navigate('תפריט')}>
             <Ionicons name="alert-circle" size={22} color="#e0a800" />
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <Text style={styles.overTitle}>חרגת ב-{overage.toLocaleString()} קק"ל מהיעד</Text>
@@ -352,7 +352,7 @@ export default function DashboardScreen({ navigation }) {
         )}
 
         {/* תפריט יום מותאם — הבידול המרכזי */}
-        <TouchableOpacity style={styles.planCta} activeOpacity={0.9} onPress={() => navigation.navigate('FullDayPlan')}>
+        <TouchableOpacity style={styles.planCta} activeOpacity={0.9} onPress={() => navigation.navigate('תפריט')}>
           <View style={styles.planCtaIcon}>
             <Ionicons name="restaurant" size={22} color="#fff" />
           </View>
