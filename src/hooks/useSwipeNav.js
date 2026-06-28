@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { PanResponder } from 'react-native';
 
-const TAB_ORDER = ['בית', 'תזונה', 'צ׳אט', 'אימון', 'פרופיל'];
+const TAB_ORDER = ['בית', 'תפריט', 'צ׳אט', 'אימון', 'פרופיל'];
 
 export function useSwipeNav(navigation, tabName) {
   const nameRef = useRef(tabName);

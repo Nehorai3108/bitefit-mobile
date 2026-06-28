@@ -106,7 +106,14 @@ function ManualEntryModal({ visible, onClose, presetMeal, onLogged }) {
         meal_type: meal,
         image_url: food.image_url ?? null,
       });
-      onLogged?.(Math.round(food.calories_per_100g * g / 100), meal);
+      onLogged?.({
+        name_he: food.name_he,
+        calories: Math.round(food.calories_per_100g * g / 100),
+        protein:  Math.round(food.protein_per_100g  * g / 100 * 10) / 10,
+        carbs:    Math.round(food.carbs_per_100g    * g / 100 * 10) / 10,
+        fat:      Math.round(food.fat_per_100g      * g / 100 * 10) / 10,
+        grams: g, image_url: food.image_url ?? null,
+      }, meal);
       close();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי לשמור'); }
     finally { setSaving(false); }
@@ -394,8 +401,15 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
           image_url: photoUrl ?? savedImageUrl,
         });
       }
-      const totalCal = items.reduce((sum, it) => sum + (it.calories ?? 0), 0);
-      onLogged?.(Math.round(totalCal), meal);
+      const sum = (k) => items.reduce((a, it) => a + (it[k] ?? 0), 0);
+      onLogged?.({
+        name_he: items.length === 1 ? (items[0].name_he ?? items[0].name) : 'ארוחה מצולמת',
+        calories: Math.round(sum('calories')),
+        protein: Math.round(sum('protein') * 10) / 10,
+        carbs: Math.round(sum('carbs') * 10) / 10,
+        fat: Math.round(sum('fat') * 10) / 10,
+        grams: Math.round(sum('grams')), image_url: photoUrl ?? savedImageUrl,
+      }, meal);
       onClose();
     } catch { Alert.alert('שגיאה', 'לא הצלחתי להוסיף'); }
     finally { setSaving(false); }

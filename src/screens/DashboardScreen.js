@@ -351,18 +351,6 @@ export default function DashboardScreen({ navigation }) {
           </TouchableOpacity>
         )}
 
-        {/* תפריט יום מותאם — הבידול המרכזי */}
-        <TouchableOpacity style={styles.planCta} activeOpacity={0.9} onPress={() => navigation.navigate('תפריט')}>
-          <View style={styles.planCtaIcon}>
-            <Ionicons name="restaurant" size={22} color="#fff" />
-          </View>
-          <View style={{ flex: 1, alignItems: 'flex-end' }}>
-            <Text style={styles.planCtaTitle}>בנה לי תפריט שבועי מדויק</Text>
-            <Text style={styles.planCtaSub}>7 ימים מותאמים ליעדי הקלוריות והמאקרו שלך</Text>
-          </View>
-          <Ionicons name="chevron-back" size={20} color="#3a7a4a" />
-        </TouchableOpacity>
-
         {/* מאזן ארוחות — רק ליום הנוכחי */}
         {isToday && <MealBalanceCard />}
 

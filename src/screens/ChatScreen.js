@@ -12,7 +12,8 @@ import { useTheme } from '../context/ThemeContext';
 function FoodDetectedCard({ foodData }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const [logged, setLogged] = useState(false);
+  // The server auto-logs foods the user said they ate, so show it as logged.
+  const [logged, setLogged] = useState(true);
   const [logging, setLogging] = useState(false);
 
   const handleLog = async () => {

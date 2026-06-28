@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchWeeklyPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 import { openMealLog } from '../mealLogBridge';
+import { useSwipeNav } from '../hooks/useSwipeNav';
 
 const planKey = () => {
   const d = new Date();
@@ -90,7 +91,10 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
           ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
           : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
         <View style={{ flex: 1 }}>
-          <Text style={styles.mealLabel}>{label}</Text>
+          <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.mealLabel}>{label}</Text>
+            {recipe.eaten && <Text style={styles.eatenBadge}>אכלת ✓</Text>}
+          </View>
           <Text style={styles.mealName} numberOfLines={1}>{recipe.name_he ?? recipe.name_en}</Text>
           <Text style={styles.mealMacros}>
             חלבון {Math.round(n.protein ?? 0)} · פחמ' {Math.round(n.carbs ?? 0)} · שומן {Math.round(n.fat ?? 0)}
@@ -314,9 +318,23 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
   const compensateMeal = (mealKey) => { shrinkMealByCalories(mealKey, compensate); setCompensate(0); };
 
-  // Log food the user actually ate into a meal (camera/manual) → shrink that meal.
+  // Log food the user actually ate into a meal → replace that meal slot with the
+  // real food so the day's totals reflect what was actually eaten.
   const logEaten = (mealKey, label) =>
-    openMealLog(mealKey, label, (kcal) => shrinkMealByCalories(mealKey, kcal));
+    openMealLog(mealKey, label, (food) => {
+      const eatenRecipe = {
+        recipe_id: 'eaten',
+        name_he: food.name_he,
+        total_nutrition: { calories: food.calories, protein: food.protein, carbs: food.carbs, fat: food.fat },
+        ingredients: [{
+          food_name: food.name_he, quantity: food.grams, unit: 'grams',
+          display_he: `${food.name_he}${food.grams ? ` (${Math.round(food.grams)}ג)` : ''}`,
+        }],
+        image_url: food.image_url ?? null,
+        eaten: true,
+      };
+      replaceMeal(mealKey, eatenRecipe);
+    });
 
   const generate = async (newSeed) => {
     setLoading(true);
@@ -344,9 +362,10 @@ export default function FullDayPlanScreen({ navigation, route }) {
   const day = week?.days?.[sel];
   const t = week?.targets ?? {};
   const tot = day?.totals ?? {};
+  const panHandlers = useSwipeNav(navigation, 'תפריט');
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} {...panHandlers}>
       <View style={styles.header}>
         <View style={{ width: 38 }} />
         <Text style={styles.title}>התפריט השבועי שלי</Text>
@@ -480,6 +499,8 @@ const makeStyles = (C) => StyleSheet.create({
   mealThumb: { width: 46, height: 46, borderRadius: 10 },
   thumbEmpty: { backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center' },
   mealLabel: { color: '#3a7a4a', fontSize: 11.5, fontWeight: '800', textAlign: 'right' },
+  eatenBadge: { color: '#fff', backgroundColor: '#3a7a4a', fontSize: 10, fontWeight: '800',
+    paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
   mealName: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginTop: 1 },
   mealMacros: { color: C.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
 
