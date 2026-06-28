@@ -73,25 +73,29 @@ function MealCard({ label, mealKey, data, C, styles, onSwap, compensate, onCompe
   };
 
   return (
-    <View style={styles.mealCard}>
+    <View style={[styles.mealRow, last && { borderBottomWidth: 0 }]}>
       {compensate > 0 && (
         <TouchableOpacity style={styles.compensateBtn} onPress={() => onCompensate(mealKey)}>
           <Ionicons name="trending-down" size={15} color="#fff" />
           <Text style={styles.compensateTxt}>קזז {compensate} קק"ל מ{label}</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity style={styles.mealHead} activeOpacity={0.8} onPress={() => setOpen(o => !o)}>
+      <TouchableOpacity style={styles.mealHead} activeOpacity={0.7} onPress={() => setOpen(o => !o)}>
+        <View style={styles.mealCalCol}>
+          <Text style={styles.mealCalNum}>{Math.round(n.calories ?? 0)}</Text>
+          <Text style={styles.mealCalUnit}>קק"ל</Text>
+        </View>
         {recipe.image_url
           ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
-          : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={20} color={C.textMuted} /></View>}
+          : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
         <View style={{ flex: 1 }}>
           <Text style={styles.mealLabel}>{label}</Text>
           <Text style={styles.mealName} numberOfLines={1}>{recipe.name_he ?? recipe.name_en}</Text>
           <Text style={styles.mealMacros}>
-            {Math.round(n.calories ?? 0)} קק"ל · ח{Math.round(n.protein ?? 0)} פ{Math.round(n.carbs ?? 0)} ש{Math.round(n.fat ?? 0)}
+            חלבון {Math.round(n.protein ?? 0)} · פחמ' {Math.round(n.carbs ?? 0)} · שומן {Math.round(n.fat ?? 0)}
           </Text>
         </View>
-        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color={C.textMuted} />
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={C.textFaint} />
       </TouchableOpacity>
 
       {open && (
@@ -240,6 +244,7 @@ function OffPlanModal({ visible, C, styles, onClose, onConfirm }) {
 }
 
 const WEEK_KEY = '@week_plan_v1';
+const DAY_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];  // Sun→Sat
 
 export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
@@ -343,17 +348,18 @@ export default function FullDayPlanScreen({ navigation, route }) {
         <View style={{ width: 38 }} />
       </View>
 
-      {/* Day selector */}
+      {/* Day selector — fixed 7-letter week row (Sun→Sat, RTL) */}
       {week && !loading && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.daysRow}>
+        <View style={styles.daysRow}>
           {week.days.map((d, i) => (
             <TouchableOpacity key={i} onPress={() => setSel(i)}
               style={[styles.dayChip, i === sel && styles.dayChipActive]}>
-              <Text style={[styles.dayChipTxt, i === sel && styles.dayChipTxtActive]}>{d.day_name}</Text>
+              <Text style={[styles.dayChipTxt, i === sel && styles.dayChipTxtActive]}>
+                {DAY_LETTERS[i]}
+              </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
       )}
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
@@ -400,10 +406,13 @@ export default function FullDayPlanScreen({ navigation, route }) {
               </TouchableOpacity>
             )}
 
-            {MEAL_ORDER.map(m => (
-              <MealCard key={m.key} label={m.label} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
-                onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
-            ))}
+            <View style={styles.mealsTable}>
+              {MEAL_ORDER.map((m, idx) => (
+                <MealCard key={m.key} label={m.label} mealKey={m.key} data={day.plan?.[m.key]} C={C} styles={styles}
+                  last={idx === MEAL_ORDER.length - 1}
+                  onSwap={openSwap} compensate={compensate} onCompensate={compensateMeal} />
+              ))}
+            </View>
           </>
         )}
 
@@ -429,11 +438,12 @@ const makeStyles = (C) => StyleSheet.create({
     paddingTop: 54, paddingHorizontal: 12, paddingBottom: 12 },
   title: { color: C.text, fontSize: 20, fontWeight: '800' },
 
-  daysRow: { paddingHorizontal: 12, paddingBottom: 10, gap: 8 },
-  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 18, borderWidth: 1,
-    borderColor: C.border, backgroundColor: C.surface, marginLeft: 8 },
+  daysRow: { flexDirection: 'row-reverse', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
+  dayChip: { flex: 1, aspectRatio: 1, maxWidth: 46, borderRadius: 12, borderWidth: 1,
+    borderColor: C.border, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center' },
   dayChipActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
-  dayChipTxt: { color: C.textMuted, fontSize: 14, fontWeight: '700' },
+  dayChipTxt: { color: C.textMuted, fontSize: 16, fontWeight: '800' },
   dayChipTxtActive: { color: '#fff' },
 
   hero: { alignItems: 'center', paddingVertical: 30, paddingHorizontal: 12 },
@@ -455,14 +465,18 @@ const makeStyles = (C) => StyleSheet.create({
     borderWidth: 1, borderColor: C.border },
   summaryTitle: { color: C.text, fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 14 },
 
-  mealCard: { backgroundColor: C.surface, borderRadius: 16, marginBottom: 10, borderWidth: 1,
-    borderColor: C.border, overflow: 'hidden' },
-  mealHead: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, padding: 12 },
-  mealThumb: { width: 54, height: 54, borderRadius: 12 },
+  mealsTable: { backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border,
+    overflow: 'hidden', marginBottom: 4 },
+  mealRow: { borderBottomWidth: 1, borderBottomColor: C.border },
+  mealHead: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 12 },
+  mealCalCol: { alignItems: 'center', minWidth: 46 },
+  mealCalNum: { color: '#3a7a4a', fontSize: 17, fontWeight: '800' },
+  mealCalUnit: { color: C.textFaint, fontSize: 10, fontWeight: '600' },
+  mealThumb: { width: 46, height: 46, borderRadius: 10 },
   thumbEmpty: { backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center' },
-  mealLabel: { color: '#3a7a4a', fontSize: 12, fontWeight: '700', textAlign: 'right' },
+  mealLabel: { color: '#3a7a4a', fontSize: 11.5, fontWeight: '800', textAlign: 'right' },
   mealName: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginTop: 1 },
-  mealMacros: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
+  mealMacros: { color: C.textMuted, fontSize: 11.5, textAlign: 'right', marginTop: 2 },
 
   mealBody: { paddingHorizontal: 14, paddingBottom: 14, paddingTop: 2 },
   bodyTitle: { color: C.text, fontSize: 13, fontWeight: '800', textAlign: 'right', marginBottom: 8 },
