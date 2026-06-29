@@ -54,8 +54,18 @@ function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, o
   if (!recipe) return null;
 
   const doSwap = () => onSwap(mealKey, data.target_calories, recipe.recipe_id, label);
-  const n = recipe.total_nutrition ?? {};
+  const rn = recipe.total_nutrition ?? {};
   const ingredients = recipe.ingredients ?? [];
+  const eatenItems = data?.eaten ?? [];
+  // Meal totals = planned dish (possibly reduced) + anything eaten off-plan for it.
+  const eSum = (k) => eatenItems.reduce((a, e) => a + (e[k] ?? 0), 0);
+  const n = {
+    calories: (rn.calories ?? 0) + eSum('calories'),
+    protein:  (rn.protein ?? 0)  + eSum('protein'),
+    carbs:    (rn.carbs ?? 0)    + eSum('carbs'),
+    fat:      (rn.fat ?? 0)      + eSum('fat'),
+  };
+  const dishHasFood = (rn.calories ?? 0) > 5;
 
   const logMeal = async () => {
     if (ate) return;
@@ -64,10 +74,10 @@ function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, o
         food_id: recipe.recipe_id ?? 'recipe',
         food_name: recipe.name_he ?? recipe.name_en ?? label,
         grams: 100,
-        calories: Math.round(n.calories ?? 0),
-        protein: Math.round(n.protein ?? 0),
-        carbs: Math.round(n.carbs ?? 0),
-        fat: Math.round(n.fat ?? 0),
+        calories: Math.round(rn.calories ?? 0),
+        protein: Math.round(rn.protein ?? 0),
+        carbs: Math.round(rn.carbs ?? 0),
+        fat: Math.round(rn.fat ?? 0),
         meal_type: mealKey ?? 'LUNCH',
         image_url: recipe.image_url ?? null,
       });
@@ -89,19 +99,33 @@ function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, o
           <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
             <Text style={styles.mealLabel}>{label}</Text>
             {time ? <Text style={styles.mealTime}>{time}</Text> : null}
-            {recipe.eaten && <Text style={styles.eatenBadge}>אכלת ✓</Text>}
+            {eatenItems.length > 0 && <Text style={styles.eatenBadge}>אכלת ✓</Text>}
           </View>
           <Text style={styles.mealKcal}>{Math.round(n.calories ?? 0)} קק"ל</Text>
         </View>
 
-        {/* Dish row */}
-        <View style={styles.mealDishRow}>
-          {recipe.image_url
-            ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
-            : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
-          <Text style={styles.mealName} numberOfLines={2}>{recipe.name_he ?? recipe.name_en}</Text>
-          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={C.textFaint} />
-        </View>
+        {/* Eaten off-plan items for this meal */}
+        {eatenItems.map((e, i) => (
+          <View key={i} style={styles.eatenRow}>
+            <Text style={styles.eatenRowKcal}>{Math.round(e.calories ?? 0)} קק"ל</Text>
+            <Ionicons name="checkmark-circle" size={15} color="#3a7a4a" />
+            <Text style={styles.eatenRowName} numberOfLines={1}>אכלת: {e.name_he}</Text>
+          </View>
+        ))}
+
+        {/* Planned dish row (reduced if you ate part of the meal off-plan) */}
+        {dishHasFood && (
+          <View style={styles.mealDishRow}>
+            {recipe.image_url
+              ? <Image source={{ uri: recipe.image_url }} style={styles.mealThumb} />
+              : <View style={[styles.mealThumb, styles.thumbEmpty]}><Ionicons name="restaurant-outline" size={18} color={C.textMuted} /></View>}
+            <View style={{ flex: 1 }}>
+              {eatenItems.length > 0 && <Text style={styles.planTag}>להשלמת הארוחה</Text>}
+              <Text style={styles.mealName} numberOfLines={2}>{recipe.name_he ?? recipe.name_en}</Text>
+            </View>
+            <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={16} color={C.textFaint} />
+          </View>
+        )}
 
         {/* Macro strip — nutrition-label style */}
         <View style={styles.macroStrip}>
@@ -302,10 +326,13 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
   const recomputeTotals = (planObj) => {
     const tot = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    Object.values(planObj ?? {}).forEach(m => {
-      const n = m?.recipe?.total_nutrition ?? {};
+    const add = (n) => {
       tot.calories += n.calories ?? 0; tot.protein += n.protein ?? 0;
       tot.carbs += n.carbs ?? 0; tot.fat += n.fat ?? 0;
+    };
+    Object.values(planObj ?? {}).forEach(m => {
+      add(m?.recipe?.total_nutrition ?? {});
+      (m?.eaten ?? []).forEach(add);   // off-plan items eaten for this meal
     });
     return tot;
   };
@@ -338,23 +365,27 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
   const compensateMeal = (mealKey) => { shrinkMealByCalories(mealKey, compensate); setCompensate(0); };
 
-  // Log food the user actually ate into a meal → replace that meal slot with the
-  // real food so the day's totals reflect what was actually eaten.
+  // Log food the user actually ate for a meal → record it as an "eaten" item AND
+  // shrink the planned dish by those calories, so the meal still hits its target.
   const logEaten = (mealKey, label) =>
-    openMealLog(mealKey, label, (food) => {
-      const eatenRecipe = {
-        recipe_id: 'eaten',
-        name_he: food.name_he,
-        total_nutrition: { calories: food.calories, protein: food.protein, carbs: food.carbs, fat: food.fat },
-        ingredients: [{
-          food_name: food.name_he, quantity: food.grams, unit: 'grams',
-          display_he: `${food.name_he}${food.grams ? ` (${Math.round(food.grams)}ג)` : ''}`,
-        }],
-        image_url: food.image_url ?? null,
-        eaten: true,
-      };
-      replaceMeal(mealKey, eatenRecipe);
-    });
+    openMealLog(mealKey, label, (food) => updateDay(p => {
+      const meal = p[mealKey];
+      const cal = meal?.recipe?.total_nutrition?.calories ?? 0;
+      let recipe = meal.recipe;
+      if (cal > 0 && food.calories > 0) {
+        const factor = Math.max(0, (cal - food.calories) / cal);
+        const scaledN = {};
+        ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((recipe.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
+        const scaledIng = (recipe.ingredients ?? []).map(ing => ing.quantity
+          ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+        recipe = { ...recipe, total_nutrition: scaledN, ingredients: scaledIng, _reduced: true };
+      }
+      const eaten = [...(meal.eaten ?? []), {
+        name_he: food.name_he, calories: food.calories,
+        protein: food.protein, carbs: food.carbs, fat: food.fat,
+      }];
+      return { ...p, [mealKey]: { ...meal, recipe, eaten } };
+    }));
 
   const generate = async (newSeed) => {
     setLoading(true);
@@ -519,6 +550,11 @@ const makeStyles = (C) => StyleSheet.create({
   mealKcal: { color: '#3a7a4a', fontSize: 14, fontWeight: '800' },
   eatenBadge: { color: '#fff', backgroundColor: '#3a7a4a', fontSize: 10, fontWeight: '800',
     paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
+  eatenRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 7, paddingHorizontal: 12,
+    paddingVertical: 8, backgroundColor: '#3a7a4a10', borderBottomWidth: 1, borderBottomColor: C.border },
+  eatenRowName: { flex: 1, color: C.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
+  eatenRowKcal: { color: '#3a7a4a', fontSize: 13, fontWeight: '800' },
+  planTag: { color: C.textFaint, fontSize: 10.5, fontWeight: '700', textAlign: 'right', marginBottom: 1 },
   mealDishRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 10 },
   mealThumb: { width: 44, height: 44, borderRadius: 10 },
   thumbEmpty: { backgroundColor: C.surface2, alignItems: 'center', justifyContent: 'center' },
