@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
   ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform,
@@ -277,18 +278,19 @@ export default function FullDayPlanScreen({ navigation, route }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [week, setWeek] = useState(null);   // { days:[...], targets }
-  const [sel, setSel] = useState(0);        // selected day index
+  const [sel, setSel] = useState(new Date().getDay());  // selected day — default today
   const [loading, setLoading] = useState(false);
   const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
   const [swapTarget, setSwapTarget] = useState(null);
   const [compInput, setCompInput] = useState(false);
 
-  // Load the saved weekly plan on mount.
-  useEffect(() => {
+  // Load the saved weekly plan on mount AND whenever the screen regains focus
+  // (so dishes the chat added to the menu show up immediately).
+  useFocusEffect(useCallback(() => {
     AsyncStorage.getItem(WEEK_KEY)
       .then(v => { if (v) setWeek(JSON.parse(v)); })
       .catch(() => {});
-  }, []);
+  }, []));
 
   useEffect(() => {
     if (route?.params?.overage) setCompensate(route.params.overage);
@@ -358,7 +360,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
     setLoading(true);
     try {
       const res = await fetchWeeklyPlan(newSeed ?? Math.floor(Math.random() * 100000));
-      setWeek(res); setSel(0);
+      setWeek(res); setSel(new Date().getDay());
     } catch {
       Alert.alert('שגיאה', 'לא הצלחתי לבנות תפריט. נסה שוב.');
     } finally { setLoading(false); }

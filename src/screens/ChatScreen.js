@@ -278,7 +278,11 @@ export default function ChatScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={[styles.bubbleWrap, item.role === 'user' ? styles.userWrap : styles.aiWrap]}>
             <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}>
-              <Text style={styles.bubbleText}>{item.text}</Text>
+              {/* When a recipe card is attached, hide the verbose calorie prose —
+                  the card already shows everything. */}
+              {!(item.recipe?.foods?.length > 0) && !!item.text && (
+                <Text style={styles.bubbleText}>{item.text}</Text>
+              )}
               {item.foodData?.foods?.length > 0 && (
                 <FoodDetectedCard foodData={item.foodData} />
               )}
