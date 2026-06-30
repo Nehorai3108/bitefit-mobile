@@ -53,19 +53,46 @@ async function addRecipeToMenu(recipe) {
   return meal;
 }
 
+// Reduce today's menu meal by `calories` (you told the chat you ate something).
+async function reduceMenuMeal(mealType, calories) {
+  if (!(calories > 0)) return;
+  const raw = await AsyncStorage.getItem(WEEK_KEY);
+  if (!raw) return;
+  const week = JSON.parse(raw);
+  const day = week.days?.[new Date().getDay()];
+  let meal = (mealType || 'LUNCH').toUpperCase();
+  if (!MEAL_KEYS.includes(meal)) meal = 'LUNCH';
+  const slot = day?.plan?.[meal];
+  const cal = slot?.recipe?.total_nutrition?.calories ?? 0;
+  if (cal <= 0) return;
+  const factor = Math.max(0.15, (cal - calories) / cal);
+  const r = slot.recipe;
+  const scaledN = {};
+  ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
+  const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
+    ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+  slot.recipe = { ...r, total_nutrition: scaledN, ingredients: scaledIng, _reduced: true };
+  const t = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  Object.values(day.plan).forEach(m => {
+    const n = m?.recipe?.total_nutrition ?? {};
+    t.calories += n.calories ?? 0; t.protein += n.protein ?? 0; t.carbs += n.carbs ?? 0; t.fat += n.fat ?? 0;
+  });
+  day.totals = t;
+  await AsyncStorage.setItem(WEEK_KEY, JSON.stringify(week));
+}
+
 function FoodDetectedCard({ foodData }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  // The server auto-logs foods the user said they ate, so show it as logged.
-  const [logged, setLogged] = useState(true);
-  const [logging, setLogging] = useState(false);
+  const [logged, setLogged] = useState(false);
+  const [logging, setLogging] = useState(true);
 
-  const handleLog = async () => {
+  const doLog = async () => {
     setLogging(true);
     try {
+      const mealType = foodData.meal_type?.toUpperCase() ?? 'LUNCH';
+      let totalCal = 0;
       for (const food of foodData.foods) {
-        // The server already resolved grams + total calories/macros for the
-        // portion (with an AI fallback), so log them directly.
         let grams = food.grams ?? 100;
         let cal = food.calories ?? 0, prot = food.protein ?? 0;
         let carbs = food.carbs ?? 0, fat = food.fat ?? 0;
@@ -79,36 +106,45 @@ function FoodDetectedCard({ foodData }) {
             fat   = Math.round((lookup.fat_per_100g ?? 0) * factor * 10) / 10;
           }
         }
+        totalCal += cal;
         await addFoodEntry({
           food_id: food.name ?? 'chat_food',
           food_name: food.name_he ?? food.name,
           grams, calories: cal, protein: prot, carbs, fat,
-          meal_type: foodData.meal_type?.toUpperCase() ?? 'LUNCH',
+          meal_type: mealType,
           image_url: food.image_url ?? null,
         });
       }
+      // Also deduct from today's menu meal so the plan + home summary reflect it.
+      await reduceMenuMeal(mealType, totalCal).catch(() => {});
       setLogged(true);
-    } catch (e) {
-      Alert.alert('שגיאה', 'לא הצלחתי לשמור ביומן: ' + e.message);
+    } catch {
+      setLogged(false);
     } finally {
       setLogging(false);
     }
   };
 
+  // Auto-log the moment the card appears (reliable, and refreshes the home summary).
+  useEffect(() => { doLog(); }, []);
+
   return (
     <View style={styles.foodDetected}>
-      <Text style={styles.foodDetectedTitle}>זוהה אוכל:</Text>
+      <Text style={styles.foodDetectedTitle}>נרשם שאכלת:</Text>
       {foodData.foods.map((f, i) => (
         <Text key={i} style={styles.foodItem}>• {f.name_he ?? f.name} — {f.grams ?? f.quantity}g · {Math.round(f.calories ?? 0)} קק"ל</Text>
       ))}
-      {!logged ? (
-        <TouchableOpacity style={styles.logBtn} onPress={handleLog} disabled={logging}>
-          {logging
-            ? <ActivityIndicator size="small" color="#fff" />
-            : <Text style={styles.logBtnTxt}>הוסף ליומן</Text>}
-        </TouchableOpacity>
+      {logging ? (
+        <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 8 }}>
+          <ActivityIndicator size="small" color="#3a7a4a" />
+          <Text style={styles.foodItem}>רושם ליומן ולתפריט...</Text>
+        </View>
+      ) : logged ? (
+        <Text style={styles.loggedTxt}>✓ נשמר ביומן ועודכן בתפריט</Text>
       ) : (
-        <Text style={styles.loggedTxt}>✓ נשמר ביומן</Text>
+        <TouchableOpacity style={styles.logBtn} onPress={doLog}>
+          <Text style={styles.logBtnTxt}>נסה לרשום שוב</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
