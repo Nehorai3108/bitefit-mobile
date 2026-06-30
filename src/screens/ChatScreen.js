@@ -11,6 +11,7 @@ import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight } fro
 import { useTheme } from '../context/ThemeContext';
 
 const WEEK_KEY = '@week_plan_v1';
+const CHAT_KEY = '@chat_history_v1';
 const MEAL_KEYS = ['BREAKFAST', 'MORNING_SNACK', 'LUNCH', 'AFTERNOON_SNACK', 'DINNER'];
 
 // Insert a chat recipe into today's slot in the saved weekly plan.
@@ -260,9 +261,26 @@ export default function ChatScreen({ navigation }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
+  const loadedRef = useRef(false);
+
+  // Continuity: load the saved conversation on mount so Biti remembers it.
+  useEffect(() => {
+    AsyncStorage.getItem(CHAT_KEY)
+      .then(v => { if (v) setMessages(JSON.parse(v)); })
+      .catch(() => {})
+      .finally(() => { loadedRef.current = true; });
+  }, []);
+
+  // Persist the conversation (text only — strip live cards so they don't
+  // re-trigger logging when reloaded). Keep the last 60 messages.
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    const slim = messages.slice(-60).map(m => ({ id: m.id, role: m.role, text: m.text }));
+    AsyncStorage.setItem(CHAT_KEY, JSON.stringify(slim)).catch(() => {});
+  }, [messages]);
 
   const getHistory = (msgs) =>
-    msgs.map(m => ({ role: m.role, content: m.text }));
+    msgs.slice(-16).map(m => ({ role: m.role, content: m.text }));
 
   const send = async (text) => {
     const msg = (text ?? input).trim();
