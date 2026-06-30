@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image,
   ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchWeeklyPlan, swapMeal, searchMealRecipes, addFoodEntry } from '../api/client';
+import { fetchWeeklyPlan, swapMeal, searchMealRecipes, searchFoodNutrition, identifyFood, addFoodEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
-import { openMealLog } from '../mealLogBridge';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 
 const planKey = () => {
@@ -271,6 +271,145 @@ function OffPlanModal({ visible, C, styles, onClose, onConfirm }) {
   );
 }
 
+// Self-contained "I ate something else" sheet: search or photograph the food,
+// log it to the diary, and report its calories so the meal gets reduced.
+function LogEatenModal({ target, C, styles, onClose, onLogged }) {
+  const [mode, setMode] = useState('choose');   // choose | manual | camera
+  const [q, setQ] = useState('');
+  const [grams, setGrams] = useState('100');
+  const [food, setFood] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const camRef = useRef(null);
+  if (!target) return null;
+
+  const reset = () => { setMode('choose'); setQ(''); setGrams('100'); setFood(null); setBusy(false); };
+  const close = () => { reset(); onClose(); };
+
+  const search = async () => {
+    if (!q.trim()) return;
+    setBusy(true); setFood(null);
+    try {
+      const res = await searchFoodNutrition(q.trim());
+      if (res?.found) setFood(res); else Alert.alert('לא נמצא', 'נסה שם אחר');
+    } catch { Alert.alert('שגיאה', 'החיפוש נכשל'); }
+    finally { setBusy(false); }
+  };
+
+  const saveManual = async () => {
+    if (!food) return;
+    const g = parseFloat(grams) || 100;
+    const cal = Math.round((food.calories_per_100g ?? 0) * g / 100);
+    setBusy(true);
+    try {
+      await addFoodEntry({
+        food_id: food.food_id, food_name: food.name_he, grams: g, calories: cal,
+        protein: Math.round((food.protein_per_100g ?? 0) * g / 100 * 10) / 10,
+        carbs: Math.round((food.carbs_per_100g ?? 0) * g / 100 * 10) / 10,
+        fat: Math.round((food.fat_per_100g ?? 0) * g / 100 * 10) / 10,
+        meal_type: target.mealKey, image_url: food.image_url ?? null,
+      });
+      onLogged(cal); close();
+    } catch { Alert.alert('שגיאה', 'לא הצלחתי לשמור'); setBusy(false); }
+  };
+
+  const snap = async () => {
+    if (!camRef.current) return;
+    setBusy(true);
+    try {
+      const photo = await camRef.current.takePictureAsync({ quality: 0.6 });
+      const r = await identifyFood(photo.uri);
+      if (!r.items?.length) { Alert.alert('לא זוהה', 'נסה שוב'); setBusy(false); return; }
+      let total = 0;
+      for (const it of r.items) {
+        const cal = Math.round(it.calories ?? 0); total += cal;
+        await addFoodEntry({
+          food_id: 'camera_food', food_name: it.name_he ?? it.name ?? 'מזון מצולם',
+          grams: Math.round(it.grams ?? 100), calories: cal,
+          protein: it.protein ?? 0, carbs: it.carbs ?? 0, fat: it.fat ?? 0,
+          meal_type: target.mealKey, image_url: photo.uri,
+        });
+      }
+      onLogged(total); close();
+    } catch { Alert.alert('שגיאה', 'הצילום נכשל'); setBusy(false); }
+  };
+
+  const g = parseFloat(grams) || 100;
+  const previewCal = food ? Math.round((food.calories_per_100g ?? 0) * g / 100) : 0;
+
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={close}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <TouchableOpacity style={styles.swapOverlay} activeOpacity={1} onPress={close} />
+        <View style={styles.swapSheet}>
+          <View style={styles.swapHandle} />
+          <Text style={styles.swapTitle}>אכלתי משהו אחר · {target.label}</Text>
+
+          {mode === 'choose' && (
+            <>
+              <Text style={styles.swapSub}>איך לרשום? נקזז את הקלוריות מהמנה.</Text>
+              <TouchableOpacity style={[styles.genBtn, { marginBottom: 10 }]} onPress={() => setMode('manual')}>
+                <Ionicons name="search" size={18} color="#fff" /><Text style={styles.genTxt}>חיפוש ידני</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.swapRandomBtn} onPress={() => { setMode('camera'); if (!permission?.granted) requestPermission(); }}>
+                <Ionicons name="camera" size={18} color="#3a7a4a" /><Text style={styles.swapRandomTxt}>צילום</Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          {mode === 'manual' && (
+            <>
+              <View style={styles.swapSearchRow}>
+                <TouchableOpacity style={styles.swapSearchBtn} onPress={search}>
+                  {busy ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.swapSearchBtnTxt}>חפש</Text>}
+                </TouchableOpacity>
+                <TextInput style={styles.swapInput} placeholder="שם מזון (למשל: מעדן, בורקס)"
+                  placeholderTextColor={C.placeholder} value={q} onChangeText={setQ}
+                  onSubmitEditing={search} returnKeyType="search" textAlign="right" />
+              </View>
+              {food && (
+                <View style={{ marginTop: 4 }}>
+                  <Text style={styles.swapResultName}>{food.name_he}</Text>
+                  <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginVertical: 10 }}>
+                    <Text style={[styles.mealKcal, { fontSize: 20 }]}>{previewCal} קק"ל</Text>
+                    <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
+                      <TextInput style={[styles.swapInput, { width: 80, flex: 0 }]} value={grams}
+                        onChangeText={setGrams} keyboardType="numeric" textAlign="center" />
+                      <Text style={{ color: C.textMuted }}>גרם</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity style={styles.genBtn} onPress={saveManual} disabled={busy}>
+                    {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.genTxt}>רשום וקזז מהמנה</Text>}
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
+          )}
+
+          {mode === 'camera' && (
+            <View style={{ height: 360, borderRadius: 16, overflow: 'hidden', marginTop: 6 }}>
+              {permission?.granted ? (
+                <>
+                  <CameraView ref={camRef} style={{ flex: 1 }} facing="back" />
+                  <TouchableOpacity style={[styles.genBtn, { position: 'absolute', bottom: 16, left: 16, right: 16 }]}
+                    onPress={snap} disabled={busy}>
+                    {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.genTxt}>צלם ורשום</Text>}
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: C.textMuted, marginBottom: 12 }}>צריך הרשאת מצלמה</Text>
+                  <TouchableOpacity style={styles.genBtn} onPress={requestPermission}><Text style={styles.genTxt}>אפשר מצלמה</Text></TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
 const WEEK_KEY = '@week_plan_v1';
 const DAY_LETTERS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];  // Sun→Sat
 
@@ -283,6 +422,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
   const [compensate, setCompensate] = useState(route?.params?.overage ?? 0);
   const [swapTarget, setSwapTarget] = useState(null);
   const [compInput, setCompInput] = useState(false);
+  const [eatTarget, setEatTarget] = useState(null);  // {mealKey,label} for "אכלתי משהו אחר"
 
   // Load the saved weekly plan on mount AND whenever the screen regains focus
   // (so dishes the chat added to the menu show up immediately).
@@ -338,10 +478,8 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
   const compensateMeal = (mealKey) => { shrinkMealByCalories(mealKey, compensate); setCompensate(0); };
 
-  // Log food the user ate off-plan for a meal → reduce that meal's planned dish
-  // by those calories (500 dish − 150 eaten = 350 dish). Food is also in the diary.
-  const logEaten = (mealKey, label) =>
-    openMealLog(mealKey, label, (food) => shrinkMealByCalories(mealKey, food.calories));
+  // Open the self-contained "I ate something else" sheet for a meal.
+  const logEaten = (mealKey, label) => setEatTarget({ mealKey, label });
 
   const generate = async (newSeed) => {
     setLoading(true);
@@ -459,6 +597,10 @@ export default function FullDayPlanScreen({ navigation, route }) {
       <OffPlanModal visible={compInput} C={C} styles={styles}
         onClose={() => setCompInput(false)}
         onConfirm={(kcal) => { setCompInput(false); setCompensate(kcal); }} />
+
+      <LogEatenModal target={eatTarget} C={C} styles={styles}
+        onClose={() => setEatTarget(null)}
+        onLogged={(kcal) => { if (eatTarget) shrinkMealByCalories(eatTarget.mealKey, kcal); }} />
     </View>
   );
 }
