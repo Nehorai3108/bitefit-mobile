@@ -17,11 +17,11 @@ import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
   BREAKFAST:       'ארוחת בוקר',   breakfast: 'ארוחת בוקר',
-  MORNING_SNACK:   'חטיף בוקר',   morning_snack: 'חטיף בוקר',
+  MORNING_SNACK:   'ביניים בוקר',   morning_snack: 'ביניים בוקר',
   LUNCH:           'ארוחת צהריים', lunch: 'ארוחת צהריים',
-  AFTERNOON_SNACK: 'חטיף אחה"צ',  afternoon_snack: 'חטיף אחה"צ',
+  AFTERNOON_SNACK: 'ביניים אחה"צ',  afternoon_snack: 'ביניים אחה"צ',
   DINNER:          'ארוחת ערב',   dinner: 'ארוחת ערב',
-  EVENING_SNACK:   'חטיף ערב',    evening_snack: 'חטיף ערב',
+  EVENING_SNACK:   'ביניים ערב',    evening_snack: 'ביניים ערב',
 };
 
 const MEAL_COLORS = {

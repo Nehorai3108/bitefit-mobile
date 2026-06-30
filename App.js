@@ -32,11 +32,11 @@ const Tab = createBottomTabNavigator();
 
 const MEAL_TYPES = [
   { key: 'BREAKFAST',       label: 'בוקר' },
-  { key: 'MORNING_SNACK',   label: 'חטיף בוקר' },
+  { key: 'MORNING_SNACK',   label: 'ביניים בוקר' },
   { key: 'LUNCH',           label: 'צהריים' },
-  { key: 'AFTERNOON_SNACK', label: 'חטיף צ׳' },
+  { key: 'AFTERNOON_SNACK', label: 'ביניים צ׳' },
   { key: 'DINNER',          label: 'ערב' },
-  { key: 'EVENING_SNACK',   label: 'חטיף ערב' },
+  { key: 'EVENING_SNACK',   label: 'ביניים ערב' },
 ];
 
 // ─── Meal Chip Row ─────────────────────────────────────────────────────────────

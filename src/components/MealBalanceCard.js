@@ -7,11 +7,11 @@ import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
   BREAKFAST: 'בוקר',
-  MORNING_SNACK: 'חטיף בוקר',
+  MORNING_SNACK: 'ביניים בוקר',
   LUNCH: 'צהריים',
-  AFTERNOON_SNACK: 'חטיף אחה״צ',
+  AFTERNOON_SNACK: 'ביניים אחה״צ',
   DINNER: 'ערב',
-  EVENING_SNACK: 'חטיף ערב',
+  EVENING_SNACK: 'ביניים ערב',
 };
 
 export default function MealBalanceCard() {

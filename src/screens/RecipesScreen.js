@@ -9,7 +9,7 @@ import { fetchRecipes, addFoodEntry } from '../api/client';
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
 
-const TAGS = ['הכל', 'בוקר', 'צהריים', 'ערב', 'חטיף', 'ישראלי', 'מהיר'];
+const TAGS = ['הכל', 'בוקר', 'צהריים', 'ערב', 'ביניים', 'ישראלי', 'מהיר'];
 
 // Recipes carry meal info in `meal_types` (BREAKFAST/LUNCH/...) and English `tags`
 // (quick/israeli/...). Map each Hebrew chip to the field it actually lives in.
@@ -17,7 +17,7 @@ const TAG_RULES = {
   'בוקר':    r => (r.meal_types ?? []).includes('BREAKFAST'),
   'צהריים':  r => (r.meal_types ?? []).includes('LUNCH'),
   'ערב':     r => (r.meal_types ?? []).includes('DINNER'),
-  'חטיף':    r => (r.meal_types ?? []).some(m => m.includes('SNACK')),
+  'ביניים':    r => (r.meal_types ?? []).some(m => m.includes('SNACK')),
   'ישראלי':  r => (r.tags ?? []).some(t => t === 'israeli' || t === 'traditional'),
   'מהיר':    r => (r.tags ?? []).includes('quick'),
 };

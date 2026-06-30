@@ -20,11 +20,11 @@ const TYPE_COLOR = { strength: '#3a7a4a', cardio: '#2e86de', hiit: '#e74c3c', re
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר',      ratio: 0.25 },
-  { key: 'MORNING_SNACK',   label: 'חטיף בוקר',  ratio: 0.10 },
+  { key: 'MORNING_SNACK',   label: 'ביניים בוקר',  ratio: 0.10 },
   { key: 'LUNCH',           label: 'צהריים',    ratio: 0.35 },
-  { key: 'AFTERNOON_SNACK', label: 'חטיף צ',    ratio: 0.10 },
+  { key: 'AFTERNOON_SNACK', label: 'ביניים צ',    ratio: 0.10 },
   { key: 'DINNER',          label: 'ערב',       ratio: 0.20 },
-  { key: 'EVENING_SNACK',   label: 'חטיף ע',    ratio: 0.10 },
+  { key: 'EVENING_SNACK',   label: 'ביניים ע',    ratio: 0.10 },
 ];
 
 // Full recipe detail: ingredients in household units + nutrition + instructions

@@ -11,8 +11,8 @@ import { useTheme } from '../context/ThemeContext';
 const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const DOW_HE    = ['א','ב','ג','ד','ה','ו','ש'];
 const MEAL_LABELS = {
-  BREAKFAST:'בוקר', MORNING_SNACK:'חטיף בוקר', LUNCH:'צהריים',
-  AFTERNOON_SNACK:'חטיף', DINNER:'ערב', EVENING_SNACK:'חטיף ערב',
+  BREAKFAST:'בוקר', MORNING_SNACK:'ביניים בוקר', LUNCH:'צהריים',
+  AFTERNOON_SNACK:'ביניים', DINNER:'ערב', EVENING_SNACK:'ביניים ערב',
 };
 
 function isoStr(y, m, d) {
