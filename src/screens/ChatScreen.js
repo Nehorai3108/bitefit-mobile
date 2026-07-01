@@ -101,7 +101,7 @@ function FoodDetectedCard({ foodData }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [logged, setLogged] = useState(false);
-  const [logging, setLogging] = useState(true);
+  const [logging, setLogging] = useState(false);
 
   const doLog = async () => {
     setLogging(true);
@@ -141,25 +141,19 @@ function FoodDetectedCard({ foodData }) {
     }
   };
 
-  // Auto-log the moment the card appears (reliable, and refreshes the home summary).
-  useEffect(() => { doLog(); }, []);
-
   return (
     <View style={styles.foodDetected}>
-      <Text style={styles.foodDetectedTitle}>נרשם שאכלת:</Text>
+      <Text style={styles.foodDetectedTitle}>לרשום שאכלת?</Text>
       {foodData.foods.map((f, i) => (
         <Text key={i} style={styles.foodItem}>• {f.name_he ?? f.name} — {f.grams ?? f.quantity}g · {Math.round(f.calories ?? 0)} קק"ל</Text>
       ))}
-      {logging ? (
-        <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6, marginTop: 8 }}>
-          <ActivityIndicator size="small" color="#3a7a4a" />
-          <Text style={styles.foodItem}>רושם ליומן ולתפריט...</Text>
-        </View>
-      ) : logged ? (
+      {logged ? (
         <Text style={styles.loggedTxt}>✓ נשמר ביומן ועודכן בתפריט</Text>
       ) : (
-        <TouchableOpacity style={styles.logBtn} onPress={doLog}>
-          <Text style={styles.logBtnTxt}>נסה לרשום שוב</Text>
+        <TouchableOpacity style={styles.logBtn} onPress={doLog} disabled={logging}>
+          {logging
+            ? <ActivityIndicator size="small" color="#fff" />
+            : <Text style={styles.logBtnTxt}>כן, רשום ליומן</Text>}
         </TouchableOpacity>
       )}
     </View>
