@@ -336,25 +336,17 @@ export default function ChatScreen({ navigation }) {
     const aid = Date.now().toString() + 'a';
     setMessages([...updated, { id: aid, role: 'assistant', text: '', streaming: true }]);
     setLoading(true);
-    let acc = '';
     try {
-      await chatMessageStream(msg, getHistory(updated),
-        (chunk) => {   // Biti is typing — show it grow (hide raw JSON)
-          acc += chunk;
-          const shown = stripStream(acc);
-          setMessages(prev => prev.map(m => m.id === aid ? { ...m, text: shown } : m));
-        },
-        (done) => {    // final: processed reply + cards
-          setMessages(prev => prev.map(m => m.id === aid ? {
-            ...m, streaming: false,
-            text: (done.reply ?? stripStream(acc) ?? '').trim(),
-            foodData: done.food_data ?? null,
-            recipe: done.recipe ?? null,
-          } : m));
-        });
+      const res = await chatMessage(msg, getHistory(updated));
+      setMessages(prev => prev.map(m => m.id === aid ? {
+        ...m, streaming: false,
+        text: (res?.reply ?? 'לא הצלחתי לענות').trim(),
+        foodData: res?.food_data ?? null,
+        recipe: res?.recipe ?? null,
+      } : m));
     } catch {
       setMessages(prev => prev.map(m => m.id === aid
-        ? { ...m, streaming: false, text: 'שגיאה בחיבור לשרת.' } : m));
+        ? { ...m, streaming: false, text: 'שגיאה בחיבור לשרת. בדוק שה-API רץ.' } : m));
     } finally {
       setLoading(false);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
