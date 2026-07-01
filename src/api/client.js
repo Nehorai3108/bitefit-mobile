@@ -150,6 +150,41 @@ export const addWater = (amount_ml = 250) =>
 export const chatMessage = (message, history = []) =>
   api.post('/chat/', { message, history }).then(r => r.data).then(_notify);
 
+// Streaming chat: onChunk(text) fires as Biti types; onDone(payload) at the end
+// with the processed reply + food_data/recipe/actions.
+export const chatMessageStream = (message, history, onChunk, onDone) =>
+  new Promise((resolve) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE}/chat/?stream=true`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    const auth = api.defaults.headers.common['Authorization'];
+    if (auth) xhr.setRequestHeader('Authorization', auth);
+    let idx = 0, done = false;
+    const pump = () => {
+      const buf = xhr.responseText;
+      let nl;
+      while ((nl = buf.indexOf('\n\n', idx)) !== -1) {
+        const line = buf.slice(idx, nl).split('\n').find(l => l.startsWith('data: '));
+        idx = nl + 2;
+        if (!line) continue;
+        try {
+          const ev = JSON.parse(line.slice(6));
+          if (ev.t === 'c') onChunk?.(ev.d);
+          else if (ev.t === 'done') { done = true; onDone?.(ev); }
+        } catch {}
+      }
+    };
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState >= 3) pump();
+      if (xhr.readyState === 4) {
+        if (!done) onDone?.({ reply: xhr.status ? '' : 'שגיאה בחיבור', food_data: null, recipe: null });
+        resolve();
+      }
+    };
+    xhr.onerror = () => { if (!done) onDone?.({ reply: 'שגיאה בחיבור', food_data: null, recipe: null }); resolve(); };
+    xhr.send(JSON.stringify({ message, history }));
+  });
+
 // Proactive daily insight from Biti (data-driven)
 export const fetchDailyInsight = () =>
   api.get('/chat/insight').then(r => r.data);

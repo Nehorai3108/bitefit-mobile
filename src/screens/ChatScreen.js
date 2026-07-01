@@ -8,11 +8,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAudioRecorder, RecordingPresets, AudioModule, setAudioModeAsync } from 'expo-audio';
-import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight, transcribeAudio } from '../api/client';
+import { chatMessage, chatMessageStream, addFoodEntry, searchFoodNutrition, fetchDailyInsight, transcribeAudio } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const WEEK_KEY = '@week_plan_v1';
 const CHAT_KEY = '@chat_history_v1';
+
+// Hide raw JSON while streaming: a structured reply is pure JSON (starts with '{')
+// → show nothing until 'done'; a plain reply may end with a ```json block → cut it.
+function stripStream(t) {
+  if (!t) return '';
+  const s = t.trimStart();
+  if (s.startsWith('{') || s.startsWith('[')) return '';
+  const fence = s.indexOf('```');
+  const brace = s.indexOf('\n{');
+  let cut = -1;
+  if (fence !== -1) cut = fence;
+  if (brace !== -1 && (cut === -1 || brace < cut)) cut = brace;
+  return (cut !== -1 ? s.slice(0, cut) : s);
+}
 const MEAL_KEYS = ['BREAKFAST', 'MORNING_SNACK', 'LUNCH', 'AFTERNOON_SNACK', 'DINNER'];
 
 // Insert a chat recipe into today's slot in the saved weekly plan.
@@ -319,24 +333,28 @@ export default function ChatScreen({ navigation }) {
     setInput('');
     const userMsg = { id: Date.now().toString(), role: 'user', text: msg };
     const updated = [...messages, userMsg];
-    setMessages(updated);
+    const aid = Date.now().toString() + 'a';
+    setMessages([...updated, { id: aid, role: 'assistant', text: '', streaming: true }]);
     setLoading(true);
+    let acc = '';
     try {
-      const res = await chatMessage(msg, getHistory(updated));
-      const reply = res?.reply ?? 'לא הצלחתי לענות';
-      setMessages(prev => [...prev, {
-        id: Date.now().toString() + 'a',
-        role: 'assistant',
-        text: reply,
-        foodData: res?.food_data ?? null,
-        recipe: res?.recipe ?? null,
-      }]);
-    } catch (e) {
-      setMessages(prev => [...prev, {
-        id: Date.now().toString() + 'e',
-        role: 'assistant',
-        text: 'שגיאה בחיבור לשרת. בדוק שה-API רץ.',
-      }]);
+      await chatMessageStream(msg, getHistory(updated),
+        (chunk) => {   // Biti is typing — show it grow (hide raw JSON)
+          acc += chunk;
+          const shown = stripStream(acc);
+          setMessages(prev => prev.map(m => m.id === aid ? { ...m, text: shown } : m));
+        },
+        (done) => {    // final: processed reply + cards
+          setMessages(prev => prev.map(m => m.id === aid ? {
+            ...m, streaming: false,
+            text: (done.reply ?? stripStream(acc) ?? '').trim(),
+            foodData: done.food_data ?? null,
+            recipe: done.recipe ?? null,
+          } : m));
+        });
+    } catch {
+      setMessages(prev => prev.map(m => m.id === aid
+        ? { ...m, streaming: false, text: 'שגיאה בחיבור לשרת.' } : m));
     } finally {
       setLoading(false);
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
@@ -363,6 +381,10 @@ export default function ChatScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={[styles.bubbleWrap, item.role === 'user' ? styles.userWrap : styles.aiWrap]}>
             <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}>
+              {/* Empty streaming bubble → show a typing indicator */}
+              {item.streaming && !item.text ? (
+                <ActivityIndicator size="small" color="#3a7a4a" />
+              ) : null}
               {/* When a recipe card is attached, hide the verbose calorie prose —
                   the card already shows everything. */}
               {!(item.recipe?.foods?.length > 0) && !!item.text && (
@@ -391,12 +413,6 @@ export default function ChatScreen({ navigation }) {
         </View>
       )}
 
-      {loading && (
-        <View style={styles.typingRow}>
-          <ActivityIndicator size="small" color="#3a7a4a" />
-          <Text style={styles.typingTxt}>מקליד...</Text>
-        </View>
-      )}
 
       <View style={styles.inputRow}>
         {input.trim() ? (
