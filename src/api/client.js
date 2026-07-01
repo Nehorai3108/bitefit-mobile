@@ -293,4 +293,20 @@ export const identifyFood = async (imageUri) => {
   return res.data;
 };
 
+// Transcribe a voice recording to Hebrew text (Groq Whisper).
+export const transcribeAudio = async (audioUri) => {
+  const formData = new FormData();
+  if (Platform.OS === 'web') {
+    const blob = await (await fetch(audioUri)).blob();
+    formData.append('file', blob, 'audio.m4a');
+  } else {
+    formData.append('file', { uri: audioUri, name: 'audio.m4a', type: 'audio/m4a' });
+  }
+  const res = await axios.post(`${API_BASE}/chat/transcribe`, formData, {
+    headers: _multipartHeaders(),
+    timeout: 60000,
+  });
+  return res.data;   // { text }
+};
+
 export default api;

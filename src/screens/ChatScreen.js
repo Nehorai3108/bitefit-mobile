@@ -7,7 +7,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight } from '../api/client';
+import { useAudioRecorder, RecordingPresets, AudioModule, setAudioModeAsync } from 'expo-audio';
+import { chatMessage, addFoodEntry, searchFoodNutrition, fetchDailyInsight, transcribeAudio } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const WEEK_KEY = '@week_plan_v1';
@@ -260,8 +261,38 @@ export default function ChatScreen({ navigation }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const listRef = useRef(null);
   const loadedRef = useRef(false);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+
+  const startRec = async () => {
+    try {
+      const perm = await AudioModule.requestRecordingPermissionsAsync();
+      if (!perm.granted) { Alert.alert('מיקרופון', 'צריך הרשאת מיקרופון כדי לדבר עם Biti'); return; }
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      setRecording(true);
+    } catch { Alert.alert('שגיאה', 'לא ניתן להקליט'); }
+  };
+
+  const stopRec = async () => {
+    setRecording(false);
+    setTranscribing(true);
+    try {
+      await recorder.stop();
+      const uri = recorder.uri;
+      if (uri) {
+        const res = await transcribeAudio(uri);
+        const text = (res?.text || '').trim();
+        if (text) send(text);
+        else Alert.alert('לא זוהה דיבור', 'נסה שוב');
+      }
+    } catch { Alert.alert('שגיאה', 'התמלול נכשל'); }
+    finally { setTranscribing(false); }
+  };
 
   // Continuity: load the saved conversation on mount so Biti remembers it.
   useEffect(() => {
@@ -368,18 +399,30 @@ export default function ChatScreen({ navigation }) {
       )}
 
       <View style={styles.inputRow}>
-        <TouchableOpacity style={styles.sendBtn} onPress={() => send()} disabled={!input.trim() || loading}>
-          <Ionicons name="send" size={20} color={input.trim() ? '#fff' : '#333'} />
-        </TouchableOpacity>
+        {input.trim() ? (
+          <TouchableOpacity style={styles.sendBtn} onPress={() => send()} disabled={loading}>
+            <Ionicons name="send" size={20} color="#fff" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={[styles.sendBtn, recording && styles.micRecording]}
+            onPress={recording ? stopRec : startRec}
+            disabled={transcribing}>
+            {transcribing
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Ionicons name={recording ? 'stop' : 'mic'} size={20} color="#fff" />}
+          </TouchableOpacity>
+        )}
         <TextInput
           style={styles.input}
           value={input}
           onChangeText={setInput}
-          placeholder="שאל משהו על תזונה..."
-          placeholderTextColor={C.textFaint}
+          placeholder={recording ? 'מקליט... הקש לעצירה' : (transcribing ? 'מתמלל...' : 'שאל או דבר עם Biti...')}
+          placeholderTextColor={recording ? '#ef7d6c' : C.textFaint}
           onSubmitEditing={() => send()}
           returnKeyType="send"
           multiline
+          editable={!recording && !transcribing}
         />
       </View>
     </KeyboardAvoidingView>
@@ -413,6 +456,7 @@ const makeStyles = (C) => StyleSheet.create({
   inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: C.surface },
   input: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
   sendBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+  micRecording: { backgroundColor: '#ef4444' },
   logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, marginTop: 8, alignItems: 'center' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8, textAlign: 'center' },
