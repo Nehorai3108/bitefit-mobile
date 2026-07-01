@@ -287,7 +287,8 @@ export default function ChatScreen({ navigation }) {
       if (uri) {
         const res = await transcribeAudio(uri);
         const text = (res?.text || '').trim();
-        if (text) send(text);
+        // Put it in the input so you can review/fix before sending.
+        if (text) setInput(prev => (prev ? prev + ' ' : '') + text);
         else Alert.alert('לא זוהה דיבור', 'נסה שוב');
       }
     } catch { Alert.alert('שגיאה', 'התמלול נכשל'); }
