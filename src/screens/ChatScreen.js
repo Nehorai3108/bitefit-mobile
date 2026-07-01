@@ -145,7 +145,7 @@ function FoodDetectedCard({ foodData }) {
     <View style={styles.foodDetected}>
       <Text style={styles.foodDetectedTitle}>לרשום שאכלת?</Text>
       {foodData.foods.map((f, i) => (
-        <Text key={i} style={styles.foodItem}>• {f.name_he ?? f.name} — {f.grams ?? f.quantity}g · {Math.round(f.calories ?? 0)} קק"ל</Text>
+        <Text key={i} style={styles.foodItem}>• {f.display_he ?? `${f.name_he ?? f.name} — ${f.grams ?? f.quantity}g`} · {Math.round(f.calories ?? 0)} קק"ל</Text>
       ))}
       {logged ? (
         <Text style={styles.loggedTxt}>✓ נשמר ביומן ועודכן בתפריט</Text>
@@ -220,7 +220,7 @@ function RecipeCard({ recipe }) {
       <Text style={styles.recipeSection}>מצרכים</Text>
       {recipe.foods.map((f, i) => (
         <Text key={i} style={styles.recipeIng}>
-          • {f.name_he ?? f.name} — {f.grams}g · {Math.round(f.calories ?? 0)} קק"ל
+          • {f.display_he ?? `${f.name_he ?? f.name} — ${f.grams}g`} · {Math.round(f.calories ?? 0)} קק"ל
         </Text>
       ))}
 
