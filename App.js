@@ -472,7 +472,7 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: phase === 'results' ? C.bg : '#0c1622' }}>
+      <View style={{ flex: 1, backgroundColor: phase === 'camera' ? '#0c1622' : C.bg }}>
 
         {/* Camera phase */}
         {phase === 'camera' && (
@@ -503,9 +503,9 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
         {/* Processing phase */}
         {phase === 'processing' && (
-          <View style={s.center}>
+          <View style={[s.center, { backgroundColor: C.bg }]}>
             <ActivityIndicator size="large" color="#3a7a4a" />
-            <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>מזהה מזון בתמונה...</Text>
+            <Text style={{ color: C.text, marginTop: 16, fontSize: 16 }}>מזהה מזון בתמונה...</Text>
           </View>
         )}
 
@@ -561,9 +561,13 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                     placeholder="שם המאכל"
                     placeholderTextColor={C.placeholder}
                   />
-                  <Text style={[s.foodMeta, { color: '#3a7a4a' }]}>{item.calories ?? 0} קק"ל</Text>
-                  <Text style={[s.foodMeta, { color: C.textMuted }]}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
-                  <Text style={[s.foodMeta, { fontSize: 10, color: C.textFaint }]}>הקש לתיקון השם</Text>
+                  <Text style={{ color: '#3a7a4a', fontSize: 17, fontWeight: '800', textAlign: 'right', marginTop: 2 }}>{item.calories ?? 0} קק"ל</Text>
+                  <View style={{ flexDirection: 'row-reverse', gap: 10, marginTop: 4 }}>
+                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#3a7a4a' }}>{item.protein ?? 0}g</Text><Text style={{ color: C.textMuted }}> חלבון</Text></Text>
+                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#d4a017' }}>{item.carbs ?? 0}g</Text><Text style={{ color: C.textMuted }}> פחמ'</Text></Text>
+                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#ef7d6c' }}>{item.fat ?? 0}g</Text><Text style={{ color: C.textMuted }}> שומן</Text></Text>
+                  </View>
+                  <Text style={[s.foodMeta, { fontSize: 10, color: C.textFaint, marginTop: 3 }]}>הקש לתיקון השם</Text>
                 </View>
               </View>
             ))}
