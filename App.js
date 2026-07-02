@@ -516,11 +516,19 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
         {/* Results phase */}
         {phase === 'results' && (
-          <ScrollView {...swipeBack.panHandlers} contentContainerStyle={{ padding: 16, paddingTop: 60 }}>
-            {/* Clean header: swipe-back hint + retake, no count/X */}
-            <View style={{ alignItems: 'center', marginBottom: 6 }}>
+          <View style={{ flex: 1 }} {...swipeBack.panHandlers}>
+          <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 60, paddingBottom: 40 }}>
+            {/* Grabber — swipe right to go back */}
+            <View style={{ alignItems: 'center', marginBottom: 10 }}>
               <View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: C.border }} />
             </View>
+
+            {/* The photo you took */}
+            {photoUrl && (
+              <Image source={{ uri: photoUrl }} style={{ width: '100%', height: 190, borderRadius: 18, marginBottom: 14 }} resizeMode="cover" />
+            )}
+
+            {/* Header: total + retake */}
             <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <Text style={{ color: '#3a7a4a', fontSize: 22, fontWeight: '800' }}>{total} קק"ל</Text>
               <TouchableOpacity onPress={() => setPhase('camera')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 5 }}>
@@ -530,33 +538,11 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
             </View>
 
             {items.map((item, i) => (
-              <View key={i} style={[s.foodRow, { borderBottomColor: C.border }]}>
-                {/* Delete item */}
-                <TouchableOpacity onPress={() => removeItem(i)} style={{ padding: 4 }}>
-                  <Ionicons name="trash-outline" size={18} color="#ef7d6c" />
-                </TouchableOpacity>
-
-                {/* Grams stepper — tap +/- or type the exact amount you ate */}
-                <View style={[s.gramsStepper, { backgroundColor: C.surface2, borderColor: C.border }]}>
-                  <TouchableOpacity onPress={() => adjustGrams(i, 10)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
-                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextInput
-                      style={[s.stepVal, s.stepValInput, { color: C.text }]}
-                      value={String(item.grams ?? '')}
-                      onChangeText={t => setGramsExact(i, t)}
-                      keyboardType="numeric"
-                      textAlign="center"
-                      selectTextOnFocus
-                    />
-                    <Text style={[s.stepVal, { color: C.text }]}>g</Text>
-                  </View>
-                  <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
-                </View>
-
-                {/* Name (editable) + nutrition */}
-                <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <View key={i} style={{ backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, padding: 14, marginBottom: 12 }}>
+                {/* Name (editable) + delete */}
+                <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
                   <TextInput
-                    style={[s.foodName, s.foodNameEdit, { color: C.text, borderBottomColor: C.border }]}
+                    style={{ flex: 1, color: C.text, fontSize: 17, fontWeight: '800', textAlign: 'right', padding: 0 }}
                     value={item.name_he ?? item.name ?? ''}
                     onChangeText={(t) => editName(i, t)}
                     onEndEditing={() => relookupNutrition(i)}
@@ -566,29 +552,51 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                     placeholder="שם המאכל"
                     placeholderTextColor={C.placeholder}
                   />
-                  <Text style={{ color: '#3a7a4a', fontSize: 17, fontWeight: '800', textAlign: 'right', marginTop: 2 }}>{item.calories ?? 0} קק"ל</Text>
-                  <View style={{ flexDirection: 'row-reverse', gap: 10, marginTop: 4 }}>
-                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#3a7a4a' }}>{item.protein ?? 0}g</Text><Text style={{ color: C.textMuted }}> חלבון</Text></Text>
-                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#d4a017' }}>{item.carbs ?? 0}g</Text><Text style={{ color: C.textMuted }}> פחמ'</Text></Text>
-                    <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#ef7d6c' }}>{item.fat ?? 0}g</Text><Text style={{ color: C.textMuted }}> שומן</Text></Text>
+                  <TouchableOpacity onPress={() => removeItem(i)} style={{ padding: 2 }}>
+                    <Ionicons name="trash-outline" size={18} color="#ef7d6c" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={{ color: '#3a7a4a', fontSize: 15, fontWeight: '800', textAlign: 'right', marginTop: 3 }}>{item.calories ?? 0} קק"ל</Text>
+
+                {/* Macro strip */}
+                <View style={{ flexDirection: 'row-reverse', alignItems: 'center', marginTop: 10, marginBottom: 12 }}>
+                  {[['חלבון', item.protein, '#3a7a4a'], ['פחמימות', item.carbs, '#d4a017'], ['שומן', item.fat, '#ef7d6c']].map(([lbl, val, col], k) => (
+                    <React.Fragment key={k}>
+                      {k > 0 && <View style={{ width: 1, height: 24, backgroundColor: C.border }} />}
+                      <View style={{ flex: 1, alignItems: 'center' }}>
+                        <Text style={{ color: col, fontSize: 15, fontWeight: '800' }}>{val ?? 0}g</Text>
+                        <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '600', marginTop: 1 }}>{lbl}</Text>
+                      </View>
+                    </React.Fragment>
+                  ))}
+                </View>
+
+                {/* Grams stepper */}
+                <View style={[s.gramsStepper, { backgroundColor: C.surface2, borderColor: C.border, alignSelf: 'flex-end' }]}>
+                  <TouchableOpacity onPress={() => adjustGrams(i, 10)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextInput style={[s.stepVal, s.stepValInput, { color: C.text }]} value={String(item.grams ?? '')}
+                      onChangeText={t => setGramsExact(i, t)} keyboardType="numeric" textAlign="center" selectTextOnFocus />
+                    <Text style={[s.stepVal, { color: C.text }]}>g</Text>
                   </View>
+                  <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 </View>
               </View>
             ))}
 
             {items.length === 0 && (
-              <Text style={{ color: '#666', textAlign: 'center', marginVertical: 20 }}>
-                אין פריטים. צלם שוב.
-              </Text>
+              <Text style={{ color: C.textMuted, textAlign: 'center', marginVertical: 20 }}>אין פריטים. צלם שוב.</Text>
             )}
 
-            <View style={{ marginTop: 16 }}>
+            <View style={{ marginTop: 4 }}>
               <MealChips value={meal} onChange={setMeal} />
             </View>
             <TouchableOpacity style={s.saveBtn} onPress={handleAddAll} disabled={saving || items.length === 0}>
               {saving ? <ActivityIndicator color="#fff" /> : <Text style={s.saveBtnTxt}>הוסף הכל לתזונה</Text>}
             </TouchableOpacity>
           </ScrollView>
+          </View>
         )}
       </View>
     </Modal>
