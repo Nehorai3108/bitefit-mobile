@@ -329,6 +329,7 @@ function BarcodeScanModal({ visible, onClose }) {
 
 // ─── Camera Photo Modal (CameraView-based, same as barcode scanner) ───────────
 function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
+  const { C } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'results'
   const [items, setItems] = useState([]);
@@ -471,7 +472,7 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#0c1622' }}>
+      <View style={{ flex: 1, backgroundColor: phase === 'results' ? C.bg : '#0c1622' }}>
 
         {/* Camera phase */}
         {phase === 'camera' && (
@@ -515,34 +516,34 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
               <TouchableOpacity onPress={() => setPhase('camera')}>
                 <Ionicons name="camera-outline" size={22} color="#3a7a4a" />
               </TouchableOpacity>
-              <Text style={[s.sheetTitle, { marginBottom: 0 }]}>
+              <Text style={[s.sheetTitle, { marginBottom: 0, color: C.text }]}>
                 זוהו {items.length} פריטים · {total} קק"ל
               </Text>
               <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={22} color="#fff" />
+                <Ionicons name="close" size={22} color={C.text} />
               </TouchableOpacity>
             </View>
 
             {items.map((item, i) => (
-              <View key={i} style={s.foodRow}>
+              <View key={i} style={[s.foodRow, { borderBottomColor: C.border }]}>
                 {/* Delete item */}
                 <TouchableOpacity onPress={() => removeItem(i)} style={{ padding: 4 }}>
                   <Ionicons name="trash-outline" size={18} color="#ef7d6c" />
                 </TouchableOpacity>
 
                 {/* Grams stepper — tap +/- or type the exact amount you ate */}
-                <View style={s.gramsStepper}>
+                <View style={[s.gramsStepper, { backgroundColor: C.surface2, borderColor: C.border }]}>
                   <TouchableOpacity onPress={() => adjustGrams(i, 10)} style={s.stepBtn}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <TextInput
-                      style={[s.stepVal, s.stepValInput]}
+                      style={[s.stepVal, s.stepValInput, { color: C.text }]}
                       value={String(item.grams ?? '')}
                       onChangeText={t => setGramsExact(i, t)}
                       keyboardType="numeric"
                       textAlign="center"
                       selectTextOnFocus
                     />
-                    <Text style={s.stepVal}>g</Text>
+                    <Text style={[s.stepVal, { color: C.text }]}>g</Text>
                   </View>
                   <TouchableOpacity onPress={() => adjustGrams(i, -10)} style={s.stepBtn}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
                 </View>
@@ -550,7 +551,7 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                 {/* Name (editable) + nutrition */}
                 <View style={{ flex: 1, alignItems: 'flex-end' }}>
                   <TextInput
-                    style={[s.foodName, s.foodNameEdit]}
+                    style={[s.foodName, s.foodNameEdit, { color: C.text, borderBottomColor: C.border }]}
                     value={item.name_he ?? item.name ?? ''}
                     onChangeText={(t) => editName(i, t)}
                     onEndEditing={() => relookupNutrition(i)}
@@ -558,11 +559,11 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                     onSubmitEditing={() => relookupNutrition(i)}
                     textAlign="right"
                     placeholder="שם המאכל"
-                    placeholderTextColor="#555"
+                    placeholderTextColor={C.placeholder}
                   />
                   <Text style={[s.foodMeta, { color: '#3a7a4a' }]}>{item.calories ?? 0} קק"ל</Text>
-                  <Text style={s.foodMeta}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
-                  <Text style={[s.foodMeta, { fontSize: 10, color: '#555' }]}>הקש לתיקון השם</Text>
+                  <Text style={[s.foodMeta, { color: C.textMuted }]}>ח:{item.protein ?? 0}g  פ:{item.carbs ?? 0}g  ש:{item.fat ?? 0}g</Text>
+                  <Text style={[s.foodMeta, { fontSize: 10, color: C.textFaint }]}>הקש לתיקון השם</Text>
                 </View>
               </View>
             ))}
@@ -588,6 +589,7 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
 // ─── Add Food Sheet ────────────────────────────────────────────────────────────
 function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual, mealLabel }) {
+  const { C } = useTheme();
   const [recents, setRecents] = useState([]);
   const [reloggingId, setReloggingId] = useState(null);
 
@@ -619,20 +621,20 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual, mealLab
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={s.overlay} onPress={onClose} />
-      <View style={s.actionSheet}>
-        <View style={s.sheetHandle} />
-        <Text style={s.sheetTitle}>{mealLabel ? `הוספה ל${mealLabel}` : 'הוסף מזון'}</Text>
+      <View style={[s.actionSheet, { backgroundColor: C.surface }]}>
+        <View style={[s.sheetHandle, { backgroundColor: C.border }]} />
+        <Text style={[s.sheetTitle, { color: C.text }]}>{mealLabel ? `הוספה ל${mealLabel}` : 'הוסף מזון'}</Text>
 
         {recents.length > 0 && (
           <View style={s.recentsWrap}>
-            <Text style={s.recentsTitle}>האוכל שלי · לחיצה אחת</Text>
+            <Text style={[s.recentsTitle, { color: C.textMuted }]}>האוכל שלי · לחיצה אחת</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.recentsRow}>
               {recents.map((f, i) => (
-                <TouchableOpacity key={i} style={s.recentChip} onPress={() => relog(f)} disabled={!!reloggingId}>
+                <TouchableOpacity key={i} style={[s.recentChip, { backgroundColor: C.surface2, borderColor: C.border }]} onPress={() => relog(f)} disabled={!!reloggingId}>
                   {f.image_url
                     ? <Image source={{ uri: f.image_url }} style={s.recentThumb} />
-                    : <View style={[s.recentThumb, s.recentThumbEmpty]}><Ionicons name="restaurant-outline" size={16} color="#555" /></View>}
-                  <Text style={s.recentName} numberOfLines={1}>{f.food_name}</Text>
+                    : <View style={[s.recentThumb, { backgroundColor: C.surface3 ?? C.border, alignItems: 'center', justifyContent: 'center' }]}><Ionicons name="restaurant-outline" size={16} color={C.textMuted} /></View>}
+                  <Text style={[s.recentName, { color: C.text }]} numberOfLines={1}>{f.food_name}</Text>
                   <Text style={s.recentCal}>{Math.round(f.calories ?? 0)} קק"ל</Text>
                   {reloggingId === f.food_name && <ActivityIndicator size="small" color="#3a7a4a" style={s.recentSpinner} />}
                 </TouchableOpacity>
@@ -641,37 +643,37 @@ function AddFoodSheet({ visible, onClose, onCamera, onBarcode, onManual, mealLab
           </View>
         )}
 
-        <TouchableOpacity style={s.actionRow2} onPress={onCamera}>
-          <View style={[s.actionIcon, { backgroundColor: '#1a3a1a' }]}>
-            <Ionicons name="camera" size={26} color="#56bd6b" />
+        <TouchableOpacity style={[s.actionRow2, { borderBottomColor: C.border }]} onPress={onCamera}>
+          <View style={[s.actionIcon, { backgroundColor: '#3a7a4a22' }]}>
+            <Ionicons name="camera" size={26} color="#3a7a4a" />
           </View>
           <View style={s.actionText}>
-            <Text style={s.actionLabel}>צלם ארוחה</Text>
-            <Text style={s.actionSub}>זהה מזון עם AI</Text>
+            <Text style={[s.actionLabel, { color: C.text }]}>צלם ארוחה</Text>
+            <Text style={[s.actionSub, { color: C.textMuted }]}>זהה מזון עם AI</Text>
           </View>
-          <Ionicons name="chevron-back" size={18} color="#333" />
+          <Ionicons name="chevron-back" size={18} color={C.textFaint} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={s.actionRow2} onPress={onBarcode}>
-          <View style={[s.actionIcon, { backgroundColor: '#1a2a3a' }]}>
-            <Ionicons name="barcode-outline" size={26} color="#3a7a4a" />
+        <TouchableOpacity style={[s.actionRow2, { borderBottomColor: C.border }]} onPress={onBarcode}>
+          <View style={[s.actionIcon, { backgroundColor: '#2e86de22' }]}>
+            <Ionicons name="barcode-outline" size={26} color="#2e86de" />
           </View>
           <View style={s.actionText}>
-            <Text style={s.actionLabel}>סריקת ברקוד</Text>
-            <Text style={s.actionSub}>סרוק מוצר ארוז</Text>
+            <Text style={[s.actionLabel, { color: C.text }]}>סריקת ברקוד</Text>
+            <Text style={[s.actionSub, { color: C.textMuted }]}>סרוק מוצר ארוז</Text>
           </View>
-          <Ionicons name="chevron-back" size={18} color="#333" />
+          <Ionicons name="chevron-back" size={18} color={C.textFaint} />
         </TouchableOpacity>
 
         <TouchableOpacity style={[s.actionRow2, { borderBottomWidth: 0 }]} onPress={onManual}>
-          <View style={[s.actionIcon, { backgroundColor: '#2a1a3a' }]}>
+          <View style={[s.actionIcon, { backgroundColor: '#9C27B022' }]}>
             <Ionicons name="create-outline" size={26} color="#9C27B0" />
           </View>
           <View style={s.actionText}>
-            <Text style={s.actionLabel}>חיפוש ידני</Text>
-            <Text style={s.actionSub}>חפש לפי שם מזון</Text>
+            <Text style={[s.actionLabel, { color: C.text }]}>חיפוש ידני</Text>
+            <Text style={[s.actionSub, { color: C.textMuted }]}>חפש לפי שם מזון</Text>
           </View>
-          <Ionicons name="chevron-back" size={18} color="#333" />
+          <Ionicons name="chevron-back" size={18} color={C.textFaint} />
         </TouchableOpacity>
       </View>
     </Modal>
