@@ -4,6 +4,7 @@ import {
   ActivityIndicator, RefreshControl, Image, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Svg, { Circle } from 'react-native-svg';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -257,6 +258,25 @@ export default function DashboardScreen({ navigation }) {
   useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => onDataChanged(load), [load]);
 
+  // התרעה חד-פעמית ליום כשחורגים מהמכסה היומית
+  useEffect(() => {
+    const iso = toIso(new Date());
+    if (selectedDate !== iso) return;
+    const tgt = (targets?.calories ?? 2000) + burned;
+    const ov = Math.round((summary?.calories ?? 0) - tgt);
+    if (ov <= 0) return;
+    const key = `@overage_alert_${iso}`;
+    (async () => {
+      if (await AsyncStorage.getItem(key)) return;
+      await AsyncStorage.setItem(key, '1');
+      Alert.alert(
+        'הגעת למכסה היומית 🚫',
+        `חרגת ב-${ov.toLocaleString()} קלוריות מעל היעד היומי שלך.\nכדאי לעצור כאן להיום — או להוסיף אימון כדי לאזן.`,
+        [{ text: 'הבנתי' }]
+      );
+    })();
+  }, [summary, targets, burned, selectedDate]);
+
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>;
 
   const isToday    = selectedDate === todayStr;
@@ -305,13 +325,21 @@ export default function DashboardScreen({ navigation }) {
 
         {/* כרטיס קלוריות */}
         <TouchableOpacity style={styles.calCard} activeOpacity={0.85} onPress={() => setShowConsumed(v => !v)}>
-          <ProgressRing size={110} pct={calPct} color="#3a7a4a"
+          <ProgressRing size={110} pct={calPct} color={overage > 0 ? '#e5484d' : '#3a7a4a'}
             label={`${Math.round(calPct * 100)}%`} sub="מיעד" />
           <View style={[styles.calInfo, { alignItems: 'flex-end' }]}>
-            <Text style={[styles.calNum, showConsumed && { color: '#56bd6b' }]}>
-              {showConsumed ? cal.toLocaleString() : calLeft.toLocaleString()}
+            <Text style={[
+              styles.calNum,
+              showConsumed && { color: '#56bd6b' },
+              (!showConsumed && overage > 0) && { color: '#e5484d' },
+            ]}>
+              {showConsumed
+                ? cal.toLocaleString()
+                : (overage > 0 ? `-${overage.toLocaleString()}` : calLeft.toLocaleString())}
             </Text>
-            <Text style={styles.calLbl}>{showConsumed ? 'קלוריות שאכלת' : 'קלוריות נותרות'}</Text>
+            <Text style={[styles.calLbl, (!showConsumed && overage > 0) && { color: '#e5484d', fontWeight: '700' }]}>
+              {showConsumed ? 'קלוריות שאכלת' : (overage > 0 ? 'קלוריות מעל היעד' : 'קלוריות נותרות')}
+            </Text>
             <View style={styles.calRow}>
               <View style={styles.calItem}>
                 <Text style={styles.calVal}>{calTarget.toLocaleString()}</Text>
