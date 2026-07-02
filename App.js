@@ -331,6 +331,11 @@ function BarcodeScanModal({ visible, onClose }) {
 function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
   const { C } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
+  // Swipe right → go back to the previous screen (results phase only).
+  const swipeBack = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gs) => gs.dx > 30 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
+    onPanResponderRelease: (_, gs) => { if (gs.dx > 70) onClose(); },
+  })).current;
   const [phase, setPhase] = useState('camera'); // 'camera' | 'processing' | 'results'
   const [items, setItems] = useState([]);
   const [photoUrl, setPhotoUrl] = useState(null);       // local URI for display
@@ -511,16 +516,16 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
 
         {/* Results phase */}
         {phase === 'results' && (
-          <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 56 }}>
-            <View style={s.modalHeader}>
-              <TouchableOpacity onPress={() => setPhase('camera')}>
-                <Ionicons name="camera-outline" size={22} color="#3a7a4a" />
-              </TouchableOpacity>
-              <Text style={[s.sheetTitle, { marginBottom: 0, color: C.text }]}>
-                זוהו {items.length} פריטים · {total} קק"ל
-              </Text>
-              <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={22} color={C.text} />
+          <ScrollView {...swipeBack.panHandlers} contentContainerStyle={{ padding: 16, paddingTop: 60 }}>
+            {/* Clean header: swipe-back hint + retake, no count/X */}
+            <View style={{ alignItems: 'center', marginBottom: 6 }}>
+              <View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: C.border }} />
+            </View>
+            <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <Text style={{ color: '#3a7a4a', fontSize: 22, fontWeight: '800' }}>{total} קק"ל</Text>
+              <TouchableOpacity onPress={() => setPhase('camera')} style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 5 }}>
+                <Ionicons name="camera-outline" size={18} color={C.textMuted} />
+                <Text style={{ color: C.textMuted, fontSize: 13, fontWeight: '700' }}>צלם שוב</Text>
               </TouchableOpacity>
             </View>
 
@@ -567,7 +572,6 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                     <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#d4a017' }}>{item.carbs ?? 0}g</Text><Text style={{ color: C.textMuted }}> פחמ'</Text></Text>
                     <Text style={{ fontSize: 12.5, fontWeight: '700' }}><Text style={{ color: '#ef7d6c' }}>{item.fat ?? 0}g</Text><Text style={{ color: C.textMuted }}> שומן</Text></Text>
                   </View>
-                  <Text style={[s.foodMeta, { fontSize: 10, color: C.textFaint, marginTop: 3 }]}>הקש לתיקון השם</Text>
                 </View>
               </View>
             ))}
