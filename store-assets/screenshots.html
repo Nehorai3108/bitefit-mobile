@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>NutriSmart — App Store Screenshots</title>
+<style>
+  :root{
+    --green:#3a7a4a; --green2:#56bd6b; --cream:#f2ede0; --surface:#ffffff;
+    --text:#1c2b20; --muted:#6b7568; --orange:#f0935f; --coral:#ef7d6c;
+    --border:#e3dccb; --red:#e5484d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+  body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#cfd8cf;padding:40px;}
+  .hint{max-width:1100px;margin:0 auto 28px;background:#fff;border-radius:14px;padding:18px 22px;
+        color:#333;line-height:1.6;font-size:14px;}
+  .hint b{color:var(--green);}
+  .grid{display:flex;flex-wrap:wrap;gap:34px;justify-content:center;}
+
+  /* פאנל חנות: יחס 1290x2796 => 430x932 (x3 בייצוא) */
+  .shot{width:430px;height:932px;border-radius:40px;overflow:hidden;position:relative;
+        display:flex;flex-direction:column;align-items:center;
+        background:linear-gradient(160deg,#eef4ea 0%,#dcebd7 55%,#c7e0c0 100%);}
+  .headline{padding:46px 34px 22px;text-align:center;}
+  .headline h2{font-size:31px;font-weight:800;color:var(--green);line-height:1.25;letter-spacing:-.5px;}
+  .headline p{margin-top:10px;font-size:16px;color:#4a5a4c;font-weight:500;}
+
+  /* טלפון */
+  .phone{width:300px;flex:1;margin:0 auto;background:#fff;border-radius:42px 42px 0 0;
+         border:11px solid #10231a;border-bottom:none;overflow:hidden;position:relative;
+         box-shadow:0 18px 50px rgba(20,40,25,.28);}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;
+         background:#10231a;border-radius:0 0 16px 16px;z-index:5;}
+  .screen{position:absolute;inset:0;background:var(--cream);overflow:hidden;padding:34px 14px 0;}
+
+  /* רכיבי מסך */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .brand{font-size:15px;font-weight:800;color:var(--green);}
+  .chip{width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid var(--border);
+        display:flex;align-items:center;justify-content:center;color:var(--green);font-size:15px;}
+  .card{background:var(--surface);border-radius:18px;border:1px solid var(--border);padding:14px;margin-bottom:12px;}
+  .ring{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+        font-weight:800;font-size:18px;}
+  .macros{display:flex;gap:8px;}
+  .macro{flex:1;background:#fff;border:1px solid var(--border);border-radius:14px;padding:10px 8px;text-align:center;}
+  .macro .n{font-weight:800;font-size:16px;}
+  .macro .l{font-size:10px;color:var(--muted);margin-top:2px;}
+  .bar{height:5px;border-radius:3px;background:#eee;margin-top:6px;overflow:hidden;}
+  .bar span{display:block;height:100%;}
+  .meal{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--border);
+        border-radius:16px;padding:11px;margin-bottom:9px;}
+  .meal .ic{width:36px;height:36px;border-radius:11px;background:#eaf3e6;color:var(--green);
+            display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .meal .t{flex:1;}
+  .meal .t b{font-size:13px;color:var(--text);} .meal .t small{font-size:11px;color:var(--muted);}
+  .meal .cal{font-size:12px;font-weight:800;color:var(--green);}
+  .sec{font-size:12px;font-weight:800;color:var(--muted);margin:4px 2px 8px;}
+
+  /* צ'אט */
+  .bub{max-width:78%;padding:11px 13px;border-radius:16px;font-size:13px;line-height:1.5;margin-bottom:9px;}
+  .me{background:var(--green);color:#fff;margin-inline-start:auto;border-bottom-inline-end:5px;}
+  .bot{background:#fff;border:1px solid var(--border);color:var(--text);}
+  .foodcard{background:#eaf3e6;border:1px solid #cfe3c6;border-radius:16px;padding:12px;margin-bottom:9px;}
+  .foodcard b{color:var(--green);font-size:13px;} .foodcard .btn{margin-top:9px;background:var(--green);
+        color:#fff;text-align:center;padding:9px;border-radius:11px;font-size:12px;font-weight:700;}
+  .inputbar{position:absolute;bottom:16px;left:14px;right:14px;display:flex;gap:8px;align-items:center;}
+  .inputbar .mic{width:40px;height:40px;border-radius:12px;background:var(--green);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:17px;}
+  .inputbar .fld{flex:1;height:40px;background:#fff;border:1px solid var(--border);border-radius:20px;
+        display:flex;align-items:center;padding:0 14px;color:var(--muted);font-size:12px;}
+
+  /* מצלמה */
+  .photo{height:150px;border-radius:16px;margin-bottom:12px;
+         background:linear-gradient(135deg,#e8a06a,#d97b45);position:relative;overflow:hidden;}
+  .photo::after{content:'';position:absolute;inset:0;
+         background:radial-gradient(circle at 60% 40%,rgba(255,255,255,.35),transparent 60%);}
+
+  .week{display:flex;justify-content:space-between;margin-bottom:12px;}
+  .day{width:32px;height:44px;border-radius:12px;background:#fff;border:1px solid var(--border);
+       display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted);}
+  .day.on{background:var(--green);color:#fff;border-color:var(--green);}
+  .day b{font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="hint">
+  <b>איך לייצא לחנות:</b> פתח קובץ זה בכרום. הגדל את הזום ל-300% (Ctrl+ +), צלם כל פאנל בנפרד (או השתמש בכלי צילום אזור).
+  כל פאנל בפרופורציה של iPhone 6.7" — בזום ×3 תקבל בדיוק <b>1290×2796px</b> הנדרש ל-App Store.
+  אלה מסכים משחזרים לצורך שיווק; מומלץ בהמשך להחליף בצילומי מסך אמיתיים מהאפליקציה באותה מסגרת.
+</div>
+
+<div class="grid">
+
+  <!-- 1. בית -->
+  <div class="shot">
+    <div class="headline"><h2>כל היום שלך<br>במבט אחד</h2><p>קלוריות, מאקרו והתקדמות — בזמן אמת</p></div>
+    <div class="phone"><div class="notch"></div><div class="screen">
+      <div class="topbar"><span class="chip">◔</span><span class="brand">NutriSmart</span></div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;">
+        <div class="ring" style="border:7px solid var(--green);color:var(--green);">72%</div>
+        <div style="flex:1;text-align:end;">
+          <div style="font-size:30px;font-weight:800;color:var(--text);">560</div>
+          <div style="font-size:12px;color:var(--muted);">קלוריות נותרות</div>
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px;">
+            <div style="text-align:center;"><div style="font-weight:800;font-size:13px;">2000</div><div style="font-size:10px;color:var(--muted);">יעד</div></div>
+            <div style="text-align:center;"><div style="font-weight:800;font-size:13px;color:var(--green2);">1440</div><div style="font-size:10px;color:var(--muted);">אכלת</div></div>
+            <div style="text-align:center;"><div style="font-weight:800;font-size:13px;color:var(--coral);">320</div><div style="font-size:10px;color:var(--muted);">שרפת</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="macros">
+        <div class="macro"><div class="n">48ג</div><div class="l">שומן</div><div class="bar"><span style="width:70%;background:var(--green2);"></span></div></div>
+        <div class="macro"><div class="n">180ג</div><div class="l">פחמימות</div><div class="bar"><span style="width:60%;background:var(--orange);"></span></div></div>
+        <div class="macro"><div class="n">120ג</div><div class="l">חלבון</div><div class="bar"><span style="width:80%;background:var(--green);"></span></div></div>
+      </div>
+      <div class="sec">הארוחות של היום</div>
+      <div class="meal"><div class="ic">☀</div><div class="t"><b>ארוחת בוקר</b><br><small>חביתה, קוטג׳, פיתה</small></div><div class="cal">420</div></div>
+      <div class="meal"><div class="ic">☾</div><div class="t"><b>ארוחת צהריים</b><br><small>עוף, אורז, סלט</small></div><div class="cal">650</div></div>
+    </div></div>
+  </div>
+
+  <!-- 2. תפריט יום מלא -->
+  <div class="shot">
+    <div class="headline"><h2>תפריט יום מלא<br>בלחיצה אחת</h2><p>מותאם אישית ליעדים שלך</p></div>
+    <div class="phone"><div class="notch"></div><div class="screen">
+      <div class="topbar"><span class="chip">↺</span><span class="brand">תפריט</span></div>
+      <div class="week">
+        <div class="day"><span>א</span><b>29</b></div>
+        <div class="day on"><span>ב</span><b>30</b></div>
+        <div class="day"><span>ג</span><b>1</b></div>
+        <div class="day"><span>ד</span><b>2</b></div>
+        <div class="day"><span>ה</span><b>3</b></div>
+        <div class="day"><span>ו</span><b>4</b></div>
+        <div class="day"><span>ש</span><b>5</b></div>
+      </div>
+      <div class="card" style="padding:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--green);font-size:13px;">🍳 ארוחת בוקר</b><span style="font-size:12px;font-weight:800;">440 קל׳</span></div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7;">שקשוקה · 2 ביצים · 100ג עגבניות · פיתה מלאה</div>
+      </div>
+      <div class="card" style="padding:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--green);font-size:13px;">🥗 ארוחת צהריים</b><span style="font-size:12px;font-weight:800;">620 קל׳</span></div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7;">חזה עוף 150ג · אורז מלא 120ג · סלט ירקות</div>
+      </div>
+      <div class="card" style="padding:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--green);font-size:13px;">🌙 ארוחת ערב</b><span style="font-size:12px;font-weight:800;">510 קל׳</span></div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7;">סלמון אפוי 140ג · בטטה · ברוקולי מאודה</div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- 3. צ'אט Biti -->
+  <div class="shot">
+    <div class="headline"><h2>Biti — התזונאי<br>האישי שלך</h2><p>שואל, רושם וזוכר אותך — בעברית</p></div>
+    <div class="phone"><div class="notch"></div><div class="screen">
+      <div class="topbar"><span></span><span class="brand">צ׳אט תזונאי</span></div>
+      <div class="bub me">אכלתי חביתה עם 2 ביצים וסלט</div>
+      <div class="foodcard">
+        <b>לרשום שאכלת?</b>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px;">חביתה 2 ביצים · 220 קק״ל · סלט · 45 קק״ל</div>
+        <div class="btn">כן, רשום ליומן</div>
+      </div>
+      <div class="bub me">מה כדאי לי לאכול לערב?</div>
+      <div class="bub bot">נשארו לך 560 קלוריות 🙌 מה דעתך על סלמון אפוי עם בטטה? קליל, עשיר בחלבון ומשאיר מקום לקינוח.</div>
+      <div class="inputbar"><div class="mic">🎤</div><div class="fld">שאל או דבר עם Biti…</div></div>
+    </div></div>
+  </div>
+
+  <!-- 4. מצלמה -->
+  <div class="shot">
+    <div class="headline"><h2>צלם — וזה נרשם</h2><p>זיהוי מיידי של מנה וערכים תזונתיים</p></div>
+    <div class="phone"><div class="notch"></div><div class="screen">
+      <div class="topbar"><span></span><span class="brand">זיהוי אוכל</span></div>
+      <div class="photo"></div>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        <div><b style="font-size:15px;">מבורגר עם צ׳יפס</b><div style="font-size:11px;color:var(--muted);margin-top:2px;">מנה שזוהתה מהתמונה</div></div>
+        <div style="font-size:20px;font-weight:800;color:var(--green);">740</div>
+      </div>
+      <div class="macros">
+        <div class="macro"><div class="n">38ג</div><div class="l">שומן</div></div>
+        <div class="macro"><div class="n">62ג</div><div class="l">פחמימות</div></div>
+        <div class="macro"><div class="n">34ג</div><div class="l">חלבון</div></div>
+      </div>
+      <div style="margin-top:14px;background:var(--green);color:#fff;text-align:center;padding:14px;border-radius:16px;font-weight:800;font-size:14px;">רשום ליומן ✓</div>
+    </div></div>
+  </div>
+
+  <!-- 5. חריגה / מעקב -->
+  <div class="shot">
+    <div class="headline"><h2>יודע בדיוק<br>איפה אתה עומד</h2><p>התרעה על חריגה מהיעד היומי</p></div>
+    <div class="phone"><div class="notch"></div><div class="screen">
+      <div class="topbar"><span class="chip">◔</span><span class="brand">NutriSmart</span></div>
+      <div class="card" style="display:flex;align-items:center;gap:14px;">
+        <div class="ring" style="border:7px solid var(--red);color:var(--red);">112%</div>
+        <div style="flex:1;text-align:end;">
+          <div style="font-size:30px;font-weight:800;color:var(--red);">-240</div>
+          <div style="font-size:12px;color:var(--red);font-weight:800;">קלוריות מעל היעד</div>
+        </div>
+      </div>
+      <div class="card" style="background:#fdeceb;border-color:#f6c9c6;">
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div style="font-size:20px;">🚫</div>
+          <div style="font-size:12px;color:#8a2b28;line-height:1.6;">הגעת למכסה היומית — חרגת ב-240 קלוריות. כדאי לעצור כאן, או להוסיף אימון כדי לאזן.</div>
+        </div>
+      </div>
+      <div class="sec">מגמה שבועית</div>
+      <div class="card" style="display:flex;align-items:flex-end;gap:7px;height:120px;padding:14px;">
+        <div style="flex:1;background:var(--green2);height:60%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--green2);height:80%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--green2);height:45%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--green);height:70%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--red);height:100%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--green2);height:55%;border-radius:5px;"></div>
+        <div style="flex:1;background:var(--green2);height:65%;border-radius:5px;"></div>
+      </div>
+    </div></div>
+  </div>
+
+</div>
+</body>
+</html>
