@@ -34,6 +34,14 @@ const MEAL_COLORS = {
   EVENING_SNACK:   '#14b8a6',   evening_snack: '#14b8a6',
 };
 
+// סדר קבוע של הארוחות ביום — היומן מחולק לפיו
+const MEAL_ORDER = ['breakfast', 'morning_snack', 'lunch', 'afternoon_snack', 'dinner', 'evening_snack'];
+
+function mealSlot(entry) {
+  const raw = (entry?.meal_type ?? '').toString().toLowerCase();
+  return MEAL_ORDER.includes(raw) ? raw : 'other';
+}
+
 function toIso(date) {
   // מחזיר YYYY-MM-DD בזמן מקומי (לא UTC)
   const y = date.getFullYear();
@@ -388,35 +396,62 @@ export default function DashboardScreen({ navigation }) {
             <Text style={styles.cardTitle}>
               {isToday ? 'יומן אכילה היום' : `יומן — ${displayDate}`}
             </Text>
-            <Text style={styles.waterMl}>{todayEntries.length} ארוחות</Text>
+            <Text style={styles.waterMl}>{todayEntries.length} פריטים</Text>
           </View>
-          {todayEntries.length === 0
-            ? <Text style={styles.empty}>
+          {(() => {
+            const handleDelete = (id) => {
+              setTodayEntries(prev => prev.filter(x => x.entry_id !== id));
+              setSummary(prev => {
+                const deleted = todayEntries.find(x => x.entry_id === id);
+                if (!deleted) return prev;
+                return {
+                  ...prev,
+                  calories: Math.max(0, (prev.calories ?? 0) - (deleted.calories ?? 0)),
+                  protein:  Math.max(0, (prev.protein  ?? 0) - (deleted.protein  ?? 0)),
+                  carbs:    Math.max(0, (prev.carbs    ?? 0) - (deleted.carbs    ?? 0)),
+                  fat:      Math.max(0, (prev.fat      ?? 0) - (deleted.fat      ?? 0)),
+                  entries:  Math.max(0, (prev.entries  ?? 1) - 1),
+                };
+              });
+            };
+
+            if (todayEntries.length === 0) {
+              return <Text style={styles.empty}>
                 {isToday ? 'לא נרשמו ארוחות היום' : 'לא נרשמו ארוחות ביום זה'}
-              </Text>
-            : todayEntries.map((e, i) => (
-                <FoodLogRow
-                  key={e.entry_id ?? i}
-                  entry={e}
-                  readOnly={!isToday}
-                  onDelete={(id) => {
-                    setTodayEntries(prev => prev.filter(x => x.entry_id !== id));
-                    setSummary(prev => {
-                      const deleted = todayEntries.find(x => x.entry_id === id);
-                      if (!deleted) return prev;
-                      return {
-                        ...prev,
-                        calories: Math.max(0, (prev.calories ?? 0) - (deleted.calories ?? 0)),
-                        protein:  Math.max(0, (prev.protein  ?? 0) - (deleted.protein  ?? 0)),
-                        carbs:    Math.max(0, (prev.carbs    ?? 0) - (deleted.carbs    ?? 0)),
-                        fat:      Math.max(0, (prev.fat      ?? 0) - (deleted.fat      ?? 0)),
-                        entries:  Math.max(0, (prev.entries  ?? 1) - 1),
-                      };
-                    });
-                  }}
-                />
-              ))
-          }
+              </Text>;
+            }
+
+            // חלוקה לפי ארוחה, בסדר קבוע לאורך היום
+            const groups = [...MEAL_ORDER, 'other'].map(slot => ({
+              slot,
+              items: todayEntries.filter(e => mealSlot(e) === slot),
+            })).filter(g => g.items.length > 0);
+
+            return groups.map(({ slot, items }) => {
+              const color = MEAL_COLORS[slot] ?? '#3a7a4a';
+              const label = MEAL_LABELS[slot] ?? 'אחר';
+              const cals  = Math.round(items.reduce((s, e) => s + (e.calories ?? 0), 0));
+              return (
+                <View key={slot} style={styles.mealSection}>
+                  <View style={styles.mealSectionHeader}>
+                    <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
+                      <View style={[styles.mealSectionBar, { backgroundColor: color }]} />
+                      <Text style={[styles.mealSectionTitle, { color }]}>{label}</Text>
+                    </View>
+                    <Text style={styles.mealSectionCal}>{cals} קק"ל</Text>
+                  </View>
+                  {items.map((e, i) => (
+                    <FoodLogRow
+                      key={e.entry_id ?? `${slot}-${i}`}
+                      entry={e}
+                      readOnly={!isToday}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </View>
+              );
+            });
+          })()}
         </View>
 
       </ScrollView>
@@ -482,6 +517,13 @@ const makeStyles = (C) => StyleSheet.create({
   cardTitle:  { color: C.text, fontSize: 15, fontWeight: '700' },
   waterMl:    { color: C.textDim, fontSize: 12 },
   empty:      { color: C.textFaint, fontSize: 14 },
+
+  mealSection:       { marginTop: 6, marginBottom: 4 },
+  mealSectionHeader: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
+                       paddingVertical: 8, marginTop: 6 },
+  mealSectionBar:    { width: 4, height: 16, borderRadius: 2 },
+  mealSectionTitle:  { fontSize: 14, fontWeight: '800' },
+  mealSectionCal:    { fontSize: 12, fontWeight: '700', color: C.textDim },
 
   logItem:      { borderBottomWidth: 1, borderBottomColor: C.surface3 },
   logRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
