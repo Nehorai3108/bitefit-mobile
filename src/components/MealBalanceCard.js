@@ -38,7 +38,7 @@ export default function MealBalanceCard() {
   };
 
   if (loading) {
-    return <View style={s.card}><ActivityIndicator color="#111114" /></View>;
+    return <View style={s.card}><ActivityIndicator color="#3a7a4a" /></View>;
   }
   if (!data?.meals) return null;
 
@@ -59,7 +59,7 @@ export default function MealBalanceCard() {
         const pct = m.target > 0 ? Math.min(100, Math.round((m.eaten / m.target) * 100)) : 0;
         const short = m.remaining > 0 && m.eaten > 0;   // אכל אבל חסר
         const over  = m.remaining < 0;                   // אכל יותר מהיעד
-        const barColor = over ? '#ef7d6c' : (m.eaten >= m.target && m.target > 0 ? '#111114' : '#111114');
+        const barColor = over ? '#ef7d6c' : (m.eaten >= m.target && m.target > 0 ? '#3a7a4a' : '#3a7a4a');
         return (
           <View key={m.meal} style={s.row}>
             <View style={s.rowTop}>
@@ -122,8 +122,8 @@ const makeS = (C) => StyleSheet.create({
   row: { marginBottom: 14 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   mealName: { color: C.text, fontSize: 14, fontWeight: '700', textAlign: 'right' },
-  adjTag: { color: '#111114', fontSize: 12, fontWeight: '700' },
-  balanceLink: { color: '#111114', fontSize: 13, fontWeight: '700' },
+  adjTag: { color: '#3a7a4a', fontSize: 12, fontWeight: '700' },
+  balanceLink: { color: '#3a7a4a', fontSize: 13, fontWeight: '700' },
 
   barWrap: { height: 8, backgroundColor: C.surface3, borderRadius: 4, overflow: 'hidden', marginBottom: 4 },
   bar: { height: '100%', borderRadius: 4 },
@@ -133,7 +133,7 @@ const makeS = (C) => StyleSheet.create({
   pickerHint: { color: '#aaa', fontSize: 12, textAlign: 'right', marginBottom: 8 },
   pickerRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
   pickChip: { backgroundColor: C.border, borderRadius: 16, paddingHorizontal: 14, paddingVertical: 7 },
-  pickChipTxt: { color: '#111114', fontSize: 13, fontWeight: '600' },
+  pickChipTxt: { color: '#3a7a4a', fontSize: 13, fontWeight: '600' },
 
   footer: { color: '#aaa', fontSize: 13, textAlign: 'right', marginTop: 4, fontWeight: '600' },
 });

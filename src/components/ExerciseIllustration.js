@@ -605,7 +605,7 @@ function pickKey(name = '') {
   return null;
 }
 
-export default function ExerciseIllustration({ name, color = '#111114', size = 100 }) {
+export default function ExerciseIllustration({ name, color = '#3a7a4a', size = 100 }) {
   const key = pickKey(name);
   if (!key) return null;
   const [PoseA, PoseB] = PAIRS[key];

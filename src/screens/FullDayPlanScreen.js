@@ -25,7 +25,7 @@ const MEAL_ORDER = [
 ];
 
 const MACROS = [
-  { key: 'protein', label: 'חלבון', color: '#111114' },
+  { key: 'protein', label: 'חלבון', color: '#3a7a4a' },
   { key: 'carbs',   label: 'פחמימות', color: '#d4a017' },
   { key: 'fat',     label: 'שומן', color: '#ef7d6c' },
 ];
@@ -106,7 +106,7 @@ function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, o
         {/* Macro strip — nutrition-label style */}
         <View style={styles.macroStrip}>
           <View style={styles.macroCell}>
-            <Text style={[styles.macroCellNum, { color: '#111114' }]}>{Math.round(n.protein ?? 0)}g</Text>
+            <Text style={[styles.macroCellNum, { color: '#3a7a4a' }]}>{Math.round(n.protein ?? 0)}g</Text>
             <Text style={styles.macroCellLbl}>חלבון</Text>
           </View>
           <View style={styles.macroDivider} />
@@ -143,12 +143,12 @@ function MealCard({ label, time, mealKey, data, C, styles, onSwap, compensate, o
           ) : null}
           <View style={styles.mealActions}>
             <TouchableOpacity style={styles.swapBtn} onPress={doSwap}>
-              <Ionicons name="swap-horizontal" size={16} color="#111114" />
+              <Ionicons name="swap-horizontal" size={16} color="#3a7a4a" />
               <Text style={styles.swapTxt}>החלף מנה</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.ateBtn, { flex: 1 }, ate && styles.ateBtnDone]} onPress={logMeal}>
-              <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#111114' : '#fff'} />
-              <Text style={[styles.ateTxt, ate && { color: '#111114' }]}>{ate ? 'נרשם ביומן' : 'אכלתי את זה'}</Text>
+              <Ionicons name={ate ? 'checkmark-circle' : 'add-circle-outline'} size={16} color={ate ? '#3a7a4a' : '#fff'} />
+              <Text style={[styles.ateTxt, ate && { color: '#3a7a4a' }]}>{ate ? 'נרשם ביומן' : 'אכלתי את זה'}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity style={styles.logEatenBtn} onPress={() => onLogEaten(mealKey, label)}>
@@ -221,7 +221,7 @@ function SwapModal({ target, C, styles, onClose, onPick, onRandom }) {
           </ScrollView>
 
           <TouchableOpacity style={styles.swapRandomBtn} onPress={onRandom}>
-            <Ionicons name="shuffle" size={16} color="#111114" />
+            <Ionicons name="shuffle" size={16} color="#3a7a4a" />
             <Text style={styles.swapRandomTxt}>תן לי הצעה אחרת</Text>
           </TouchableOpacity>
         </View>
@@ -352,7 +352,7 @@ function LogEatenModal({ target, C, styles, onClose, onLogged }) {
                 <Ionicons name="search" size={18} color="#fff" /><Text style={styles.genTxt}>חיפוש ידני</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.swapRandomBtn} onPress={() => { setMode('camera'); if (!permission?.granted) requestPermission(); }}>
-                <Ionicons name="camera" size={18} color="#111114" /><Text style={styles.swapRandomTxt}>צילום</Text>
+                <Ionicons name="camera" size={18} color="#3a7a4a" /><Text style={styles.swapRandomTxt}>צילום</Text>
               </TouchableOpacity>
             </>
           )}
@@ -534,7 +534,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         {!week && !loading && (
           <View style={styles.hero}>
-            <View style={styles.heroIcon}><Ionicons name="restaurant" size={30} color="#111114" /></View>
+            <View style={styles.heroIcon}><Ionicons name="restaurant" size={30} color="#3a7a4a" /></View>
             <Text style={styles.heroTitle}>תפריט שבועי מותאם אישית</Text>
             <Text style={styles.heroBody}>
               נבנה לך שבוע שלם — 7 ימים, כל יום עם בוקר, חטיפים, צהריים וערב — מדויק
@@ -545,7 +545,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
 
         {loading && (
           <View style={styles.loading}>
-            <ActivityIndicator size="large" color="#111114" />
+            <ActivityIndicator size="large" color="#3a7a4a" />
             <Text style={styles.loadingTxt}>בונה תפריט שבועי מדויק...</Text>
           </View>
         )}
@@ -562,7 +562,7 @@ export default function FullDayPlanScreen({ navigation, route }) {
             )}
             <View style={styles.summary}>
               <Text style={styles.summaryTitle}>סיכום יום {day.day_name} מול היעד</Text>
-              <StatBar label="קלוריות" value={tot.calories ?? 0} target={t.calories ?? 0} color="#111114" unit="" C={C} />
+              <StatBar label="קלוריות" value={tot.calories ?? 0} target={t.calories ?? 0} color="#3a7a4a" unit="" C={C} />
               {MACROS.map(m => (
                 <StatBar key={m.key} label={m.label} value={tot[m.key] ?? 0} target={t[m.key] ?? 0} color={m.color} unit="g" C={C} />
               ))}
@@ -615,12 +615,12 @@ const makeStyles = (C) => StyleSheet.create({
     paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
   dayChip: { flex: 1, aspectRatio: 1, maxWidth: 46, borderRadius: 12, borderWidth: 1,
     borderColor: C.border, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center' },
-  dayChipActive: { backgroundColor: '#111114', borderColor: '#111114' },
+  dayChipActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
   dayChipTxt: { color: C.textMuted, fontSize: 16, fontWeight: '800' },
   dayChipTxtActive: { color: '#fff' },
 
   hero: { alignItems: 'center', paddingVertical: 30, paddingHorizontal: 12 },
-  heroIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#11111422',
+  heroIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#3a7a4a22',
     alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   heroTitle: { color: C.text, fontSize: 20, fontWeight: '800', marginBottom: 10, textAlign: 'center' },
   heroBody: { color: C.textMuted, fontSize: 15, lineHeight: 23, textAlign: 'center' },
@@ -645,13 +645,13 @@ const makeStyles = (C) => StyleSheet.create({
     backgroundColor: C.surface2, paddingVertical: 8, paddingHorizontal: 12 },
   mealLabel: { color: C.text, fontSize: 14, fontWeight: '800', textAlign: 'right' },
   mealTime: { color: C.textMuted, fontSize: 12, fontWeight: '600' },
-  mealKcal: { color: '#111114', fontSize: 14, fontWeight: '800' },
-  eatenBadge: { color: '#fff', backgroundColor: '#111114', fontSize: 10, fontWeight: '800',
+  mealKcal: { color: '#3a7a4a', fontSize: 14, fontWeight: '800' },
+  eatenBadge: { color: '#fff', backgroundColor: '#3a7a4a', fontSize: 10, fontWeight: '800',
     paddingHorizontal: 6, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
   eatenRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 7, paddingHorizontal: 12,
-    paddingVertical: 8, backgroundColor: '#11111410', borderBottomWidth: 1, borderBottomColor: C.border },
+    paddingVertical: 8, backgroundColor: '#3a7a4a10', borderBottomWidth: 1, borderBottomColor: C.border },
   eatenRowName: { flex: 1, color: C.text, fontSize: 13.5, fontWeight: '700', textAlign: 'right' },
-  eatenRowKcal: { color: '#111114', fontSize: 13, fontWeight: '800' },
+  eatenRowKcal: { color: '#3a7a4a', fontSize: 13, fontWeight: '800' },
   planTag: { color: C.textFaint, fontSize: 10.5, fontWeight: '700', textAlign: 'right', marginBottom: 1 },
   mealDishRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingVertical: 10 },
   mealThumb: { width: 44, height: 44, borderRadius: 10 },
@@ -666,24 +666,24 @@ const makeStyles = (C) => StyleSheet.create({
   mealBody: { paddingHorizontal: 14, paddingBottom: 14, paddingTop: 2 },
   bodyTitle: { color: C.text, fontSize: 13, fontWeight: '800', textAlign: 'right', marginBottom: 8 },
   ingRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, marginBottom: 5 },
-  ingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#111114' },
+  ingDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#3a7a4a' },
   ingTxt: { color: C.textMuted, fontSize: 14, flex: 1, textAlign: 'right' },
   instr: { color: C.textMuted, fontSize: 14, lineHeight: 21, textAlign: 'right' },
   mealActions: { flexDirection: 'row-reverse', gap: 8, marginTop: 14 },
   ateBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: '#111114', borderRadius: 12, paddingVertical: 11 },
-  ateBtnDone: { backgroundColor: '#11111422' },
+    backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 11 },
+  ateBtnDone: { backgroundColor: '#3a7a4a22' },
   ateTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
   swapBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 5,
-    paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: '#111114', minWidth: 110 },
-  swapTxt: { color: '#111114', fontSize: 13.5, fontWeight: '700' },
+    paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a', minWidth: 110 },
+  swapTxt: { color: '#3a7a4a', fontSize: 13.5, fontWeight: '700' },
   logEatenBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
     paddingVertical: 10, marginTop: 8, borderRadius: 12, borderWidth: 1, borderColor: '#e0a80088',
     backgroundColor: '#e0a80010' },
   logEatenTxt: { color: '#e0a800', fontSize: 13.5, fontWeight: '700' },
 
   genBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
-    backgroundColor: '#111114', borderRadius: 16, paddingVertical: 16, marginTop: 8 },
+    backgroundColor: '#3a7a4a', borderRadius: 16, paddingVertical: 16, marginTop: 8 },
   genTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 
   swapOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' },
@@ -693,7 +693,7 @@ const makeStyles = (C) => StyleSheet.create({
   swapTitle: { color: C.text, fontSize: 18, fontWeight: '800', textAlign: 'right' },
   swapSub: { color: C.textMuted, fontSize: 13.5, textAlign: 'right', marginTop: 4, marginBottom: 14, lineHeight: 19 },
   swapSearchRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
-  swapSearchBtn: { backgroundColor: '#111114', borderRadius: 12, paddingHorizontal: 18, justifyContent: 'center' },
+  swapSearchBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 18, justifyContent: 'center' },
   swapSearchBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   swapInput: { flex: 1, backgroundColor: C.surface, borderRadius: 12, paddingHorizontal: 14,
     paddingVertical: 12, color: C.text, fontSize: 15, borderWidth: 1, borderColor: C.border },
@@ -703,8 +703,8 @@ const makeStyles = (C) => StyleSheet.create({
   swapResultName: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   swapResultMacros: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 2 },
   swapRandomBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
-    paddingVertical: 13, marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#111114' },
-  swapRandomTxt: { color: '#111114', fontSize: 14.5, fontWeight: '700' },
+    paddingVertical: 13, marginTop: 14, borderRadius: 12, borderWidth: 1, borderColor: '#3a7a4a' },
+  swapRandomTxt: { color: '#3a7a4a', fontSize: 14.5, fontWeight: '700' },
   offPlanBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 7,
     paddingVertical: 13, marginBottom: 12, borderRadius: 14, borderWidth: 1, borderColor: '#e0a80088',
     backgroundColor: '#e0a80012' },

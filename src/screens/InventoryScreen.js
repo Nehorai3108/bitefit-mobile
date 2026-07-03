@@ -77,13 +77,13 @@ export default function InventoryScreen({ navigation }) {
 
         {/* Actions */}
         <View style={s.actions}>
-          <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#111114' }]} onPress={() => setShowCamera(true)}>
+          <TouchableOpacity style={[s.actionBtn, { backgroundColor: '#3a7a4a' }]} onPress={() => setShowCamera(true)}>
             <Ionicons name="receipt-outline" size={20} color="#fff" />
             <Text style={s.actionTxt}>סרוק קבלה</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[s.actionBtn, s.actionBtnAlt]} onPress={() => setShowAdd(true)}>
-            <Ionicons name="add" size={20} color="#111114" />
-            <Text style={[s.actionTxt, { color: '#111114' }]}>הוסף ידנית</Text>
+            <Ionicons name="add" size={20} color="#3a7a4a" />
+            <Text style={[s.actionTxt, { color: '#3a7a4a' }]}>הוסף ידנית</Text>
           </TouchableOpacity>
         </View>
 
@@ -95,7 +95,7 @@ export default function InventoryScreen({ navigation }) {
         )}
 
         {loading ? (
-          <View style={s.center}><ActivityIndicator size="large" color="#111114" /></View>
+          <View style={s.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>
         ) : items.length === 0 ? (
           <View style={s.center}>
             <Ionicons name="cart-outline" size={56} color="#333" />
@@ -279,7 +279,7 @@ function ReceiptScanModal({ visible, onClose, onDone }) {
 
         {phase === 'processing' && (
           <View style={s.center}>
-            <ActivityIndicator size="large" color="#111114" />
+            <ActivityIndicator size="large" color="#3a7a4a" />
             <Text style={{ color: C.text, marginTop: 16 }}>קורא את הקבלה ומחלץ מוצרים...</Text>
           </View>
         )}
@@ -332,7 +332,7 @@ function CookModal({ visible, onClose }) {
       .finally(() => setLoading(false));
   }, [visible]);
 
-  const matchColor = (pct) => pct >= 80 ? '#111114' : pct >= 50 ? '#ffd700' : '#ff9800';
+  const matchColor = (pct) => pct >= 80 ? '#3a7a4a' : pct >= 50 ? '#ffd700' : '#ff9800';
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
@@ -343,7 +343,7 @@ function CookModal({ visible, onClose }) {
         </View>
 
         {loading ? (
-          <View style={s.center}><ActivityIndicator size="large" color="#111114" /></View>
+          <View style={s.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>
         ) : recipes.length === 0 ? (
           <View style={s.center}>
             <Ionicons name="restaurant-outline" size={52} color="#333" />
@@ -421,8 +421,8 @@ function CookCard({ recipe: r, matchColor }) {
             <Text style={s.cookDetailTxt}>{open ? 'הסתר' : 'מצרכים והוראות'}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[s.cookAddBtn, ate && s.cookAddBtnDone]} onPress={logIt}>
-            <Ionicons name={ate ? 'checkmark-circle' : 'add'} size={16} color={ate ? '#111114' : '#fff'} />
-            <Text style={[s.cookAddTxt, ate && { color: '#111114' }]}>{ate ? 'נרשם' : 'הוסף ליומן'}</Text>
+            <Ionicons name={ate ? 'checkmark-circle' : 'add'} size={16} color={ate ? '#3a7a4a' : '#fff'} />
+            <Text style={[s.cookAddTxt, ate && { color: '#3a7a4a' }]}>{ate ? 'נרשם' : 'הוסף ליומן'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -450,7 +450,7 @@ const makeS = (C) => StyleSheet.create({
   catTitle: { color: C.textMuted, fontSize: 14, fontWeight: '700', textAlign: 'right' },
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: '#161616' },
   itemName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right' },
-  itemQty: { color: '#111114', fontSize: 12, fontWeight: '600', marginTop: 2 },
+  itemQty: { color: '#3a7a4a', fontSize: 12, fontWeight: '600', marginTop: 2 },
 
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: C.overlay },
   sheet: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
@@ -460,14 +460,14 @@ const makeS = (C) => StyleSheet.create({
   qtyRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, marginBottom: 14 },
   stepper: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface2, borderRadius: 10 },
   stepBtn: { paddingHorizontal: 12, paddingVertical: 8 },
-  stepTxt: { color: '#111114', fontSize: 18, fontWeight: '800' },
+  stepTxt: { color: '#3a7a4a', fontSize: 18, fontWeight: '800' },
   stepVal: { color: C.text, fontSize: 15, fontWeight: '700', minWidth: 36, textAlign: 'center' },
   fieldLabel: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginBottom: 8 },
   chip: { backgroundColor: C.surface2, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#262626' },
-  chipActive: { backgroundColor: '#11111422', borderColor: '#111114' },
+  chipActive: { backgroundColor: '#3a7a4a22', borderColor: '#3a7a4a' },
   chipTxt: { color: C.textMuted, fontSize: 13 },
-  chipTxtActive: { color: '#111114', fontWeight: '700' },
-  saveBtn: { backgroundColor: '#111114', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  chipTxtActive: { color: '#3a7a4a', fontWeight: '700' },
+  saveBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
   saveBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
   closeOverlay: { position: 'absolute', top: 52, left: 16, backgroundColor: C.overlay, borderRadius: 20, padding: 8 },
@@ -496,7 +496,7 @@ const makeS = (C) => StyleSheet.create({
   cookActions: { flexDirection: 'row', gap: 8, marginTop: 12 },
   cookDetailBtn: { backgroundColor: C.surface3, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: C.border },
   cookDetailTxt: { color: C.textMuted, fontSize: 13 },
-  cookAddBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#111114', borderRadius: 10, paddingVertical: 9 },
-  cookAddBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#111114' },
+  cookAddBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#3a7a4a', borderRadius: 10, paddingVertical: 9 },
+  cookAddBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#3a7a4a' },
   cookAddTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
 });

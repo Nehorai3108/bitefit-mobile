@@ -51,7 +51,7 @@ export default function RecipesScreen() {
 
   if (loading) return (
     <View style={styles.center}>
-      <ActivityIndicator size="large" color="#111114" />
+      <ActivityIndicator size="large" color="#3a7a4a" />
     </View>
   );
 
@@ -153,9 +153,9 @@ const styles = StyleSheet.create({
   tagsList: { marginBottom: 4 },
   tagsRow: { paddingHorizontal: 16, gap: 8 },
   tag: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, backgroundColor: '#14212f', borderWidth: 1, borderColor: '#222' },
-  tagActive: { backgroundColor: '#1a2a4a', borderColor: '#111114' },
+  tagActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
   tagText: { color: '#666', fontSize: 13 },
-  tagTextActive: { color: '#111114', fontWeight: '700' },
+  tagTextActive: { color: '#3a7a4a', fontWeight: '700' },
   countText: { color: '#555', fontSize: 12, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 4, textAlign: 'right' },
   row: { justifyContent: 'space-between', marginBottom: 12 },
   card: { width: CARD_WIDTH, backgroundColor: '#14212f', borderRadius: 16, overflow: 'hidden' },
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   cardKcal: { color: '#ffd700', fontSize: 12, fontWeight: '600' },
   cardTime: { color: '#666', fontSize: 11 },
-  addToLogBtn: { backgroundColor: '#1a2a4a', borderRadius: 8, paddingVertical: 6, alignItems: 'center', marginTop: 6, borderWidth: 1, borderColor: '#111114' },
-  addToLogTxt: { color: '#111114', fontSize: 12, fontWeight: '700' },
+  addToLogBtn: { backgroundColor: '#1a2a4a', borderRadius: 8, paddingVertical: 6, alignItems: 'center', marginTop: 6, borderWidth: 1, borderColor: '#3a7a4a' },
+  addToLogTxt: { color: '#3a7a4a', fontSize: 12, fontWeight: '700' },
   loadMore: { color: '#555', fontSize: 12, textAlign: 'center', marginVertical: 16 },
 });
