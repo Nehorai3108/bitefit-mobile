@@ -163,7 +163,7 @@ export default function WorkoutScreen({ navigation }) {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* כפתור תוכנית שבועית */}
         <TouchableOpacity style={styles.planBtn} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)}>
-          <Ionicons name="calendar-outline" size={18} color="#fff" />
+          <Ionicons name="calendar-outline" size={18} color="#111114" />
           <Text style={styles.planBtnTxt}>{plan ? 'צפה בתוכנית השבועית' : 'צור תוכנית אימון'}</Text>
         </TouchableOpacity>
 
@@ -402,8 +402,10 @@ const makeStyles = (C) => StyleSheet.create({
 
   empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
   emptyText: { color: C.placeholder, fontSize: 15 },
-  addFirstBtn: { backgroundColor: '#111114', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
-  addFirstTxt: { color: '#fff', fontWeight: '700' },
+  addFirstBtn: { backgroundColor: '#ffffff', borderRadius: 14, paddingHorizontal: 20, paddingVertical: 12,
+                 borderWidth: 1, borderColor: '#e6e6e8',
+                 shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  addFirstTxt: { color: '#111114', fontWeight: '700' },
 
   workoutCard: { backgroundColor: C.surface, borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
   workoutLeft: { marginRight: 12 },
@@ -434,8 +436,10 @@ const makeStyles = (C) => StyleSheet.create({
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
   // כפתור תוכנית
-  planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#111114', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 14, justifyContent: 'center' },
-  planBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#ffffff', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 15, justifyContent: 'center',
+             borderWidth: 1, borderColor: '#e6e6e8',
+             shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  planBtnTxt: { color: '#111114', fontSize: 15, fontWeight: '700' },
 
   // מודאל יצירת תוכנית
   daysRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
