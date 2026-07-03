@@ -13,7 +13,7 @@ import {
 } from '../api/client';
 import { onDataChanged } from '../refreshBus';
 import { useSwipeNav } from '../hooks/useSwipeNav';
-import MealBalanceCard from '../components/MealBalanceCard';
+import WeightProgress from '../components/WeightProgress';
 import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
@@ -180,7 +180,7 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
             <Image source={{ uri: entry.image_url }} style={styles.logThumb} resizeMode="cover" />
           ) : (
             <View style={[styles.logThumb, { backgroundColor: mealColor + '22', justifyContent: 'center', alignItems: 'center' }]}>
-              <Ionicons name="restaurant-outline" size={18} color={mealColor} />
+              <Ionicons name="restaurant-outline" size={26} color={mealColor} />
             </View>
           )}
           <View style={styles.logInfo}>
@@ -388,7 +388,7 @@ export default function DashboardScreen({ navigation }) {
         )}
 
         {/* מאזן ארוחות — רק ליום הנוכחי */}
-        {isToday && <MealBalanceCard />}
+        {isToday && <WeightProgress />}
 
         {/* יומן אכילה */}
         <View style={[styles.card, { marginBottom: 28 }]}>
@@ -529,7 +529,7 @@ const makeStyles = (C) => StyleSheet.create({
   logRow:       { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 10 },
   logTapArea:   { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
   logDot:       { width: 4, height: 38, borderRadius: 2 },
-  logThumb:     { width: 40, height: 40, borderRadius: 10 },
+  logThumb:     { width: 60, height: 60, borderRadius: 14 },
   logInfo:      { flex: 1 },
   logName:      { color: C.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
   logMeal:      { fontSize: 11, marginTop: 2, textAlign: 'right' },

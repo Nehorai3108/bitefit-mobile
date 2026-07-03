@@ -374,7 +374,7 @@ export default function ChatScreen({ navigation }) {
               {/* When a recipe card is attached, hide the verbose calorie prose —
                   the card already shows everything. */}
               {!(item.recipe?.foods?.length > 0) && !!item.text && (
-                <Text style={styles.bubbleText}>{item.text}</Text>
+                <Text style={[styles.bubbleText, item.role === 'user' && styles.userText]}>{item.text}</Text>
               )}
               {item.foodData?.foods?.length > 0 && (
                 <FoodDetectedCard foodData={item.foodData} />
@@ -447,6 +447,7 @@ const makeStyles = (C) => StyleSheet.create({
   userBubble: { backgroundColor: '#111114', borderBottomRightRadius: 4 },
   aiBubble: { backgroundColor: C.surface2, borderBottomLeftRadius: 4 },
   bubbleText: { color: C.text, fontSize: 15, lineHeight: 22, textAlign: 'right' },
+  userText: { color: '#ffffff' },
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
   foodDetectedTitle: { color: '#111114', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
