@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
@@ -105,6 +105,19 @@ function ExerciseCard({ ex, index, color, C }) {
         <View style={[sh.expandBox, { borderTopColor: C.border2 }]}>
           {/* איור תנועה כפול */}
           <ExerciseIllustration name={ex.name} color={color} size={96} />
+
+          {/* הדגמת וידאו — פותח סרטון YouTube של התרגיל */}
+          <TouchableOpacity
+            style={[sh.videoBtn, { borderColor: color + '55' }]}
+            activeOpacity={0.85}
+            onPress={() => Linking.openURL(
+              'https://www.youtube.com/results?search_query=' +
+              encodeURIComponent((ex.name || '') + ' תרגיל הדגמה טכניקה')
+            )}
+          >
+            <Ionicons name="logo-youtube" size={18} color="#e5484d" />
+            <Text style={[sh.videoTxt, { color: C.text }]}>צפה בהדגמת וידאו</Text>
+          </TouchableOpacity>
 
           {ex.tip ? (
             <View style={[sh.tipBox, { backgroundColor: color + '0d', borderColor: color + '33' }]}>
@@ -260,6 +273,9 @@ const sh = StyleSheet.create({
   chipTxt:    { fontSize: 12, fontWeight: '600' },
 
   expandBox:  { borderTopWidth: 1, marginTop: 10, paddingTop: 10, gap: 8 },
+  videoBtn:   { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
+                borderWidth: 1, borderRadius: 12, paddingVertical: 11, alignSelf: 'stretch' },
+  videoTxt:   { fontSize: 14, fontWeight: '700' },
   tipBox:     { flexDirection: 'row-reverse', gap: 4, borderWidth: 1, borderRadius: 10, padding: 10, alignItems: 'flex-start' },
   tipLabel:   { fontSize: 12, fontWeight: '700' },
   tipTxt:     { fontSize: 12, flex: 1, textAlign: 'right', lineHeight: 18 },
