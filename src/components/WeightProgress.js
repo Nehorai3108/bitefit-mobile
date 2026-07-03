@@ -138,7 +138,7 @@ export default function WeightProgress() {
         {log.length > 1 && <Path d={actual} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
 
         {/* projection to goal (dashed) */}
-        {proj ? <Path d={proj} fill="none" stroke={GREEN} strokeWidth="2" strokeDasharray="5 5" opacity="0.7" /> : null}
+        {proj ? <Path d={proj} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" opacity="0.55" /> : null}
 
         {/* actual dots */}
         {log.map((e, i) => (
