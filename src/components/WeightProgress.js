@@ -83,8 +83,8 @@ export default function WeightProgress() {
   return (
     <View style={s.card}>
       <View style={s.head}>
-        <TouchableOpacity style={s.addBtn} onPress={() => { setInput(current ? String(current) : ''); setModal(true); }} activeOpacity={0.8}>
-          <Ionicons name="add" size={16} color={C.text} />
+        <TouchableOpacity style={s.addBtn} onPress={() => { setInput(current ? String(current) : ''); setModal(true); }}>
+          <Ionicons name="add" size={16} color="#fff" />
           <Text style={s.addTxt}>עדכן משקל</Text>
         </TouchableOpacity>
         <Text style={s.title}>התקדמות משקל</Text>
@@ -150,10 +150,9 @@ const makeS = (C) => StyleSheet.create({
           marginHorizontal: 16, marginBottom: 16, padding: 16 },
   head: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 16, fontWeight: '800', color: C.text },
-  addBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, backgroundColor: '#ffffff',
-            borderRadius: 20, paddingHorizontal: 13, paddingVertical: 7, borderWidth: 1, borderColor: '#e6e6e8',
-            shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
-  addTxt: { color: C.text, fontSize: 13, fontWeight: '700' },
+  addBtn: { flexDirection: 'row-reverse', alignItems: 'center', gap: 3, backgroundColor: C.text,
+            borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 },
+  addTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
   statsRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginTop: 14 },
   stat: { alignItems: 'center', flex: 1 },

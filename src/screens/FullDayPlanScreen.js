@@ -585,9 +585,9 @@ export default function FullDayPlanScreen({ navigation, route }) {
           </>
         )}
 
-        <TouchableOpacity style={[styles.genBtn, week && styles.genBtnSec]} onPress={() => generate()} disabled={loading}>
-          <Ionicons name={week ? 'refresh' : 'sparkles-outline'} size={18} color={week ? '#111114' : '#fff'} />
-          <Text style={[styles.genTxt, week && styles.genTxtSec]}>{week ? 'בנה שבוע חדש' : 'בנה לי תפריט שבועי'}</Text>
+        <TouchableOpacity style={styles.genBtn} onPress={() => generate()} disabled={loading}>
+          <Ionicons name={week ? 'refresh' : 'sparkles-outline'} size={18} color="#fff" />
+          <Text style={styles.genTxt}>{week ? 'בנה שבוע חדש' : 'בנה לי תפריט שבועי'}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -615,10 +615,9 @@ const makeStyles = (C) => StyleSheet.create({
     paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
   dayChip: { flex: 1, aspectRatio: 1, maxWidth: 46, borderRadius: 12, borderWidth: 1,
     borderColor: C.border, backgroundColor: C.surface, alignItems: 'center', justifyContent: 'center' },
-  dayChipActive: { backgroundColor: '#ffffff', borderColor: '#111114', borderWidth: 1.5,
-    shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
+  dayChipActive: { backgroundColor: '#111114', borderColor: '#111114' },
   dayChipTxt: { color: C.textMuted, fontSize: 16, fontWeight: '800' },
-  dayChipTxtActive: { color: '#111114' },
+  dayChipTxtActive: { color: '#fff' },
 
   hero: { alignItems: 'center', paddingVertical: 30, paddingHorizontal: 12 },
   heroIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#11111422',
@@ -685,10 +684,7 @@ const makeStyles = (C) => StyleSheet.create({
 
   genBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 8,
     backgroundColor: '#111114', borderRadius: 16, paddingVertical: 16, marginTop: 8 },
-  genBtnSec: { backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e6e6e8',
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
   genTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  genTxtSec: { color: '#111114' },
 
   swapOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)' },
   swapSheet: { backgroundColor: C.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,

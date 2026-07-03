@@ -480,13 +480,11 @@ const makeStyles = (C) => StyleSheet.create({
   overSub:      { color: C.textMuted, fontSize: 12.5, textAlign: 'right', marginTop: 2 },
 
   weekStrip:       { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 14 },
-  weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 14,
-                     borderWidth: 1.5, borderColor: 'transparent' },
-  weekDayActive:   { backgroundColor: '#ffffff', borderColor: '#111114',
-                     shadowColor: '#000', shadowOpacity: 0.07, shadowRadius: 4, shadowOffset: { width: 0, height: 2 }, elevation: 1 },
-  weekDayName:     { color: C.textDim, fontSize: 12, fontWeight: '600' },
-  weekDayNum:      { color: C.textMuted, fontSize: 14, fontWeight: '700', marginTop: 2 },
-  weekDayTxtActive:{ color: '#111114' },
+  weekDay:         { flex: 1, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2, borderRadius: 12 },
+  weekDayActive:   { backgroundColor: '#111114' },
+  weekDayName:     { color: '#5d7489', fontSize: 12, fontWeight: '600' },
+  weekDayNum:      { color: '#93a8bd', fontSize: 14, fontWeight: '700', marginTop: 2 },
+  weekDayTxtActive:{ color: C.bg },
   todayDot:        { width: 4, height: 4, borderRadius: 2, backgroundColor: '#111114', marginTop: 3 },
 
   histBtn:    { alignItems: 'center', justifyContent: 'center', backgroundColor: C.surface, borderRadius: 10, padding: 8, borderWidth: 1, borderColor: C.border2 },
