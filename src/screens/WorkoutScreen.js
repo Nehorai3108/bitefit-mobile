@@ -62,8 +62,11 @@ function decorate(row) {
     icon: typeInfo?.icon ?? 'fitness-outline',
     color: typeInfo?.color ?? '#3a7a4a',
     time,
+    dateKey: row.timestamp ? new Date(row.timestamp).toISOString().slice(0, 10) : '',
   };
 }
+
+const HE_DAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
 
 const PLAN_TYPES = [
   { key: 'strength', label: 'כוח', icon: 'barbell-outline' },
@@ -119,6 +122,15 @@ export default function WorkoutScreen({ navigation }) {
   const totalCalories = workouts.reduce((s, w) => s + (w.calories || 0), 0);
   const totalMinutes = workouts.reduce((s, w) => s + (parseInt(w.duration) || 0), 0);
 
+  // last-7-days activity (calories burned per day) for the progress chart
+  const byDay = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (6 - i));
+    const key = d.toISOString().slice(0, 10);
+    const cal = workouts.filter(w => w.dateKey === key).reduce((sum, w) => sum + (w.calories || 0), 0);
+    return { label: HE_DAYS[d.getDay()], cal, today: i === 6 };
+  });
+  const maxCal = Math.max(1, ...byDay.map(d => d.cal));
+
   const handleAdd = async () => {
     if (!form.duration) { Alert.alert('שגיאה', 'הכנס משך זמן'); return; }
     const calories = calcCalories(parseInt(form.duration), form.intensity, form.type);
@@ -160,61 +172,64 @@ export default function WorkoutScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+        {/* כרטיס פעילות שבועית */}
+        <View style={styles.weekCard}>
+          <Text style={styles.weekTitle}>הפעילות השבוע</Text>
+          <View style={styles.barsRow}>
+            {byDay.map((d, i) => (
+              <View key={i} style={styles.barCol}>
+                <View style={styles.barTrack}>
+                  <View style={[styles.barFill, { height: `${Math.round((d.cal / maxCal) * 100)}%` },
+                    d.cal === 0 && styles.barEmpty, d.today && styles.barToday]} />
+                </View>
+                <Text style={[styles.barDay, d.today && styles.barDayToday]}>{d.label}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={styles.weekStats}>
+            <WStat styles={styles} num={totalCalories} lbl='קק"ל השבוע' accent />
+            <WStat styles={styles} num={totalMinutes} lbl="דקות" />
+            <WStat styles={styles} num={workouts.length} lbl="אימונים" />
+          </View>
+        </View>
+
         {/* כפתור תוכנית שבועית */}
-        <TouchableOpacity style={styles.planBtn} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)}>
+        <TouchableOpacity style={styles.planBtn} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)} activeOpacity={0.85}>
           <Ionicons name="calendar-outline" size={18} color="#fff" />
           <Text style={styles.planBtnTxt}>{plan ? 'צפה בתוכנית השבועית' : 'צור תוכנית אימון'}</Text>
         </TouchableOpacity>
 
-        {/* Today's stats */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statNum}>{workouts.length}</Text>
-            <Text style={styles.statLbl}>אימונים</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statNum}>{totalMinutes}</Text>
-            <Text style={styles.statLbl}>דקות</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={[styles.statNum, { color: '#ef7d6c' }]}>{totalCalories}</Text>
-            <Text style={styles.statLbl}>קק"ל נשרפו</Text>
-          </View>
-        </View>
-
-        {/* Workout list */}
+        {/* רשימת אימונים */}
+        <Text style={styles.sectionTitle}>האימונים שלי</Text>
         {workouts.length === 0 ? (
           <View style={styles.empty}>
-            <Ionicons name="barbell-outline" size={48} color="#333" />
-            <Text style={styles.emptyText}>לא נרשמו אימונים היום</Text>
-            <TouchableOpacity style={styles.addFirstBtn} onPress={() => setShowModal(true)}>
+            <Ionicons name="barbell-outline" size={44} color={C.textFaint} />
+            <Text style={styles.emptyText}>עוד לא נרשמו אימונים</Text>
+            <TouchableOpacity style={styles.addFirstBtn} onPress={() => setShowModal(true)} activeOpacity={0.85}>
               <Text style={styles.addFirstTxt}>הוסף אימון ראשון</Text>
             </TouchableOpacity>
           </View>
         ) : (
           workouts.map(w => (
-            <View key={w.id} style={[styles.workoutCard, { borderLeftColor: w.color }]}>
-              <View style={styles.workoutLeft}>
-                <TouchableOpacity onPress={() => handleDelete(w.id)}>
-                  <Ionicons name="trash-outline" size={18} color={C.placeholder} />
-                </TouchableOpacity>
+            <View key={w.id} style={styles.workoutCard}>
+              <View style={[styles.wIcon, { backgroundColor: w.color + '1a' }]}>
+                <Ionicons name={w.icon} size={22} color={w.color} />
               </View>
               <View style={styles.workoutInfo}>
-                <View style={styles.workoutTop}>
-                  <Text style={styles.workoutCalories}>{w.calories} קק"ל</Text>
-                  <View style={styles.workoutTitleRow}>
-                    <Ionicons name={w.icon} size={16} color={w.color} />
-                    <Text style={[styles.workoutType, { color: w.color }]}>{w.label}</Text>
-                  </View>
-                </View>
-                <View style={styles.workoutDetails}>
-                  <Text style={styles.workoutDetail}>{w.time}</Text>
-                  <Text style={styles.workoutDetail}>{w.duration} דק'</Text>
-                  <Text style={styles.workoutDetail}>{INTENSITIES.find(i => i.key === w.intensity)?.label}</Text>
-                  {w.distance ? <Text style={styles.workoutDetail}>{w.distance} ק"מ</Text> : null}
-                </View>
+                <Text style={styles.workoutType}>{w.label}</Text>
+                <Text style={styles.workoutDetail}>
+                  {w.duration} דק' · {INTENSITIES.find(i => i.key === w.intensity)?.label}
+                  {w.distance ? ` · ${w.distance} ק"מ` : ''}{w.time ? ` · ${w.time}` : ''}
+                </Text>
               </View>
+              <View style={styles.wRight}>
+                <Text style={styles.workoutCalories}>{w.calories}</Text>
+                <Text style={styles.workoutCalUnit}>קק"ל</Text>
+              </View>
+              <TouchableOpacity onPress={() => handleDelete(w.id)} style={styles.wTrash}>
+                <Ionicons name="trash-outline" size={17} color={C.textFaint} />
+              </TouchableOpacity>
             </View>
           ))
         )}
@@ -389,31 +404,53 @@ export default function WorkoutScreen({ navigation }) {
   );
 }
 
+function WStat({ styles, num, lbl, accent }) {
+  return (
+    <View style={styles.wStat}>
+      <Text style={[styles.wStatNum, accent && styles.wStatAccent]}>{num}</Text>
+      <Text style={styles.wStatLbl}>{lbl}</Text>
+    </View>
+  );
+}
+
 const makeStyles = (C) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 16 },
-  title: { color: C.text, fontSize: 22, fontWeight: '800' },
-  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, padding: 8 },
+  header: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12 },
+  title: { color: C.text, fontSize: 24, fontWeight: '800', textAlign: 'right' },
+  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 20, width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
 
-  statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginBottom: 16 },
-  statCard: { flex: 1, backgroundColor: C.surface, borderRadius: 14, padding: 14, alignItems: 'center' },
-  statNum: { color: '#3a7a4a', fontSize: 24, fontWeight: '800' },
-  statLbl: { color: C.textMuted, fontSize: 12, marginTop: 4 },
+  weekCard: { backgroundColor: C.surface, borderRadius: 20, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginBottom: 14, padding: 16 },
+  weekTitle: { color: C.text, fontSize: 15, fontWeight: '800', textAlign: 'right', marginBottom: 14 },
+  barsRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-end', height: 90 },
+  barCol: { flex: 1, alignItems: 'center', gap: 6 },
+  barTrack: { width: 12, height: 70, backgroundColor: C.surface3, borderRadius: 6, justifyContent: 'flex-end', overflow: 'hidden' },
+  barFill: { width: '100%', backgroundColor: '#3a7a4a', borderRadius: 6, minHeight: 3 },
+  barEmpty: { backgroundColor: 'transparent' },
+  barToday: { backgroundColor: '#3a7a4a' },
+  barDay: { fontSize: 11, color: C.textDim, fontWeight: '600' },
+  barDayToday: { color: '#3a7a4a', fontWeight: '800' },
+  weekStats: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginTop: 16, borderTopWidth: 1, borderTopColor: C.border2, paddingTop: 14 },
+  wStat: { flex: 1, alignItems: 'center' },
+  wStatNum: { color: C.text, fontSize: 20, fontWeight: '800' },
+  wStatAccent: { color: '#ef7d6c' },
+  wStatLbl: { color: C.textDim, fontSize: 12, marginTop: 2 },
 
-  empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
-  emptyText: { color: C.placeholder, fontSize: 15 },
-  addFirstBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
+  sectionTitle: { color: C.text, fontSize: 16, fontWeight: '800', textAlign: 'right', marginHorizontal: 16, marginTop: 4, marginBottom: 10 },
+
+  empty: { alignItems: 'center', paddingTop: 40, gap: 12 },
+  emptyText: { color: C.textMuted, fontSize: 15 },
+  addFirstBtn: { backgroundColor: '#3a7a4a', borderRadius: 14, paddingHorizontal: 22, paddingVertical: 12 },
   addFirstTxt: { color: '#fff', fontWeight: '700' },
 
-  workoutCard: { backgroundColor: C.surface, borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
-  workoutLeft: { marginRight: 12 },
+  workoutCard: { backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
+  wIcon: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' },
   workoutInfo: { flex: 1 },
-  workoutTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  workoutTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  workoutType: { fontSize: 15, fontWeight: '700' },
-  workoutCalories: { color: '#ef7d6c', fontSize: 14, fontWeight: '600' },
-  workoutDetails: { flexDirection: 'row', gap: 10 },
-  workoutDetail: { color: C.textDim, fontSize: 12 },
+  workoutType: { fontSize: 16, fontWeight: '700', color: C.text, textAlign: 'right' },
+  workoutDetail: { color: C.textDim, fontSize: 12, textAlign: 'right', marginTop: 3 },
+  wRight: { alignItems: 'center' },
+  workoutCalories: { color: '#ef7d6c', fontSize: 17, fontWeight: '800' },
+  workoutCalUnit: { color: C.textDim, fontSize: 10 },
+  wTrash: { padding: 4 },
 
   modalOverlay: { flex: 1, backgroundColor: C.overlay, justifyContent: 'flex-end' },
   modalCard: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
