@@ -13,6 +13,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import ErrorBoundary from './src/ErrorBoundary';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import LoginScreen      from './src/screens/auth/LoginScreen';
@@ -918,6 +919,7 @@ function WakingBanner() {
 export default function App() {
   useEffect(() => { initNotifications(); }, []);
   return (
+    <ErrorBoundary>
     <ThemeProvider>
     <AuthProvider>
       <NavigationContainer>
@@ -926,6 +928,7 @@ export default function App() {
       </NavigationContainer>
     </AuthProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
