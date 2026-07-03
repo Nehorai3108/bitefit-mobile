@@ -24,23 +24,23 @@ export const DARK = {
 };
 
 export const LIGHT = {
-  bg:         '#f2ede0',
-  surface:    '#ffffff',
-  surface2:   '#ede8db',
-  surface3:   '#e4dece',
-  border:     '#d0c8b0',
-  border2:    '#ddd8c8',
-  text:       '#1a1a1a',
-  textMuted:  '#5a6a5a',
-  textDim:    '#7a8a7a',
-  textFaint:  '#9aaa9a',
-  placeholder:'#9aaa9a',
-  inputBg:    '#e8e2d4',
+  bg:         '#ffffff',
+  surface:    '#f7f7f8',
+  surface2:   '#f4f4f6',
+  surface3:   '#ececee',
+  border:     '#e8e8ea',
+  border2:    '#f0f0f2',
+  text:       '#0b0b0c',
+  textMuted:  '#6b6b70',
+  textDim:    '#8a8a8e',
+  textFaint:  '#b0b0b5',
+  placeholder:'#a0a0a5',
+  inputBg:    '#f4f4f6',
   tabBar:     '#ffffff',
-  tabBorder:  '#e0d8c8',
+  tabBorder:  '#ececee',
   overlay:    'rgba(0,0,0,0.4)',
-  macroPanel: '#ede8db',
-  logDot:     '#e4dece',
+  macroPanel: '#f7f7f8',
+  logDot:     '#ececee',
 };
 
 // ─── Context ──────────────────────────────────────────────────────────────────

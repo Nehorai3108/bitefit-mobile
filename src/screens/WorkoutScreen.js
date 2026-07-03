@@ -15,8 +15,8 @@ import WorkoutDayScreen from './WorkoutDayScreen';
 const PLAN_KEY = '@bitefit_workout_plan';
 
 const WORKOUT_TYPES = [
-  { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#3a7a4a' },
-  { key: 'running',  label: 'ריצה', icon: 'walk-outline', color: '#56bd6b' },
+  { key: 'strength', label: 'כוח', icon: 'barbell-outline', color: '#111114' },
+  { key: 'running',  label: 'ריצה', icon: 'walk-outline', color: '#111114' },
   { key: 'cycling',  label: 'אופניים', icon: 'bicycle-outline', color: '#ffd700' },
   { key: 'swimming', label: 'שחייה', icon: 'water-outline', color: '#00bcd4' },
   { key: 'yoga',     label: 'יוגה', icon: 'body-outline', color: '#e91e63' },
@@ -60,7 +60,7 @@ function decorate(row) {
     calories: Math.round(row.calories_burned ?? 0),
     label: typeInfo?.label ?? row.workout_type,
     icon: typeInfo?.icon ?? 'fitness-outline',
-    color: typeInfo?.color ?? '#3a7a4a',
+    color: typeInfo?.color ?? '#111114',
     time,
   };
 }
@@ -279,7 +279,7 @@ export default function WorkoutScreen({ navigation }) {
                 </TouchableOpacity>
                 <Text style={styles.planViewTitle}>תוכנית שבועית</Text>
                 <TouchableOpacity onPress={() => { setShowPlanView(false); setShowPlanModal(true); }}>
-                  <Ionicons name="refresh-outline" size={22} color="#3a7a4a" />
+                  <Ionicons name="refresh-outline" size={22} color="#111114" />
                 </TouchableOpacity>
               </View>
 
@@ -298,7 +298,7 @@ export default function WorkoutScreen({ navigation }) {
                       <Text style={styles.planRestTxt}>מנוחה</Text>
                     ) : (
                       <View style={styles.planDayRight}>
-                        <Ionicons name={TYPE_ICON[item.type] ?? 'barbell-outline'} size={18} color="#3a7a4a" />
+                        <Ionicons name={TYPE_ICON[item.type] ?? 'barbell-outline'} size={18} color="#111114" />
                         <Text style={styles.planDayWorkoutName}>{item.name}</Text>
                         <Ionicons name="chevron-forward" size={16} color={C.textMuted} />
                       </View>
@@ -393,16 +393,16 @@ const makeStyles = (C) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 16 },
   title: { color: C.text, fontSize: 22, fontWeight: '800' },
-  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, padding: 8 },
+  addBtn: { backgroundColor: '#111114', borderRadius: 12, padding: 8 },
 
   statsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, marginBottom: 16 },
   statCard: { flex: 1, backgroundColor: C.surface, borderRadius: 14, padding: 14, alignItems: 'center' },
-  statNum: { color: '#3a7a4a', fontSize: 24, fontWeight: '800' },
+  statNum: { color: '#111114', fontSize: 24, fontWeight: '800' },
   statLbl: { color: C.textMuted, fontSize: 12, marginTop: 4 },
 
   empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
   emptyText: { color: C.placeholder, fontSize: 15 },
-  addFirstBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
+  addFirstBtn: { backgroundColor: '#111114', borderRadius: 12, paddingHorizontal: 20, paddingVertical: 10 },
   addFirstTxt: { color: '#fff', fontWeight: '700' },
 
   workoutCard: { backgroundColor: C.surface, borderRadius: 14, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 3 },
@@ -426,26 +426,26 @@ const makeStyles = (C) => StyleSheet.create({
   input: { backgroundColor: C.surface3, color: C.text, borderRadius: 10, padding: 12, fontSize: 15, marginBottom: 16, textAlign: 'right' },
   intensityRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
   intensityBtn: { flex: 1, padding: 10, borderRadius: 10, backgroundColor: C.surface3, alignItems: 'center', borderWidth: 1, borderColor: C.border },
-  intensityBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
+  intensityBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#111114' },
   intensityTxt: { color: C.placeholder, fontSize: 13 },
-  intensityTxtActive: { color: '#3a7a4a', fontWeight: '700' },
+  intensityTxtActive: { color: '#111114', fontWeight: '700' },
   caloriePreview: { color: C.textMuted, fontSize: 14, textAlign: 'center', marginBottom: 16 },
-  saveBtn: { backgroundColor: '#3a7a4a', borderRadius: 14, padding: 16, alignItems: 'center' },
+  saveBtn: { backgroundColor: '#111114', borderRadius: 14, padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
 
   // כפתור תוכנית
-  planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#3a7a4a', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 14, justifyContent: 'center' },
+  planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#111114', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 14, justifyContent: 'center' },
   planBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
   // מודאל יצירת תוכנית
   daysRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
   dayBtn: { flex: 1, padding: 12, borderRadius: 12, backgroundColor: C.surface3, alignItems: 'center', borderWidth: 1, borderColor: C.border },
-  dayBtnActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
+  dayBtnActive: { backgroundColor: '#111114', borderColor: '#111114' },
   dayBtnTxt: { color: C.textMuted, fontSize: 16, fontWeight: '700' },
   dayBtnTxtActive: { color: '#fff' },
   planTypeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
   planTypeBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, width: '47%', padding: 14, borderRadius: 14, backgroundColor: C.surface3, borderWidth: 1, borderColor: C.border },
-  planTypeBtnActive: { backgroundColor: '#3a7a4a', borderColor: '#3a7a4a' },
+  planTypeBtnActive: { backgroundColor: '#111114', borderColor: '#111114' },
   planTypeTxt: { color: C.textMuted, fontSize: 14, fontWeight: '600' },
 
   // תצוגת תוכנית
@@ -457,15 +457,15 @@ const makeStyles = (C) => StyleSheet.create({
   planDayName: { color: C.text, fontSize: 15, fontWeight: '700' },
   planDayDuration: { color: C.textMuted, fontSize: 12 },
   planDayRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  planDayWorkoutName: { color: '#3a7a4a', fontSize: 14, fontWeight: '600' },
+  planDayWorkoutName: { color: '#111114', fontSize: 14, fontWeight: '600' },
   planRestTxt: { color: C.textMuted, fontSize: 14 },
 
   // פירוט אימון
   planDayMeta: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginBottom: 8 },
-  planNote: { color: '#3a7a4a', fontSize: 13, backgroundColor: '#3a7a4a18', borderRadius: 8, padding: 10, marginBottom: 12, textAlign: 'right' },
+  planNote: { color: '#111114', fontSize: 13, backgroundColor: '#11111418', borderRadius: 8, padding: 10, marginBottom: 12, textAlign: 'right' },
   exRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border2 },
-  exNum: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#3a7a4a22', alignItems: 'center', justifyContent: 'center' },
-  exNumTxt: { color: '#3a7a4a', fontSize: 13, fontWeight: '700' },
+  exNum: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#11111422', alignItems: 'center', justifyContent: 'center' },
+  exNumTxt: { color: '#111114', fontSize: 13, fontWeight: '700' },
   exInfo: { flex: 1 },
   exName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right' },
   exDetail: { color: C.textMuted, fontSize: 13, textAlign: 'right' },

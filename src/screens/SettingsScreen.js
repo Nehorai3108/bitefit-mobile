@@ -78,11 +78,11 @@ export default function SettingsScreen({ navigation }) {
         <Text style={styles.section}>תצוגה והתראות</Text>
         <View style={styles.card}>
           <Row icon={isDark ? 'moon' : 'sunny'} label="מצב כהה" color="#8e44ad">
-            <Switch value={isDark} onValueChange={toggle} trackColor={{ true: '#3a7a4a' }} />
+            <Switch value={isDark} onValueChange={toggle} trackColor={{ true: '#111114' }} />
           </Row>
           <View style={styles.sep} />
           <Row icon="notifications" label="התראות" color="#2e86de">
-            <Switch value={notif} onValueChange={toggleNotif} trackColor={{ true: '#3a7a4a' }} />
+            <Switch value={notif} onValueChange={toggleNotif} trackColor={{ true: '#111114' }} />
           </Row>
         </View>
 
@@ -98,7 +98,7 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.card}>
           <Row icon="help-circle" label="צפה בהדרכה שוב" color="#2e86de" onPress={replayTutorial} />
           <View style={styles.sep} />
-          <Row icon="mail" label="צור קשר" color="#3a7a4a" onPress={contact} />
+          <Row icon="mail" label="צור קשר" color="#111114" onPress={contact} />
           <View style={styles.sep} />
           <Row icon="log-out-outline" label="התנתקות" danger onPress={doLogout} />
         </View>

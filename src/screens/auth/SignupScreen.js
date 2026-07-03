@@ -153,7 +153,7 @@ const makeS = (C) => StyleSheet.create({
   },
 
   btn:        {
-    backgroundColor: '#56bd6b', borderRadius: 14, paddingVertical: 16,
+    backgroundColor: '#111114', borderRadius: 14, paddingVertical: 16,
     alignItems: 'center', marginTop: 8,
   },
   btnDisabled: { opacity: 0.6 },
@@ -161,5 +161,5 @@ const makeS = (C) => StyleSheet.create({
 
   switchRow:  { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   switchText: { color: C.textMuted, fontSize: 14 },
-  switchLink: { color: '#56bd6b', fontSize: 14, fontWeight: '600' },
+  switchLink: { color: '#111114', fontSize: 14, fontWeight: '600' },
 });

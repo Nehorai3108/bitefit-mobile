@@ -369,7 +369,7 @@ export default function ChatScreen({ navigation }) {
             <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}>
               {/* Empty streaming bubble → show a typing indicator */}
               {item.streaming && !item.text ? (
-                <ActivityIndicator size="small" color="#3a7a4a" />
+                <ActivityIndicator size="small" color="#111114" />
               ) : null}
               {/* When a recipe card is attached, hide the verbose calorie prose —
                   the card already shows everything. */}
@@ -436,7 +436,7 @@ const makeStyles = (C) => StyleSheet.create({
   container: { flex: 1, backgroundColor: C.bg },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingHorizontal: 16, paddingTop: 52, paddingBottom: 12, gap: 8 },
   title: { color: C.text, fontSize: 20, fontWeight: '800' },
-  onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#56bd6b' },
+  onlineDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#111114' },
   listContent: { padding: 12, paddingBottom: 8 },
   bubbleWrap: { flexDirection: 'row', marginVertical: 4, alignItems: 'flex-end' },
   userWrap: { justifyContent: 'flex-end' },
@@ -444,11 +444,11 @@ const makeStyles = (C) => StyleSheet.create({
   avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: C.surface2, justifyContent: 'center', alignItems: 'center', marginRight: 6 },
   avatarTxt: { fontSize: 16 },
   bubble: { maxWidth: '78%', borderRadius: 16, padding: 12 },
-  userBubble: { backgroundColor: '#3a7a4a', borderBottomRightRadius: 4 },
+  userBubble: { backgroundColor: '#111114', borderBottomRightRadius: 4 },
   aiBubble: { backgroundColor: C.surface2, borderBottomLeftRadius: 4 },
   bubbleText: { color: C.text, fontSize: 15, lineHeight: 22, textAlign: 'right' },
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
-  foodDetectedTitle: { color: '#56bd6b', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  foodDetectedTitle: { color: '#111114', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
   suggestions: { paddingHorizontal: 12, paddingBottom: 4, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   suggestionChip: { backgroundColor: C.surface, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: C.border },
@@ -457,16 +457,16 @@ const makeStyles = (C) => StyleSheet.create({
   typingTxt: { color: C.placeholder, fontSize: 13 },
   inputRow: { flexDirection: 'row', padding: 12, gap: 8, alignItems: 'flex-end', borderTopWidth: 1, borderTopColor: C.surface },
   input: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10, fontSize: 15, maxHeight: 100, textAlign: 'right' },
-  sendBtn: { backgroundColor: '#3a7a4a', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+  sendBtn: { backgroundColor: '#111114', borderRadius: 12, width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   micRecording: { backgroundColor: '#ef4444' },
-  logBtn: { backgroundColor: '#3a7a4a', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, marginTop: 8, alignItems: 'center' },
+  logBtn: { backgroundColor: '#111114', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, marginTop: 8, alignItems: 'center' },
   logBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  loggedTxt: { color: '#56bd6b', fontSize: 13, fontWeight: '700', marginTop: 8, textAlign: 'center' },
+  loggedTxt: { color: '#111114', fontSize: 13, fontWeight: '700', marginTop: 8, textAlign: 'center' },
   menuBtn: { backgroundColor: '#2e6b3e', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 9, alignItems: 'center' },
   menuBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
   recipeCard: { marginTop: 8, padding: 12, backgroundColor: '#0a2a1a', borderRadius: 10, borderWidth: 1, borderColor: '#1d4a32' },
   recipeTitle: { color: '#eaeaea', fontSize: 15, fontWeight: '800', textAlign: 'right' },
-  recipeMeta: { color: '#56bd6b', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 2 },
+  recipeMeta: { color: '#111114', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 2 },
   recipeSection: { color: '#8fd6a0', fontSize: 12, fontWeight: '700', textAlign: 'right', marginTop: 10, marginBottom: 4 },
   recipeIng: { color: '#cfcfcf', fontSize: 13, textAlign: 'right', lineHeight: 20 },
   recipeStep: { color: '#cfcfcf', fontSize: 13, textAlign: 'right', lineHeight: 20 },

@@ -5,7 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 
-const GREEN = '#3a7a4a';
+const GREEN = '#111114';
 const GOLD = '#e0a800';
 
 const FEATURES = [

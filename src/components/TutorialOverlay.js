@@ -8,7 +8,7 @@ import { useTheme } from '../context/ThemeContext';
 import { openAddSheet } from '../tutorialBridge';
 
 const TUTORIAL_KEY = '@tutorial_seen_v1';
-const ACCENT = '#3a7a4a';
+const ACCENT = '#111114';
 
 // Light, calm walkthrough. One consistent accent, short copy, no emojis.
 // `arrow: 'bottom'` points the card at the hidden nav pill. The last step is

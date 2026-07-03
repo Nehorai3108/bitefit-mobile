@@ -16,7 +16,7 @@ const todayWorkoutKey = () => {
 };
 
 const TYPE_ICON = { strength: 'barbell-outline', cardio: 'bicycle-outline', hiit: 'flash-outline', rest: 'bed-outline' };
-const TYPE_COLOR = { strength: '#3a7a4a', cardio: '#2e86de', hiit: '#e74c3c', rest: '#8e44ad' };
+const TYPE_COLOR = { strength: '#111114', cardio: '#2e86de', hiit: '#e74c3c', rest: '#8e44ad' };
 
 const MEALS = [
   { key: 'BREAKFAST',       label: 'בוקר',      ratio: 0.25 },
@@ -56,7 +56,7 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
           {/* Meta row */}
           <View style={styles.detailMetaRow}>
             <View style={styles.detailMetaItem}>
-              <Ionicons name="flame-outline" size={16} color="#3a7a4a" />
+              <Ionicons name="flame-outline" size={16} color="#111114" />
               <Text style={styles.detailMetaTxt}>{Math.round(n.calories ?? 0)} קק"ל</Text>
             </View>
             {recipe?.prep_time_minutes ? (
@@ -81,8 +81,8 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
               <Text style={[styles.macroVal, { color: '#ffd700' }]}>{Math.round(n.carbs ?? 0)}g</Text>
               <Text style={styles.macroLbl}>פחמ'</Text>
             </View>
-            <View style={[styles.macroBadge, { borderColor: '#3a7a4a' }]}>
-              <Text style={[styles.macroVal, { color: '#3a7a4a' }]}>{Math.round(n.protein ?? 0)}g</Text>
+            <View style={[styles.macroBadge, { borderColor: '#111114' }]}>
+              <Text style={[styles.macroVal, { color: '#111114' }]}>{Math.round(n.protein ?? 0)}g</Text>
               <Text style={styles.macroLbl}>חלבון</Text>
             </View>
           </View>
@@ -115,8 +115,8 @@ function RecipeDetailModal({ recipe, visible, onClose, onAte, ate }) {
             style={[styles.detailAteBtn, ate && styles.ateBtnDone]}
             onPress={onAte}
           >
-            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={18} color={ate ? '#56bd6b' : '#fff'} />
-            <Text style={[styles.detailAteTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם ביומן!' : 'אכלתי את זה'}</Text>
+            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={18} color={ate ? '#111114' : '#fff'} />
+            <Text style={[styles.detailAteTxt, ate && { color: '#111114' }]}>{ate ? 'נרשם ביומן!' : 'אכלתי את זה'}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -174,7 +174,7 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
         {/* Name + refresh */}
         <View style={styles.recipeTopRow}>
           <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
-            <Ionicons name="refresh" size={14} color="#3a7a4a" />
+            <Ionicons name="refresh" size={14} color="#111114" />
             <Text style={styles.refreshTxt}>רענן</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ flex: 1 }} onPress={() => setShowDetail(true)}>
@@ -200,8 +200,8 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
             <Text style={[styles.macroVal, { color: '#ffd700' }]}>{Math.round(n.carbs ?? 0)}g</Text>
             <Text style={styles.macroLbl}>פחמ'</Text>
           </View>
-          <View style={[styles.macroBadge, { borderColor: '#3a7a4a' }]}>
-            <Text style={[styles.macroVal, { color: '#3a7a4a' }]}>{Math.round(n.protein ?? 0)}g</Text>
+          <View style={[styles.macroBadge, { borderColor: '#111114' }]}>
+            <Text style={[styles.macroVal, { color: '#111114' }]}>{Math.round(n.protein ?? 0)}g</Text>
             <Text style={styles.macroLbl}>חלבון</Text>
           </View>
         </View>
@@ -220,8 +220,8 @@ function RecipeCard({ recipe, targetCal, index, total, onRefresh, mealType }) {
             <Text style={styles.instrTxt}>פרטים</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.ateBtn, ate && styles.ateBtnDone]} onPress={handleAte}>
-            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={14} color={ate ? '#56bd6b' : '#fff'} />
-            <Text style={[styles.ateTxt, ate && { color: '#56bd6b' }]}>{ate ? 'נרשם!' : 'אכלתי את זה'}</Text>
+            <Ionicons name={ate ? 'checkmark-circle' : 'restaurant'} size={14} color={ate ? '#111114' : '#fff'} />
+            <Text style={[styles.ateTxt, ate && { color: '#111114' }]}>{ate ? 'נרשם!' : 'אכלתי את זה'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -365,7 +365,7 @@ export default function HomeScreen({ navigation }) {
 
   if (loading) return (
     <View style={styles.center}>
-      <ActivityIndicator size="large" color="#3a7a4a" />
+      <ActivityIndicator size="large" color="#111114" />
     </View>
   );
 
@@ -387,7 +387,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#3a7a4a" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor="#111114" />}
         showsVerticalScrollIndicator={false}
       >
         {/* Title */}
@@ -397,7 +397,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.pageSub}>יעד היום: {totalTarget} קק"ל</Text>
             {adaptedTarget?.bank_adjustment !== 0 && adaptedTarget?.bank_adjustment != null && (
               <View style={[styles.bankChip, { backgroundColor: adaptedTarget.bank_adjustment > 0 ? '#1a3a2a' : '#3a1a1a' }]}>
-                <Text style={[styles.bankChipTxt, { color: adaptedTarget.bank_adjustment > 0 ? '#56bd6b' : '#ef7d6c' }]}>
+                <Text style={[styles.bankChipTxt, { color: adaptedTarget.bank_adjustment > 0 ? '#111114' : '#ef7d6c' }]}>
                   {adaptedTarget.bank_adjustment > 0 ? '+' : ''}{adaptedTarget.bank_adjustment} מבנק
                 </Text>
               </View>
@@ -527,12 +527,12 @@ const makeStyles = (C) => StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 52, paddingBottom: 8 },
   dateText: { color: C.placeholder, fontSize: 13 },
-  logo: { fontSize: 20, fontWeight: '800', color: '#3a7a4a' },
+  logo: { fontSize: 20, fontWeight: '800', color: '#111114' },
   titleSection: { paddingHorizontal: 16, paddingBottom: 10 },
   pageTitle: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   pageSub: { color: C.textMuted, fontSize: 13, textAlign: 'right', marginTop: 2 },
   actionRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 10, marginBottom: 10 },
-  generateBtn: { flex: 1, backgroundColor: '#3a7a4a', borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
+  generateBtn: { flex: 1, backgroundColor: '#111114', borderRadius: 10, paddingVertical: 13, alignItems: 'center' },
   generateTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   clearBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingVertical: 13, paddingHorizontal: 18, alignItems: 'center', borderWidth: 1, borderColor: C.border },
   clearTxt: { color: '#aaa', fontSize: 15 },
@@ -549,12 +549,12 @@ const makeStyles = (C) => StyleSheet.create({
   tabsContent: { paddingHorizontal: 16, gap: 4 },
   tabWrap: { paddingHorizontal: 12, paddingBottom: 10, alignItems: 'center' },
   tabText: { color: C.placeholder, fontSize: 14 },
-  tabTextActive: { color: '#3a7a4a', fontWeight: '700' },
-  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#3a7a4a', borderRadius: 1 },
+  tabTextActive: { color: '#111114', fontWeight: '700' },
+  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#111114', borderRadius: 1 },
   mealHint: { color: C.textMuted, fontSize: 13, textAlign: 'right', paddingHorizontal: 16, paddingBottom: 8 },
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 10 },
   searchInput: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 9, fontSize: 14, borderWidth: 1, borderColor: C.surface3 },
-  searchBtn: { backgroundColor: '#3a7a4a', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
+  searchBtn: { backgroundColor: '#111114', borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
   searchClear: { backgroundColor: C.surface2, borderRadius: 10, width: 40, height: 38, alignItems: 'center', justifyContent: 'center' },
   mealHintCal: { color: '#ffd700', fontWeight: '700' },
   cardsList: { paddingHorizontal: 16, gap: 14, paddingBottom: 28 },
@@ -565,9 +565,9 @@ const makeStyles = (C) => StyleSheet.create({
   recipeTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
   recipeName: { color: C.text, fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right' },
   refreshBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 8 },
-  refreshTxt: { color: '#3a7a4a', fontSize: 13 },
+  refreshTxt: { color: '#111114', fontSize: 13 },
   calorieRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  calorieActual: { color: '#3a7a4a', fontSize: 15, fontWeight: '700' },
+  calorieActual: { color: '#111114', fontSize: 15, fontWeight: '700' },
   calorieTarget: { color: C.textDim, fontSize: 13 },
   macrosRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   macroBadge: { flex: 1, borderRadius: 10, borderWidth: 1, padding: 10, alignItems: 'center' },
@@ -577,8 +577,8 @@ const makeStyles = (C) => StyleSheet.create({
   cardActions: { flexDirection: 'row', gap: 8, marginTop: 10 },
   instrBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.surface3, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, borderWidth: 1, borderColor: C.border },
   instrTxt: { color: C.textMuted, fontSize: 12 },
-  ateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#3a7a4a', borderRadius: 8, paddingVertical: 9 },
-  ateBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
+  ateBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: '#111114', borderRadius: 8, paddingVertical: 9 },
+  ateBtnDone: { backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#111114' },
   ateTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: C.overlay, justifyContent: 'flex-end' },
   modalCard: { backgroundColor: C.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '75%' },
@@ -603,14 +603,14 @@ const makeStyles = (C) => StyleSheet.create({
   detailSectionTitle: { color: C.text, fontSize: 17, fontWeight: '700', textAlign: 'right', marginBottom: 12 },
   ingredientRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 10, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: C.surface2 },
   ingredientName: { color: C.text, fontSize: 15, fontWeight: '600', textAlign: 'right', flex: 1 },
-  ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#3a7a4a' },
-  ingredientQty: { color: '#3a7a4a', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
-  detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#3a7a4a', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
+  ingredientBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#111114' },
+  ingredientQty: { color: '#111114', fontSize: 15, fontWeight: '700', textAlign: 'left', minWidth: 90 },
+  detailAteBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#111114', borderRadius: 12, paddingVertical: 14, marginTop: 28 },
   detailAteTxt: { color: '#fff', fontSize: 16, fontWeight: '700' },
   noRecipes: { padding: 32, alignItems: 'center', gap: 12 },
   noRecipesText: { color: C.placeholder, fontSize: 14 },
   retryBtn: { backgroundColor: C.surface2, borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8 },
-  retryTxt: { color: '#3a7a4a', fontSize: 14 },
+  retryTxt: { color: '#111114', fontSize: 14 },
   emptyState: { paddingTop: 48, alignItems: 'center', gap: 14, paddingBottom: 24 },
   emptyText: { color: C.placeholder, fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
 });

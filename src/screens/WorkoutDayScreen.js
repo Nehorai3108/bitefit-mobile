@@ -16,8 +16,8 @@ const MET = { strength: 4.5, running: 9.0, hiit: 8.0, mixed: 6.0 };
 const estCalories = (type, mins) => Math.round((mins / 60) * (MET[type] ?? 4.5) * 75);
 
 const TYPE_COLOR = {
-  strength: '#3a7a4a',
-  running:  '#56bd6b',
+  strength: '#111114',
+  running:  '#111114',
   hiit:     '#ef7d6c',
   mixed:    '#f0a500',
 };
@@ -52,7 +52,7 @@ function WarmCoolCard({ item, C }) {
         <Text style={[sh.warmName, { color: C.text }]}>{item.name}</Text>
         <Text style={[sh.warmDesc, { color: C.textMuted }]}>{item.desc}</Text>
       </View>
-      <Ionicons name={item.icon} size={20} color="#3a7a4a" />
+      <Ionicons name={item.icon} size={20} color="#111114" />
     </View>
   );
 }
@@ -134,7 +134,7 @@ function ExerciseCard({ ex, index, color, C }) {
 export default function WorkoutDayScreen({ day, onClose }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const color = TYPE_COLOR[day?.type] ?? '#3a7a4a';
+  const color = TYPE_COLOR[day?.type] ?? '#111114';
   const [done, setDone] = useState(false);
 
   React.useEffect(() => {
@@ -219,7 +219,7 @@ export default function WorkoutDayScreen({ day, onClose }) {
 
         {day.cooldown?.length > 0 && (
           <>
-            <SectionHeader title="שחרור" icon="leaf-outline" color="#56bd6b" />
+            <SectionHeader title="שחרור" icon="leaf-outline" color="#111114" />
             {day.cooldown.map((w, i) => <WarmCoolCard key={i} item={w} C={C} />)}
           </>
         )}

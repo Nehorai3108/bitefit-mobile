@@ -39,9 +39,9 @@ function BarChart({ data, target, C }) {
   const targetY = target ? yPos(target) : null;
 
   const colorFor = (cal) => {
-    if (!target) return '#3a7a4a';
+    if (!target) return '#111114';
     if (cal > target * 1.1) return '#ef7d6c';
-    if (cal >= target * 0.85) return '#56bd6b';
+    if (cal >= target * 0.85) return '#111114';
     return '#ffd700';
   };
 
@@ -65,7 +65,7 @@ function BarChart({ data, target, C }) {
       {/* Target line */}
       {targetY !== null && (
         <Line x1={PAD_L} y1={targetY} x2={W - 8} y2={targetY}
-          stroke="#3a7a4a" strokeWidth={1} strokeDasharray="4,3" />
+          stroke="#111114" strokeWidth={1} strokeDasharray="4,3" />
       )}
 
       {/* Bars */}
@@ -116,10 +116,10 @@ function WeeklyView({ history, target, C, s, onOpenDay }) {
 
       {/* אגדה */}
       <View style={s.legendRow}>
-        <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#56bd6b' }]} /><Text style={s.legendTxt}>ביעד</Text></View>
+        <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#111114' }]} /><Text style={s.legendTxt}>ביעד</Text></View>
         <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#ffd700' }]} /><Text style={s.legendTxt}>מתחת</Text></View>
         <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#ef7d6c' }]} /><Text style={s.legendTxt}>מעל</Text></View>
-        {target && <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#3a7a4a', borderRadius: 1, height: 2 }]} /><Text style={s.legendTxt}>יעד {target} קק"ל</Text></View>}
+        {target && <View style={s.legendItem}><View style={[s.legendDot, { backgroundColor: '#111114', borderRadius: 1, height: 2 }]} /><Text style={s.legendTxt}>יעד {target} קק"ל</Text></View>}
       </View>
 
       {/* סיכום שבוע */}
@@ -127,13 +127,13 @@ function WeeklyView({ history, target, C, s, onOpenDay }) {
         <Text style={s.summaryTitle}>סיכום שבועי</Text>
         <View style={s.summaryRow}>
           <View style={s.summaryItem}>
-            <Text style={[s.summaryVal, { color: '#3a7a4a' }]}>{avgCal}</Text>
+            <Text style={[s.summaryVal, { color: '#111114' }]}>{avgCal}</Text>
             <Text style={s.summaryLbl}>ממוצע יומי</Text>
           </View>
         </View>
         <View style={s.summaryRow}>
           <View style={s.summaryItem}>
-            <Text style={[s.summaryVal, { color: '#3a7a4a' }]}>{totalProt}g</Text>
+            <Text style={[s.summaryVal, { color: '#111114' }]}>{totalProt}g</Text>
             <Text style={s.summaryLbl}>חלבון</Text>
           </View>
           <View style={s.summaryItem}>
@@ -141,7 +141,7 @@ function WeeklyView({ history, target, C, s, onOpenDay }) {
             <Text style={s.summaryLbl}>פחמימות</Text>
           </View>
           <View style={s.summaryItem}>
-            <Text style={[s.summaryVal, { color: '#56bd6b' }]}>{totalFat}g</Text>
+            <Text style={[s.summaryVal, { color: '#111114' }]}>{totalFat}g</Text>
             <Text style={s.summaryLbl}>שומן</Text>
           </View>
         </View>
@@ -154,14 +154,14 @@ function WeeklyView({ history, target, C, s, onOpenDay }) {
         return (
           <TouchableOpacity key={i} style={s.dayRow} onPress={() => onOpenDay(d.dateStr)}>
             <View style={s.dayRowRight}>
-              <Text style={[s.dayRowDate, isToday && { color: '#3a7a4a' }]}>
+              <Text style={[s.dayRowDate, isToday && { color: '#111114' }]}>
                 {new Date(d.dateStr + 'T12:00:00').toLocaleDateString('he-IL', { weekday:'short', day:'numeric', month:'short' })}
                 {isToday ? ' (היום)' : ''}
               </Text>
               <Text style={s.dayRowMacros}>ח:{d.protein}g · פ:{d.carbs}g · ש:{d.fat}g</Text>
             </View>
             <View style={s.dayRowLeft}>
-              <Text style={[s.dayRowCal, { color: !target ? '#3a7a4a' : d.cal >= target * 0.85 && d.cal <= target * 1.1 ? '#56bd6b' : d.cal > target * 1.1 ? '#ef7d6c' : '#ffd700' }]}>
+              <Text style={[s.dayRowCal, { color: !target ? '#111114' : d.cal >= target * 0.85 && d.cal <= target * 1.1 ? '#111114' : d.cal > target * 1.1 ? '#ef7d6c' : '#ffd700' }]}>
                 {d.cal}
               </Text>
               <Text style={s.dayRowCalLbl}>קק"ל</Text>
@@ -206,9 +206,9 @@ function MonthlyView({ history, target, C, s, year, month, onPrev, onNext, onOpe
   return (
     <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
       <View style={s.monthNav}>
-        <TouchableOpacity onPress={onNext} style={s.navBtn}><Ionicons name="chevron-forward" size={22} color="#3a7a4a" /></TouchableOpacity>
+        <TouchableOpacity onPress={onNext} style={s.navBtn}><Ionicons name="chevron-forward" size={22} color="#111114" /></TouchableOpacity>
         <Text style={s.monthLabel}>{MONTHS_HE[month]} {year}</Text>
-        <TouchableOpacity onPress={onPrev} style={s.navBtn}><Ionicons name="chevron-back" size={22} color="#3a7a4a" /></TouchableOpacity>
+        <TouchableOpacity onPress={onPrev} style={s.navBtn}><Ionicons name="chevron-back" size={22} color="#111114" /></TouchableOpacity>
       </View>
 
       {weeks.length > 0 && (
@@ -226,11 +226,11 @@ function MonthlyView({ history, target, C, s, year, month, onPrev, onNext, onOpe
           <Text style={s.summaryTitle}>סיכום חודשי</Text>
           <View style={s.summaryRow}>
             <View style={s.summaryItem}>
-              <Text style={[s.summaryVal, { color: '#3a7a4a' }]}>{Math.round(totalCal / loggedCount)}</Text>
+              <Text style={[s.summaryVal, { color: '#111114' }]}>{Math.round(totalCal / loggedCount)}</Text>
               <Text style={s.summaryLbl}>ממוצע יומי</Text>
             </View>
             <View style={s.summaryItem}>
-              <Text style={[s.summaryVal, { color: '#56bd6b' }]}>{loggedCount}</Text>
+              <Text style={[s.summaryVal, { color: '#111114' }]}>{loggedCount}</Text>
               <Text style={s.summaryLbl}>ימים נרשמו</Text>
             </View>
           </View>
@@ -258,9 +258,9 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   const colorFor = (cal) => {
-    if (!target) return '#3a7a4a';
+    if (!target) return '#111114';
     if (cal > target * 1.1) return '#ef7d6c';
-    if (cal >= target * 0.85) return '#56bd6b';
+    if (cal >= target * 0.85) return '#111114';
     return '#ffd700';
   };
 
@@ -281,7 +281,7 @@ function CalendarGrid({ history, target, year, month, s, C, onOpenDay }) {
                 style={[s.dayCell, day && s.dayCellActive, isToday && s.dayCellToday]}
                 onPress={() => day && onOpenDay(dateStr)}
                 activeOpacity={day ? 0.6 : 1}>
-                <Text style={[s.dayNum, isToday && { color: '#3a7a4a', fontWeight: '800' }]}>{d}</Text>
+                <Text style={[s.dayNum, isToday && { color: '#111114', fontWeight: '800' }]}>{d}</Text>
                 {day && <Text style={[s.dayCal, { color: colorFor(day.calories) }]}>{day.calories}</Text>}
               </TouchableOpacity>
             );
@@ -353,7 +353,7 @@ export default function HistoryScreen({ navigation }) {
         </View>
 
         {loading ? (
-          <View style={s.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>
+          <View style={s.center}><ActivityIndicator size="large" color="#111114" /></View>
         ) : tab === 0 ? (
           <WeeklyView  history={history} target={target} C={C} s={s} onOpenDay={openDay} />
         ) : (
@@ -389,7 +389,7 @@ function DayDetail({ selected, onClose }) {
           </View>
           <ScrollView style={{ maxHeight: 360 }} contentContainerStyle={{ paddingBottom: 20 }}>
             {entries === null ? (
-              <ActivityIndicator color="#3a7a4a" style={{ marginTop: 20 }} />
+              <ActivityIndicator color="#111114" style={{ marginTop: 20 }} />
             ) : entries.length === 0 ? (
               <Text style={s.empty}>אין פירוט ארוחות ליום זה</Text>
             ) : entries.map((e, i) => (
@@ -422,7 +422,7 @@ const makeS = (C) => StyleSheet.create({
   tabBtn:       { flex: 1, paddingVertical: 8, borderRadius: 10, alignItems: 'center' },
   tabBtnActive: { backgroundColor: C.surface },
   tabTxt:       { color: C.textMuted, fontSize: 14, fontWeight: '600' },
-  tabTxtActive: { color: '#3a7a4a', fontWeight: '800' },
+  tabTxtActive: { color: '#111114', fontWeight: '800' },
 
   chartTitle: { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right', marginBottom: 10 },
   chartWrap:  { alignItems: 'center', backgroundColor: C.surface, borderRadius: 16, padding: 10, marginBottom: 12 },
@@ -455,7 +455,7 @@ const makeS = (C) => StyleSheet.create({
   dowCell:     { width: '13.5%', textAlign: 'center', color: C.textDim, fontSize: 13, fontWeight: '600' },
   dayCell:     { width: '13.5%', aspectRatio: 0.85, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   dayCellActive:{ backgroundColor: C.surface },
-  dayCellToday: { borderWidth: 1, borderColor: '#3a7a4a' },
+  dayCellToday: { borderWidth: 1, borderColor: '#111114' },
   dayNum:      { color: C.textMuted, fontSize: 14 },
   dayCal:      { fontSize: 10, fontWeight: '700', marginTop: 2 },
   empty:       { color: C.textDim, fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 22 },
@@ -466,7 +466,7 @@ const makeS = (C) => StyleSheet.create({
   detailHeader:  { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   detailTitle:   { color: C.text, fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'right', marginLeft: 12 },
   totalsRow:     { backgroundColor: C.surface2, borderRadius: 12, padding: 14, marginBottom: 14, alignItems: 'center' },
-  totalsCal:     { color: '#3a7a4a', fontSize: 26, fontWeight: '800' },
+  totalsCal:     { color: '#111114', fontSize: 26, fontWeight: '800' },
   totalsMacros:  { color: C.textMuted, fontSize: 13, marginTop: 4 },
   entryRow:      { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: C.border2 },
   entryThumb:    { width: 40, height: 40, borderRadius: 8 },

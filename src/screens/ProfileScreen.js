@@ -21,8 +21,8 @@ const ACTIVITY_LEVELS = [
 
 const GOALS = [
   { key: 'lose_weight', label: 'ירידה במשקל',  color: '#ef7d6c' },
-  { key: 'maintain',    label: 'שמירה על משקל', color: '#3a7a4a' },
-  { key: 'gain_weight', label: 'עלייה במשקל',  color: '#56bd6b' },
+  { key: 'maintain',    label: 'שמירה על משקל', color: '#111114' },
+  { key: 'gain_weight', label: 'עלייה במשקל',  color: '#111114' },
 ];
 
 const KASHRUT = ['ללא הגבלה', 'פרווה', 'חלבי בלבד', 'בשרי בלבד', 'כשרות מהודרת'];
@@ -293,7 +293,7 @@ export default function ProfileScreen({ navigation }) {
     ]);
   };
 
-  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>;
+  if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#111114" /></View>;
 
   const tabs = ['פרטים אישיים', 'העדפות תזונה', 'יעדים'];
 
@@ -306,7 +306,7 @@ export default function ProfileScreen({ navigation }) {
           <Ionicons name="settings-outline" size={22} color={C.textMuted} />
         </TouchableOpacity>
         <View style={styles.avatarCard}>
-          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#3a7a4a" /></View>
+          <View style={styles.avatarCircle}><Ionicons name="person" size={40} color="#111114" /></View>
           <Text style={styles.headerTitle}>פרופיל משתמש</Text>
         </View>
       </View>
@@ -475,7 +475,7 @@ export default function ProfileScreen({ navigation }) {
                   ))}
                 </View>
                 {[
-                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#3a7a4a', cal: 4 },
+                  { label: 'חלבון', val: targets.protein, total: targets.calories, color: '#111114', cal: 4 },
                   { label: 'פחמימות', val: targets.carbs, total: targets.calories, color: '#ffd700', cal: 4 },
                   { label: 'שומן', val: targets.fat, total: targets.calories, color: '#ef7d6c', cal: 9 },
                 ].map(m => {
@@ -525,12 +525,12 @@ const makeStyles = (C) => StyleSheet.create({
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   tabBtnActive: {},
   tabTxt: { color: C.placeholder, fontSize: 13 },
-  tabTxtActive: { color: '#3a7a4a', fontWeight: '700' },
-  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#3a7a4a' },
+  tabTxtActive: { color: '#111114', fontWeight: '700' },
+  tabUnderline: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: '#111114' },
   scroll: { flex: 1 },
   section: { padding: 16 },
   proBanner: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12,
-    backgroundColor: '#3a7a4a', marginHorizontal: 16, marginTop: 14, marginBottom: 2,
+    backgroundColor: '#111114', marginHorizontal: 16, marginTop: 14, marginBottom: 2,
     borderRadius: 16, padding: 14 },
   proBannerTitle: { color: '#fff', fontSize: 16, fontWeight: '800', textAlign: 'right' },
   proBannerSub: { color: '#d8ecdc', fontSize: 12, textAlign: 'right', marginTop: 2 },
@@ -540,21 +540,21 @@ const makeStyles = (C) => StyleSheet.create({
   col: { flex: 1 },
   numInput: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.surface, borderRadius: 10, borderWidth: 1, borderColor: C.border, overflow: 'hidden' },
   numBtn: { width: 40, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: C.surface3 },
-  numBtnTxt: { color: '#3a7a4a', fontSize: 20, fontWeight: '700' },
+  numBtnTxt: { color: '#111114', fontSize: 20, fontWeight: '700' },
   numValue: { flex: 1, color: C.text, fontSize: 15, textAlign: 'center', height: 44 },
   numUnit: { color: C.textMuted, fontSize: 12, paddingRight: 8 },
   dateField: { flexDirection: 'row-reverse', alignItems: 'center', gap: 10, backgroundColor: C.surface,
     borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 14, height: 46 },
   dateTxt: { fontSize: 16, flex: 1, textAlign: 'right' },
   dateDone: { alignSelf: 'flex-end', paddingHorizontal: 18, paddingVertical: 8, marginTop: 4,
-    backgroundColor: '#3a7a4a', borderRadius: 8 },
+    backgroundColor: '#111114', borderRadius: 8 },
   dateDoneTxt: { color: '#fff', fontWeight: '700', fontSize: 14 },
   wheelBox: { backgroundColor: C.surface, borderRadius: 10, borderWidth: 1, borderColor: C.border, marginTop: 6, paddingBottom: 8 },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   optBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, backgroundColor: C.surface, borderWidth: 1, borderColor: C.border },
-  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#3a7a4a' },
+  optBtnActive: { backgroundColor: '#1a2a4a', borderColor: '#111114' },
   optTxt: { color: C.textDim, fontSize: 13 },
-  optTxtActive: { color: '#3a7a4a', fontWeight: '700' },
+  optTxtActive: { color: '#111114', fontWeight: '700' },
   paceText: { color: C.textMuted, fontSize: 12, textAlign: 'right', marginTop: 8 },
   paceHint: { color: '#e0a030', fontSize: 12, textAlign: 'right', marginTop: 8, lineHeight: 17 },
   chipsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
@@ -562,13 +562,13 @@ const makeStyles = (C) => StyleSheet.create({
   chipActive: { backgroundColor: '#2a1a4a', borderColor: '#8a6aff' },
   chipTxt: { color: C.textDim, fontSize: 13 },
   chipTxtActive: { color: '#8a6aff', fontWeight: '700' },
-  chipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#56bd6b' },
-  chipGreenTxt: { color: '#56bd6b', fontSize: 13 },
+  chipGreen: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#0a2a1a', borderWidth: 1, borderColor: '#111114' },
+  chipGreenTxt: { color: '#111114', fontSize: 13 },
   chipRed: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: '#2a1a1a', borderWidth: 1, borderColor: '#ef7d6c' },
   chipRedTxt: { color: '#ef7d6c', fontSize: 13 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, backgroundColor: C.surface, color: C.text, borderRadius: 10, padding: 10, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: C.border },
-  addBtn: { backgroundColor: '#3a7a4a', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
+  addBtn: { backgroundColor: '#111114', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10 },
   addBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
   targetsCard: { backgroundColor: C.surface, borderRadius: 16, padding: 20, alignItems: 'center', marginBottom: 16 },
   targetsTitle: { color: C.textMuted, fontSize: 14, marginBottom: 8 },
@@ -576,7 +576,7 @@ const makeStyles = (C) => StyleSheet.create({
   targetsKcal: { color: C.textMuted, fontSize: 14 },
   bmrRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   bmrCard: { flex: 1, backgroundColor: C.surface, borderRadius: 12, padding: 14, alignItems: 'center' },
-  bmrLabel: { color: '#3a7a4a', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  bmrLabel: { color: '#111114', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   bmrVal: { color: C.text, fontSize: 20, fontWeight: '700' },
   macroRow: { backgroundColor: C.surface, borderRadius: 12, padding: 12, marginBottom: 8 },
   macroBarWrap: { height: 8, backgroundColor: C.surface3, borderRadius: 4, overflow: 'hidden', marginBottom: 6 },
@@ -585,6 +585,6 @@ const makeStyles = (C) => StyleSheet.create({
   macroName: { fontSize: 14, fontWeight: '700' },
   macroDetail: { color: C.textMuted, fontSize: 13 },
   noTargets: { color: C.textDim, fontSize: 14, textAlign: 'center', paddingVertical: 32 },
-  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#3a7a4a', padding: 16, alignItems: 'center' },
+  saveBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#111114', padding: 16, alignItems: 'center' },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
 });
