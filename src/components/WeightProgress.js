@@ -16,14 +16,9 @@ const KEY = '@weight_log_v1';
 const GREEN = '#2f9e57';
 const GREEN_D = '#1f7a41';
 const HE_MON = ['ינו', 'פבר', 'מרץ', 'אפר', 'מאי', 'יונ', 'יול', 'אוג', 'ספט', 'אוק', 'נוב', 'דצמ'];
-const RANGES = [
-  { key: 90,    label: '90 ימים' },
-  { key: 180,   label: '6 חודשים' },
-  { key: 365,   label: 'שנה' },
-  { key: 99999, label: 'הכל' },
-];
+const DAY = 864e5;
 
-const fmtDate = (iso) => { const d = new Date(iso); return `${d.getDate()} ${HE_MON[d.getMonth()]}׳`; };
+const fmt = (t) => { const d = new Date(t); return `${d.getDate()} ${HE_MON[d.getMonth()]}׳`; };
 function isoWeek(d) {
   const dt = new Date(d); const day = (dt.getDay() + 6) % 7;
   dt.setDate(dt.getDate() - day); return dt.toISOString().slice(0, 10);
@@ -32,10 +27,10 @@ function isoWeek(d) {
 export default function WeightProgress() {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
-  const [log, setLog]   = useState([]);
-  const [goal, setGoal] = useState(null);
+  const [log, setLog]     = useState([]);
+  const [goal, setGoal]   = useState(null);
   const [start, setStart] = useState(null);
-  const [range, setRange] = useState(99999);
+  const [weeks, setWeeks] = useState(12);
   const [modal, setModal] = useState(false);
   const [input, setInput] = useState('');
 
@@ -47,6 +42,7 @@ export default function WeightProgress() {
       if (prof) {
         if (prof.target_weight) setGoal(+prof.target_weight);
         if (prof.weight_kg)     setStart(+prof.weight_kg);
+        if (prof.weeks_to_goal) setWeeks(+prof.weeks_to_goal);
         if (arr.length === 0 && prof.weight_kg) {
           arr.push({ date: new Date().toISOString().slice(0, 10), kg: +prof.weight_kg });
           await AsyncStorage.setItem(KEY, JSON.stringify(arr));
@@ -69,37 +65,39 @@ export default function WeightProgress() {
     setInput(''); setModal(false);
   };
 
-  // filter by range
-  const cutoff = Date.now() - range * 864e5;
-  const data = log.filter(e => new Date(e.date).getTime() >= cutoff);
-  const view = data.length ? data : log.slice(-1);
-
-  const current = view.length ? view[view.length - 1].kg : start;
-  const first   = view.length ? view[0].kg : current;
-  const delta   = current != null && first != null ? +(current - first).toFixed(1) : 0;
+  const current  = log.length ? log[log.length - 1].kg : start;
+  const first    = log.length ? log[0].kg : current;
+  const delta    = current != null && first != null ? +(current - first).toFixed(1) : 0;
   const thisWeek = log.length && isoWeek(log[log.length - 1].date) === isoWeek(new Date().toISOString().slice(0, 10));
-  const progress = (goal != null && start != null && goal !== start)
-    ? Math.max(0, Math.min(100, Math.round(((start - current) / (start - goal)) * 100))) : null;
+  const progress = (goal != null && first != null && goal !== first)
+    ? Math.max(0, Math.min(100, Math.round(((first - current) / (first - goal)) * 100))) : null;
 
-  // ── geometry ──
-  const W = 340, H = 190, PL = 30, PR = 12, PT = 30, PB = 26;
-  const kgs = view.map(e => e.kg);
-  const all = goal != null ? [...kgs, goal] : kgs;
+  // ── geometry: actual history (solid) + projection to goal (dashed) ──
+  const W = 340, H = 195, PL = 30, PR = 14, PT = 26, PB = 26;
+  const now = Date.now();
+  const startT  = log.length ? new Date(log[0].date).getTime() : now;
+  const targetT = now + weeks * 7 * DAY;
+  const xMin = Math.min(startT, now), xMax = Math.max(targetT, now + 7 * DAY);
+  const X = (t) => PL + ((t - xMin) / (xMax - xMin)) * (W - PL - PR);
+
+  const kgs = log.map(e => e.kg);
+  const all = [...kgs, ...(goal != null ? [goal] : []), ...(current != null ? [current] : [])];
   let lo = Math.min(...all), hi = Math.max(...all);
   if (lo === hi) { lo -= 1; hi += 1; }
-  const pad = (hi - lo) * 0.15; lo -= pad; hi += pad;
-  const x = (i) => view.length <= 1 ? (PL + (W - PL - PR) / 2) : PL + (i * (W - PL - PR)) / (view.length - 1);
-  const y = (kg) => PT + (1 - (kg - lo) / (hi - lo)) * (H - PT - PB);
-  const line = view.map((e, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(e.kg)}`).join(' ');
-  const area = view.length > 1
-    ? `${line} L ${x(view.length - 1)} ${H - PB} L ${x(0)} ${H - PB} Z` : '';
-  const ticks = 4;
-  const yTicks = Array.from({ length: ticks + 1 }, (_, i) => lo + ((hi - lo) * i) / ticks);
-  const last = view.length - 1;
+  const pad = (hi - lo) * 0.18; lo -= pad; hi += pad;
+  const Y = (kg) => PT + (1 - (kg - lo) / (hi - lo)) * (H - PT - PB);
+
+  const actual = log.map((e, i) => `${i === 0 ? 'M' : 'L'} ${X(new Date(e.date).getTime())} ${Y(e.kg)}`).join(' ');
+  const areaD = log.length
+    ? `${actual} L ${X(now)} ${H - PB} L ${X(startT)} ${H - PB} Z` : '';
+  const proj = (current != null && goal != null)
+    ? `M ${X(now)} ${Y(current)} L ${X(targetT)} ${Y(goal)}` : '';
+  const yTicks = Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4);
+  const last = log.length - 1;
 
   return (
     <View style={s.card}>
-      {/* header */}
+      {/* header — title on the right, + on the left */}
       <View style={s.head}>
         <TouchableOpacity style={s.addBtn} onPress={() => { setInput(current ? String(current) : ''); setModal(true); }} activeOpacity={0.85}>
           <Ionicons name="add" size={20} color="#fff" />
@@ -108,9 +106,7 @@ export default function WeightProgress() {
           <Text style={s.title}>מעקב משקל</Text>
           <View style={s.weightRow}>
             {delta !== 0 && (
-              <View style={s.badge}>
-                <Text style={s.badgeTxt}>{delta > 0 ? '+' : ''}{delta} ק"ג</Text>
-              </View>
+              <View style={s.badge}><Text style={s.badgeTxt}>{delta > 0 ? '+' : ''}{delta} ק"ג</Text></View>
             )}
             <Text style={s.bigW}>{current != null ? current : '—'} <Text style={s.bigUnit}>ק"ג</Text></Text>
           </View>
@@ -119,64 +115,52 @@ export default function WeightProgress() {
       </View>
 
       {/* chart */}
-      <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ marginTop: 6 }}>
+      <Svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ marginTop: 8 }}>
         <Defs>
           <LinearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={GREEN} stopOpacity="0.28" />
+            <Stop offset="0" stopColor={GREEN} stopOpacity="0.26" />
             <Stop offset="1" stopColor={GREEN} stopOpacity="0.02" />
           </LinearGradient>
         </Defs>
-        {/* gridlines + y labels */}
+
         {yTicks.map((t, i) => (
           <G key={i}>
-            <Line x1={PL} y1={y(t)} x2={W - PR} y2={y(t)} stroke={C.surface3} strokeWidth="1" />
-            <SvgText x={PL - 6} y={y(t) + 3} fontSize="9" fill={C.textDim} textAnchor="end">{Math.round(t)}</SvgText>
+            <Line x1={PL} y1={Y(t)} x2={W - PR} y2={Y(t)} stroke={C.surface3} strokeWidth="1" />
+            <SvgText x={PL - 6} y={Y(t) + 3} fontSize="9" fill={C.textDim} textAnchor="end">{Math.round(t)}</SvgText>
           </G>
         ))}
-        {/* goal line */}
-        {goal != null && (
-          <G>
-            <Line x1={PL} y1={y(goal)} x2={W - PR} y2={y(goal)} stroke={C.textFaint} strokeWidth="1" strokeDasharray="4 4" />
-            <SvgText x={W - PR} y={y(goal) - 4} fontSize="9" fill={C.textDim} textAnchor="end">יעד {goal}</SvgText>
-          </G>
-        )}
-        {/* area + line */}
-        {area ? <Path d={area} fill="url(#wg)" /> : null}
-        {view.length > 1 && <Path d={line} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
-        {/* dots */}
-        {view.map((e, i) => (
-          <Circle key={i} cx={x(i)} cy={y(e.kg)} r={i === last ? 5 : 3}
+
+        {/* today marker */}
+        <Line x1={X(now)} y1={PT} x2={X(now)} y2={H - PB} stroke={C.border} strokeWidth="1" strokeDasharray="2 3" />
+
+        {/* actual area + line */}
+        {areaD ? <Path d={areaD} fill="url(#wg)" /> : null}
+        {log.length > 1 && <Path d={actual} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
+
+        {/* projection to goal (dashed) */}
+        {proj ? <Path d={proj} fill="none" stroke={GREEN} strokeWidth="2" strokeDasharray="5 5" opacity="0.7" /> : null}
+
+        {/* actual dots */}
+        {log.map((e, i) => (
+          <Circle key={i} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={i === last ? 5 : 3}
             fill={i === last ? GREEN : '#fff'} stroke={GREEN} strokeWidth="2" />
         ))}
-        {/* x labels */}
-        {view.map((e, i) => (
-          (view.length <= 5 || i === 0 || i === last || i === Math.floor(last / 2))
-            ? <SvgText key={`x${i}`} x={x(i)} y={H - 8} fontSize="9" fill={C.textDim} textAnchor="middle">{fmtDate(e.date)}</SvgText>
-            : null
-        ))}
-        {/* tooltip on last point */}
-        {view.length > 0 && (
+        {/* goal point at the end */}
+        {goal != null && (
           <G>
-            <Rect x={Math.min(Math.max(x(last) - 34, 2), W - 70)} y={Math.max(y(view[last].kg) - 34, 2)}
-              width="68" height="26" rx="7" fill={C.text} />
-            <SvgText x={Math.min(Math.max(x(last), 36), W - 36)} y={Math.max(y(view[last].kg) - 16, 20)}
-              fontSize="11" fontWeight="bold" fill="#fff" textAnchor="middle">{view[last].kg} ק"ג</SvgText>
+            <Circle cx={X(targetT)} cy={Y(goal)} r="6" fill="#fff" stroke={GREEN_D} strokeWidth="2.5" />
+            <SvgText x={X(targetT)} y={Y(goal) - 12} fontSize="10" fontWeight="bold" fill={GREEN_D} textAnchor="middle">היעד</SvgText>
           </G>
         )}
-      </Svg>
 
-      {/* range selector */}
-      <View style={s.segs}>
-        {RANGES.map(r => (
-          <TouchableOpacity key={r.key} style={[s.seg, range === r.key && s.segOn]} onPress={() => setRange(r.key)} activeOpacity={0.8}>
-            <Text style={[s.segTxt, range === r.key && s.segTxtOn]}>{r.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        {/* x labels: start · today · target */}
+        <SvgText x={X(startT)} y={H - 8} fontSize="9" fill={C.textDim} textAnchor="middle">{fmt(startT)}</SvgText>
+        <SvgText x={X(now)} y={H - 8} fontSize="9" fill={C.text} fontWeight="bold" textAnchor="middle">היום</SvgText>
+        <SvgText x={X(targetT)} y={H - 8} fontSize="9" fill={C.textDim} textAnchor="middle">{fmt(targetT)}</SvgText>
+      </Svg>
 
       {!thisWeek && <Text style={s.nudge}>עדכן את המשקל שלך לשבוע הזה כדי לעקוב אחרי ההתקדמות 👆</Text>}
 
-      {/* modal */}
       <Modal visible={modal} transparent animationType="fade" onRequestClose={() => setModal(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.modalRoot}>
           <Pressable style={s.modalBg} onPress={() => setModal(false)} />
@@ -195,7 +179,7 @@ export default function WeightProgress() {
 const makeS = (C) => StyleSheet.create({
   card: { backgroundColor: C.surface, borderRadius: 20, borderWidth: 1, borderColor: C.border,
           marginHorizontal: 16, marginBottom: 16, padding: 16 },
-  head: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start' },
+  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   title: { fontSize: 15, fontWeight: '700', color: C.textMuted },
   weightRow: { flexDirection: 'row-reverse', alignItems: 'center', gap: 8, marginTop: 2 },
   bigW: { fontSize: 30, fontWeight: '800', color: C.text },
@@ -204,12 +188,6 @@ const makeS = (C) => StyleSheet.create({
   badgeTxt: { color: GREEN_D, fontSize: 12, fontWeight: '800' },
   goalTxt: { fontSize: 12, color: C.textDim, marginTop: 3 },
   addBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: GREEN, alignItems: 'center', justifyContent: 'center' },
-
-  segs: { flexDirection: 'row-reverse', backgroundColor: C.surface2, borderRadius: 12, padding: 3, marginTop: 6 },
-  seg: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: 9 },
-  segOn: { backgroundColor: C.surface, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
-  segTxt: { fontSize: 12, color: C.textDim, fontWeight: '600' },
-  segTxtOn: { color: C.text, fontWeight: '800' },
 
   nudge: { fontSize: 12, color: C.textMuted, textAlign: 'center', marginTop: 12 },
 

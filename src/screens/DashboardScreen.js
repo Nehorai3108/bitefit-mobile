@@ -513,8 +513,8 @@ const makeStyles = (C) => StyleSheet.create({
   macroName: { fontSize: 12, fontWeight: '700' },
 
   card:       { backgroundColor: C.surface, borderRadius: 20, margin: 16, marginTop: 4, padding: 16 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  cardTitle:  { color: C.text, fontSize: 15, fontWeight: '700' },
+  cardHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  cardTitle:  { color: C.text, fontSize: 15, fontWeight: '700', textAlign: 'right' },
   waterMl:    { color: C.textDim, fontSize: 12 },
   empty:      { color: C.textFaint, fontSize: 14 },
 
