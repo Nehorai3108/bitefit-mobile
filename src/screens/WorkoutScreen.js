@@ -11,6 +11,7 @@ import { addWorkout, fetchWorkouts, deleteWorkout } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 import { generatePlan } from '../utils/workoutPlanner';
 import WorkoutDayScreen from './WorkoutDayScreen';
+import WorkoutBuilder, { CUSTOM_KEY } from '../components/WorkoutBuilder';
 
 const PLAN_KEY = '@bitefit_workout_plan';
 
@@ -96,6 +97,26 @@ export default function WorkoutScreen({ navigation }) {
   const [selectedDay, setSelectedDay]     = useState(null);
   const [planForm, setPlanForm] = useState({ days: 3, type: 'strength' });
 
+  // אימונים מותאמים אישית
+  const [customWorkouts, setCustomWorkouts] = useState([]);
+  const [showBuilder, setShowBuilder]       = useState(false);
+  const [viewWorkout, setViewWorkout]       = useState(null);
+
+  const loadCustom = useCallback(async () => {
+    try { const raw = await AsyncStorage.getItem(CUSTOM_KEY); setCustomWorkouts(raw ? JSON.parse(raw) : []); }
+    catch {}
+  }, []);
+  const deleteCustom = (id) => {
+    Alert.alert('מחיקת אימון', 'למחוק את האימון?', [
+      { text: 'ביטול', style: 'cancel' },
+      { text: 'מחק', style: 'destructive', onPress: async () => {
+        const next = customWorkouts.filter(w => w.id !== id);
+        setCustomWorkouts(next);
+        await AsyncStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
+      }},
+    ]);
+  };
+
   const load = useCallback(async () => {
     try {
       const r = await fetchWorkouts();
@@ -109,7 +130,7 @@ export default function WorkoutScreen({ navigation }) {
     } catch {}
   }, []);
 
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => { load(); loadCustom(); }, [load, loadCustom]));
 
   const handleCreatePlan = async () => {
     const newPlan = generatePlan(planForm.days, planForm.type);
@@ -194,14 +215,42 @@ export default function WorkoutScreen({ navigation }) {
           </View>
         </View>
 
-        {/* כפתור תוכנית שבועית */}
-        <TouchableOpacity style={styles.planBtn} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)} activeOpacity={0.85}>
-          <Ionicons name="calendar-outline" size={18} color="#fff" />
-          <Text style={styles.planBtnTxt}>{plan ? 'צפה בתוכנית השבועית' : 'צור תוכנית אימון'}</Text>
-        </TouchableOpacity>
+        {/* כפתורי תוכנית + בניית אימון */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity style={[styles.planBtn, { flex: 1, marginHorizontal: 0 }]} onPress={() => plan ? setShowPlanView(true) : setShowPlanModal(true)} activeOpacity={0.85}>
+            <Ionicons name="calendar-outline" size={18} color="#fff" />
+            <Text style={styles.planBtnTxt}>{plan ? 'תוכנית שבועית' : 'צור תוכנית'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.buildBtn} onPress={() => setShowBuilder(true)} activeOpacity={0.85}>
+            <Ionicons name="add-circle-outline" size={18} color="#3a7a4a" />
+            <Text style={styles.buildBtnTxt}>בנה אימון</Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* רשימת אימונים */}
-        <Text style={styles.sectionTitle}>האימונים שלי</Text>
+        {/* אימונים שבניתי */}
+        {customWorkouts.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>האימונים שלי</Text>
+            {customWorkouts.map(w => (
+              <TouchableOpacity key={w.id} style={styles.customCard} activeOpacity={0.85} onPress={() => setViewWorkout(w)}>
+                <View style={[styles.wIcon, { backgroundColor: '#3a7a4a1a' }]}>
+                  <Ionicons name="barbell-outline" size={22} color="#3a7a4a" />
+                </View>
+                <View style={styles.workoutInfo}>
+                  <Text style={styles.workoutType}>{w.name}</Text>
+                  <Text style={styles.workoutDetail}>{w.exercises?.length ?? 0} תרגילים · {w.duration} דק'</Text>
+                </View>
+                <TouchableOpacity onPress={() => deleteCustom(w.id)} style={styles.wTrash}>
+                  <Ionicons name="trash-outline" size={17} color={C.textFaint} />
+                </TouchableOpacity>
+                <Ionicons name="chevron-back" size={18} color={C.textFaint} />
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
+
+        {/* יומן אימונים שבוצעו */}
+        <Text style={styles.sectionTitle}>אימונים שבוצעו</Text>
         {workouts.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="barbell-outline" size={44} color={C.textFaint} />
@@ -399,6 +448,14 @@ export default function WorkoutScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
+      {/* בונה אימון מותאם */}
+      <WorkoutBuilder visible={showBuilder} onClose={() => setShowBuilder(false)} onSaved={loadCustom} />
+
+      {/* תצוגת אימון מותאם */}
+      <Modal visible={!!viewWorkout} animationType="slide" onRequestClose={() => setViewWorkout(null)}>
+        {viewWorkout && <WorkoutDayScreen day={viewWorkout} onClose={() => setViewWorkout(null)} />}
+      </Modal>
     </View>
     </View>
   );
@@ -473,6 +530,10 @@ const makeStyles = (C) => StyleSheet.create({
   // כפתור תוכנית
   planBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#3a7a4a', borderRadius: 14, marginHorizontal: 16, marginBottom: 16, padding: 14, justifyContent: 'center' },
   planBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  actionRow: { flexDirection: 'row-reverse', gap: 10, marginHorizontal: 16, marginBottom: 16 },
+  buildBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: C.surface, borderRadius: 14, padding: 14, borderWidth: 1.5, borderColor: '#3a7a4a' },
+  buildBtnTxt: { color: '#3a7a4a', fontSize: 15, fontWeight: '700' },
+  customCard: { backgroundColor: C.surface, borderRadius: 16, borderWidth: 1, borderColor: C.border, marginHorizontal: 16, marginBottom: 10, padding: 14, flexDirection: 'row-reverse', alignItems: 'center', gap: 12 },
 
   // מודאל יצירת תוכנית
   daysRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
