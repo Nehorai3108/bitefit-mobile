@@ -153,10 +153,12 @@ export default function WeightProgress() {
           </G>
         )}
 
-        {/* x labels: start · today · target */}
-        <SvgText x={X(startT)} y={H - 8} fontSize="9" fill={C.textDim} textAnchor="middle">{fmt(startT)}</SvgText>
-        <SvgText x={X(now)} y={H - 8} fontSize="9" fill={C.text} fontWeight="bold" textAnchor="middle">היום</SvgText>
-        <SvgText x={X(targetT)} y={H - 8} fontSize="9" fill={C.textDim} textAnchor="middle">{fmt(targetT)}</SvgText>
+        {/* x-axis: evenly spaced date labels along the timeline */}
+        {Array.from({ length: 4 }, (_, i) => xMin + ((xMax - xMin) * i) / 3).map((t, i) => (
+          <SvgText key={`xl${i}`} x={X(t)} y={H - 6} fontSize="10"
+            fill={C.textMuted} textAnchor={i === 0 ? 'start' : i === 3 ? 'end' : 'middle'}>{fmt(t)}</SvgText>
+        ))}
+        <SvgText x={X(now)} y={PT - 8} fontSize="10" fill={GREEN_D} fontWeight="bold" textAnchor="middle">היום</SvgText>
       </Svg>
 
       {!thisWeek && <Text style={s.nudge}>עדכן את המשקל שלך לשבוע הזה כדי לעקוב אחרי ההתקדמות 👆</Text>}

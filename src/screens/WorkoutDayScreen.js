@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Linking } from 'react-native';
+import React, { useMemo, useState, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Linking, PanResponder } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
@@ -184,10 +184,16 @@ export default function WorkoutDayScreen({ day, onClose }) {
     onClose?.();
   };
 
+  // swipe-right to go back to the workouts page (like the other screens)
+  const swipeBack = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, g) => g.dx > 28 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+    onPanResponderRelease: (_, g) => { if (g.dx > 80) onClose?.(); },
+  })).current;
+
   if (!day) return null;
 
   return (
-    <View style={[styles.container, { backgroundColor: C.bg }]}>
+    <View style={[styles.container, { backgroundColor: C.bg }]} {...swipeBack.panHandlers}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: color }]}>
         <TouchableOpacity style={styles.backBtn} onPress={onClose}>
