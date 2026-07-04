@@ -186,14 +186,16 @@ export default function WorkoutDayScreen({ day, onClose }) {
 
   // swipe-right to go back to the workouts page (like the other screens)
   const swipeBack = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => g.dx > 28 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
-    onPanResponderRelease: (_, g) => { if (g.dx > 80) onClose?.(); },
+    onMoveShouldSetPanResponder: (_, g) => g.dx > 22 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+    onMoveShouldSetPanResponderCapture: (_, g) => g.dx > 45 && Math.abs(g.dx) > Math.abs(g.dy) * 2.5,
+    onPanResponderRelease: (_, g) => { if (g.dx > 55) onClose?.(); },
   })).current;
 
   if (!day) return null;
 
   return (
-    <View style={[styles.container, { backgroundColor: C.bg }]} {...swipeBack.panHandlers}>
+    <View style={{ flex: 1 }} {...swipeBack.panHandlers}>
+    <View style={[styles.container, { backgroundColor: C.bg }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: color }]}>
         <TouchableOpacity style={styles.backBtn} onPress={onClose}>
@@ -255,6 +257,7 @@ export default function WorkoutDayScreen({ day, onClose }) {
           <Text style={styles.doneTxt}>{done ? 'האימון הושלם ✓' : 'ביצעתי את האימון'}</Text>
         </TouchableOpacity>
       </View>
+    </View>
     </View>
   );
 }

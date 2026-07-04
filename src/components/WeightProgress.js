@@ -33,6 +33,7 @@ export default function WeightProgress() {
   const [weeks, setWeeks] = useState(12);
   const [modal, setModal] = useState(false);
   const [input, setInput] = useState('');
+  const [sel, setSel]     = useState(null);   // tapped point index
 
   const load = useCallback(async () => {
     try {
@@ -94,6 +95,7 @@ export default function WeightProgress() {
     ? `M ${X(now)} ${Y(current)} L ${X(targetT)} ${Y(goal)}` : '';
   const yTicks = Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4);
   const last = log.length - 1;
+  const selIdx = (sel != null && sel <= last) ? sel : last;
 
   return (
     <View style={s.card}>
@@ -142,9 +144,26 @@ export default function WeightProgress() {
 
         {/* actual dots */}
         {log.map((e, i) => (
-          <Circle key={i} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={i === last ? 5 : 3}
-            fill={i === last ? GREEN : '#fff'} stroke={GREEN} strokeWidth="2" />
+          <Circle key={i} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={i === selIdx ? 6 : 3.5}
+            fill={i === selIdx ? GREEN : '#fff'} stroke={GREEN} strokeWidth="2" />
         ))}
+        {/* bigger invisible tap targets */}
+        {log.map((e, i) => (
+          <Circle key={`hit${i}`} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={16}
+            fill="transparent" onPress={() => setSel(i)} onPressIn={() => setSel(i)} />
+        ))}
+        {/* tooltip for the selected point */}
+        {log.length > 0 && (() => {
+          const e = log[selIdx]; const px = X(new Date(e.date).getTime()); const py = Y(e.kg);
+          const tx = Math.min(Math.max(px, 42), W - 42); const ty = Math.max(py - 36, 2);
+          return (
+            <G>
+              <Rect x={tx - 40} y={ty} width="80" height="30" rx="7" fill={C.text} />
+              <SvgText x={tx} y={ty + 13} fontSize="11" fontWeight="bold" fill="#fff" textAnchor="middle">{e.kg} ק"ג</SvgText>
+              <SvgText x={tx} y={ty + 24} fontSize="8" fill="#cfcfcf" textAnchor="middle">{fmt(new Date(e.date).getTime())}</SvgText>
+            </G>
+          );
+        })()}
         {/* goal point at the end */}
         {goal != null && (
           <G>
