@@ -2,8 +2,10 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
+  StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert, Dimensions,
 } from 'react-native';
+
+const CARD_W = Math.round(Dimensions.get('window').width * 0.72);
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -406,7 +408,8 @@ export default function ChatScreen({ navigation }) {
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: false })}
         renderItem={({ item }) => (
           <View style={[styles.bubbleWrap, item.role === 'user' ? styles.userWrap : styles.aiWrap]}>
-            <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}>
+            <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble,
+              (item.foodData?.foods?.length > 0 || item.recipe?.foods?.length > 0) && styles.cardBubble]}>
               {/* Empty streaming bubble → show a typing indicator */}
               {item.streaming && !item.text ? (
                 <ActivityIndicator size="small" color="#3a7a4a" />
@@ -484,11 +487,12 @@ const makeStyles = (C) => StyleSheet.create({
   avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: C.surface2, justifyContent: 'center', alignItems: 'center', marginRight: 6 },
   avatarTxt: { fontSize: 16 },
   bubble: { maxWidth: '78%', borderRadius: 16, padding: 12 },
+  cardBubble: { maxWidth: '92%' },
   userBubble: { backgroundColor: '#3a7a4a', borderBottomRightRadius: 4 },
   aiBubble: { backgroundColor: C.surface2, borderBottomLeftRadius: 4 },
   bubbleText: { color: C.text, fontSize: 15, lineHeight: 22, textAlign: 'right' },
   userText: { color: '#ffffff' },
-  foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
+  foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8, width: CARD_W },
   foodDetectedTitle: { color: '#3a7a4a', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
   qtyRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6 },
