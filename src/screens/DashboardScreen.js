@@ -185,7 +185,7 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
           )}
           <View style={styles.logInfo}>
             <Text style={styles.logName} numberOfLines={1}>{entry.food_name}</Text>
-            <Text style={[styles.logMeal, { color: mealColor }]}>{mealLabel}{time ? ` · ${time}` : ''}</Text>
+            {time ? <Text style={styles.logMeal}>{time}</Text> : null}
           </View>
           <View style={styles.logCalWrap}>
             <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
@@ -532,7 +532,7 @@ const makeStyles = (C) => StyleSheet.create({
   logThumb:     { width: 60, height: 60, borderRadius: 14 },
   logInfo:      { flex: 1 },
   logName:      { color: C.text, fontSize: 14, fontWeight: '600', textAlign: 'right' },
-  logMeal:      { fontSize: 11, marginTop: 2, textAlign: 'right' },
+  logMeal:      { fontSize: 11, marginTop: 2, textAlign: 'right', color: C.textDim },
   logCalWrap:   { alignItems: 'center', minWidth: 42 },
   logCal:       { fontSize: 15, fontWeight: '800' },
   logCalLbl:    { color: C.textDim, fontSize: 10 },

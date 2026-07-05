@@ -353,16 +353,17 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
   const takePhoto = async () => {
     if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.7, base64: false });
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9, base64: false });
       setPhase('processing');
-      // Build a small embedded thumbnail (data URI) of the captured photo. A data
-      // URI always renders in <Image> — no file system, no server, no 404 — so the
+      // Build an embedded thumbnail (data URI) of the captured photo. A data URI
+      // always renders in <Image> — no file system, no server, no 404 — so the
       // exact shot is stored on the entry and shown in the diary, reliably.
+      // 800px @ 0.6 keeps it crisp on the results card + retina thumbnails.
       let dataUri = null;
       try {
         const thumb = await manipulateAsync(
-          photo.uri, [{ resize: { width: 400 } }],
-          { compress: 0.5, format: SaveFormat.JPEG, base64: true },
+          photo.uri, [{ resize: { width: 800 } }],
+          { compress: 0.6, format: SaveFormat.JPEG, base64: true },
         );
         if (thumb.base64) dataUri = `data:image/jpeg;base64,${thumb.base64}`;
       } catch {}

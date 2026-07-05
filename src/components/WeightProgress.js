@@ -44,12 +44,8 @@ export default function WeightProgress() {
         if (prof.target_weight) setGoal(+prof.target_weight);
         if (prof.weight_kg)     setStart(+prof.weight_kg);
         if (prof.weeks_to_goal) setWeeks(+prof.weeks_to_goal);
-        if (arr.length === 0 && prof.weight_kg) {
-          arr.push({ date: new Date().toISOString().slice(0, 10), kg: +prof.weight_kg });
-          await AsyncStorage.setItem(KEY, JSON.stringify(arr));
-        }
       }
-      setLog(arr);
+      setLog(arr);   // log = real weigh-ins only; starting weight comes from the profile
     } catch (_) {}
   }, []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -66,35 +62,38 @@ export default function WeightProgress() {
     setInput(''); setModal(false);
   };
 
-  const current  = log.length ? log[log.length - 1].kg : start;
-  const first    = log.length ? log[0].kg : current;
-  const delta    = current != null && first != null ? +(current - first).toFixed(1) : 0;
-  const thisWeek = log.length && isoWeek(log[log.length - 1].date) === isoWeek(new Date().toISOString().slice(0, 10));
-  const progress = (goal != null && first != null && goal !== first)
-    ? Math.max(0, Math.min(100, Math.round(((first - current) / (first - goal)) * 100))) : null;
+  const today   = new Date().toISOString().slice(0, 10);
+  // Points to plot: real weigh-ins, or a single "current = starting weight" dot.
+  const points  = log.length ? log : (start != null ? [{ date: today, kg: start }] : []);
+  const current = points.length ? points[points.length - 1].kg : start;
+  // Progress + delta are measured against the STARTING weight (from the profile).
+  const delta   = (current != null && start != null) ? +(current - start).toFixed(1) : 0;
+  const thisWeek = log.length && isoWeek(log[log.length - 1].date) === isoWeek(today);
+  const progress = (goal != null && start != null && goal !== start)
+    ? Math.max(0, Math.min(100, Math.round(((start - current) / (start - goal)) * 100))) : null;
 
   // ── geometry: actual history (solid) + projection to goal (dashed) ──
   const W = 340, H = 195, PL = 30, PR = 14, PT = 26, PB = 26;
   const now = Date.now();
-  const startT  = log.length ? new Date(log[0].date).getTime() : now;
+  const startT  = points.length ? new Date(points[0].date).getTime() : now;
   const targetT = now + weeks * 7 * DAY;
   const xMin = Math.min(startT, now), xMax = Math.max(targetT, now + 7 * DAY);
   const X = (t) => PL + ((t - xMin) / (xMax - xMin)) * (W - PL - PR);
 
-  const kgs = log.map(e => e.kg);
+  const kgs = points.map(e => e.kg);
   const all = [...kgs, ...(goal != null ? [goal] : []), ...(current != null ? [current] : [])];
   let lo = Math.min(...all), hi = Math.max(...all);
   if (lo === hi) { lo -= 1; hi += 1; }
   const pad = (hi - lo) * 0.18; lo -= pad; hi += pad;
   const Y = (kg) => PT + (1 - (kg - lo) / (hi - lo)) * (H - PT - PB);
 
-  const actual = log.map((e, i) => `${i === 0 ? 'M' : 'L'} ${X(new Date(e.date).getTime())} ${Y(e.kg)}`).join(' ');
-  const areaD = log.length
+  const actual = points.map((e, i) => `${i === 0 ? 'M' : 'L'} ${X(new Date(e.date).getTime())} ${Y(e.kg)}`).join(' ');
+  const areaD = points.length > 1
     ? `${actual} L ${X(now)} ${H - PB} L ${X(startT)} ${H - PB} Z` : '';
   const proj = (current != null && goal != null)
     ? `M ${X(now)} ${Y(current)} L ${X(targetT)} ${Y(goal)}` : '';
   const yTicks = Array.from({ length: 5 }, (_, i) => lo + ((hi - lo) * i) / 4);
-  const last = log.length - 1;
+  const last = points.length - 1;
   const selIdx = (sel != null && sel <= last) ? sel : last;
 
   return (
@@ -137,24 +136,24 @@ export default function WeightProgress() {
 
         {/* actual area + line */}
         {areaD ? <Path d={areaD} fill="url(#wg)" /> : null}
-        {log.length > 1 && <Path d={actual} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
+        {points.length > 1 && <Path d={actual} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />}
 
         {/* projection to goal (dashed) */}
         {proj ? <Path d={proj} fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" opacity="0.55" /> : null}
 
         {/* actual dots */}
-        {log.map((e, i) => (
+        {points.map((e, i) => (
           <Circle key={i} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={i === selIdx ? 6 : 3.5}
             fill={i === selIdx ? GREEN : '#fff'} stroke={GREEN} strokeWidth="2" />
         ))}
         {/* bigger invisible tap targets */}
-        {log.map((e, i) => (
+        {points.map((e, i) => (
           <Circle key={`hit${i}`} cx={X(new Date(e.date).getTime())} cy={Y(e.kg)} r={16}
             fill="transparent" onPress={() => setSel(i)} onPressIn={() => setSel(i)} />
         ))}
         {/* tooltip for the selected point */}
-        {log.length > 0 && (() => {
-          const e = log[selIdx]; const px = X(new Date(e.date).getTime()); const py = Y(e.kg);
+        {points.length > 0 && (() => {
+          const e = points[selIdx]; const px = X(new Date(e.date).getTime()); const py = Y(e.kg);
           const tx = Math.min(Math.max(px, 42), W - 42); const ty = Math.max(py - 36, 2);
           return (
             <G>
