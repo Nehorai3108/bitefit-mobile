@@ -97,41 +97,67 @@ async function reduceMenuMeal(mealType, calories) {
   await AsyncStorage.setItem(WEEK_KEY, JSON.stringify(week));
 }
 
+// Parse the household display ("4 כפות אורז") into an editable quantity.
+// Returns { count, unit, mode } — 'unit' when there's a leading number, else 'gram'.
+function parseQty(f) {
+  const disp = (f.display_he ?? '').trim();
+  const m = disp.match(/^([\d.]+)\s+(.*)$/);
+  if (m && parseFloat(m[1]) > 0) {
+    return { count: parseFloat(m[1]), unit: m[2], mode: 'unit', base: parseFloat(m[1]) };
+  }
+  const g = f.grams ?? f.quantity ?? 100;
+  return { count: Math.round(g), unit: 'גרם', mode: 'gram', base: g };
+}
+
 function FoodDetectedCard({ foodData }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [logged, setLogged] = useState(false);
   const [logging, setLogging] = useState(false);
+  // one editable quantity per detected food
+  const [qtys, setQtys] = useState(() => foodData.foods.map(parseQty));
+
+  const step = (i, dir) => setQtys(prev => prev.map((q, idx) => {
+    if (idx !== i) return q;
+    const inc = q.mode === 'gram' ? 10 : 1;
+    return { ...q, count: Math.max(inc, +(q.count + dir * inc).toFixed(1)) };
+  }));
+
+  const factorOf = (q) => q.base > 0 ? q.count / q.base : 1;
+  const labelOf  = (q) => q.mode === 'gram' ? `${Math.round(q.count)} גרם` : `${q.count} ${q.unit}`;
 
   const doLog = async () => {
     setLogging(true);
     try {
       const mealType = foodData.meal_type?.toUpperCase() ?? 'LUNCH';
       let totalCal = 0;
-      for (const food of foodData.foods) {
-        let grams = food.grams ?? 100;
-        let cal = food.calories ?? 0, prot = food.protein ?? 0;
-        let carbs = food.carbs ?? 0, fat = food.fat ?? 0;
-        if (!cal) {
+      for (let i = 0; i < foodData.foods.length; i++) {
+        const food = foodData.foods[i];
+        const factor = factorOf(qtys[i]);
+        let grams = (food.grams ?? 100) * factor;
+        let cal = (food.calories ?? 0) * factor, prot = (food.protein ?? 0) * factor;
+        let carbs = (food.carbs ?? 0) * factor, fat = (food.fat ?? 0) * factor;
+        if (!food.calories) {
           const lookup = await searchFoodNutrition(food.name_he ?? food.name).catch(() => null);
           if (lookup?.found) {
-            const factor = grams / 100;
-            cal   = Math.round((lookup.calories_per_100g ?? 0) * factor);
-            prot  = Math.round((lookup.protein_per_100g ?? 0) * factor * 10) / 10;
-            carbs = Math.round((lookup.carbs_per_100g ?? 0) * factor * 10) / 10;
-            fat   = Math.round((lookup.fat_per_100g ?? 0) * factor * 10) / 10;
+            const g100 = grams / 100;
+            cal   = (lookup.calories_per_100g ?? 0) * g100;
+            prot  = (lookup.protein_per_100g ?? 0) * g100;
+            carbs = (lookup.carbs_per_100g ?? 0) * g100;
+            fat   = (lookup.fat_per_100g ?? 0) * g100;
           }
         }
+        cal = Math.round(cal); prot = Math.round(prot * 10) / 10;
+        carbs = Math.round(carbs * 10) / 10; fat = Math.round(fat * 10) / 10;
         totalCal += cal;
         await addFoodEntry({
           food_id: food.name ?? 'chat_food',
           food_name: food.name_he ?? food.name,
-          grams, calories: cal, protein: prot, carbs, fat,
+          grams: Math.round(grams), calories: cal, protein: prot, carbs, fat,
           meal_type: mealType,
           image_url: food.image_url ?? null,
         });
       }
-      // Also deduct from today's menu meal so the plan + home summary reflect it.
       await reduceMenuMeal(mealType, totalCal).catch(() => {});
       setLogged(true);
     } catch {
@@ -144,9 +170,23 @@ function FoodDetectedCard({ foodData }) {
   return (
     <View style={styles.foodDetected}>
       <Text style={styles.foodDetectedTitle}>לרשום שאכלת?</Text>
-      {foodData.foods.map((f, i) => (
-        <Text key={i} style={styles.foodItem}>• {f.display_he ?? `${f.name_he ?? f.name} — ${f.grams ?? f.quantity}g`} · {Math.round(f.calories ?? 0)} קק"ל</Text>
-      ))}
+      {foodData.foods.map((f, i) => {
+        const q = qtys[i];
+        const cal = Math.round((f.calories ?? 0) * factorOf(q));
+        return (
+          <View key={i} style={styles.qtyRow}>
+            <View style={styles.stepper}>
+              <TouchableOpacity style={styles.stepBtn} onPress={() => step(i, -1)}><Text style={styles.stepTxt}>−</Text></TouchableOpacity>
+              <Text style={styles.qtyVal}>{q.mode === 'gram' ? Math.round(q.count) : q.count}</Text>
+              <TouchableOpacity style={styles.stepBtn} onPress={() => step(i, +1)}><Text style={styles.stepTxt}>+</Text></TouchableOpacity>
+            </View>
+            <View style={styles.qtyInfo}>
+              <Text style={styles.qtyName} numberOfLines={1}>{q.mode === 'gram' ? (f.name_he ?? f.name) : q.unit}</Text>
+              <Text style={styles.qtyCal}>{cal} קק"ל</Text>
+            </View>
+          </View>
+        );
+      })}
       {logged ? (
         <Text style={styles.loggedTxt}>✓ נשמר ביומן ועודכן בתפריט</Text>
       ) : (
@@ -451,6 +491,14 @@ const makeStyles = (C) => StyleSheet.create({
   foodDetected: { marginTop: 8, padding: 8, backgroundColor: '#0a2a1a', borderRadius: 8 },
   foodDetectedTitle: { color: '#3a7a4a', fontSize: 12, fontWeight: '700', marginBottom: 4 },
   foodItem: { color: '#aaa', fontSize: 12 },
+  qtyRow: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6 },
+  stepper: { flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: C.surface, borderRadius: 20, borderWidth: 1, borderColor: C.border },
+  stepBtn: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
+  stepTxt: { fontSize: 18, fontWeight: '800', color: '#3a7a4a' },
+  qtyVal: { minWidth: 32, textAlign: 'center', fontSize: 15, fontWeight: '800', color: C.text },
+  qtyInfo: { flex: 1, marginRight: 10, alignItems: 'flex-end' },
+  qtyName: { fontSize: 14, fontWeight: '600', color: C.text, textAlign: 'right' },
+  qtyCal: { fontSize: 12, color: C.textDim, marginTop: 1 },
   suggestions: { paddingHorizontal: 12, paddingBottom: 4, flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   suggestionChip: { backgroundColor: C.surface, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7, borderWidth: 1, borderColor: C.border },
   suggestionTxt: { color: C.textMuted, fontSize: 13 },
