@@ -184,18 +184,21 @@ export default function WorkoutDayScreen({ day, onClose }) {
     onClose?.();
   };
 
-  // swipe-right to go back — exact same pattern as the working tab swipe (no capture)
-  const swipeBack = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gs) =>
-      Math.abs(gs.dx) > 25 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2.5,
-    onPanResponderRelease: (_, gs) => { if (gs.dx > 60) onClose?.(); },
+  // Reliable back gesture: an edge strip on the left that always wins the
+  // responder (the ScrollView inside the Modal swallows a full-screen PanResponder).
+  const edgeSwipe = useRef(PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 6,
+    onPanResponderRelease: (_, gs) => { if (gs.dx > 45) onClose?.(); },
   })).current;
 
   if (!day) return null;
 
   return (
-    <View style={{ flex: 1 }} {...swipeBack.panHandlers}>
+    <View style={{ flex: 1 }}>
     <View style={[styles.container, { backgroundColor: C.bg }]}>
+      {/* אזור החלקה בקצה שמאל — החלק ימינה לחזרה */}
+      <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, zIndex: 50 }} {...edgeSwipe.panHandlers} />
       {/* Header */}
       <View style={[styles.header, { backgroundColor: color }]}>
         <TouchableOpacity style={styles.backBtn} onPress={onClose}>
