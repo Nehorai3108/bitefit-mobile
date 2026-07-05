@@ -184,18 +184,18 @@ export default function WorkoutDayScreen({ day, onClose }) {
     onClose?.();
   };
 
-  // Reliable back gesture: an edge strip on the left that always wins the
-  // responder (the ScrollView inside the Modal swallows a full-screen PanResponder).
-  const edgeSwipe = useRef(PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 6,
-    onPanResponderRelease: (_, gs) => { if (gs.dx > 45) onClose?.(); },
+  // swipe-right to go back — same as the working tab swipe (works when rendered
+  // inline, not inside a Modal).
+  const swipeBack = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gs) =>
+      Math.abs(gs.dx) > 22 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2,
+    onPanResponderRelease: (_, gs) => { if (gs.dx > 55) onClose?.(); },
   })).current;
 
   if (!day) return null;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} {...swipeBack.panHandlers}>
     <View style={[styles.container, { backgroundColor: C.bg }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: color }]}>
@@ -258,12 +258,6 @@ export default function WorkoutDayScreen({ day, onClose }) {
           <Text style={styles.doneTxt}>{done ? 'האימון הושלם ✓' : 'ביצעתי את האימון'}</Text>
         </TouchableOpacity>
       </View>
-
-      {/* אזור החלקה בקצה שמאל — החלק ימינה לחזרה (נצבע אחרון = הכי למעלה) */}
-      <View
-        style={{ position: 'absolute', left: 0, top: 90, bottom: 90, width: 44 }}
-        {...edgeSwipe.panHandlers}
-      />
     </View>
     </View>
   );

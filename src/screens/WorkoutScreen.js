@@ -183,6 +183,11 @@ export default function WorkoutScreen({ navigation }) {
     ]);
   };
 
+  // Render a custom workout full-screen (NOT in a Modal) so swipe-back works.
+  if (viewWorkout) {
+    return <WorkoutDayScreen day={viewWorkout} onClose={() => { setViewWorkout(null); load(); }} />;
+  }
+
   return (
     <View style={{ flex: 1 }} {...panHandlers}>
     <View style={styles.container}>
@@ -451,11 +456,6 @@ export default function WorkoutScreen({ navigation }) {
 
       {/* בונה אימון מותאם */}
       <WorkoutBuilder visible={showBuilder} onClose={() => setShowBuilder(false)} onSaved={loadCustom} />
-
-      {/* תצוגת אימון מותאם */}
-      <Modal visible={!!viewWorkout} animationType="slide" onRequestClose={() => setViewWorkout(null)}>
-        {viewWorkout && <WorkoutDayScreen day={viewWorkout} onClose={() => setViewWorkout(null)} />}
-      </Modal>
     </View>
     </View>
   );
