@@ -139,6 +139,10 @@ export const fetchProfileTargets = () =>
 export const saveProfile = (data) =>
   api.put('/profile/', data).then(r => r.data);
 
+// Permanently delete the account and all its data (App Store requirement).
+export const deleteAccount = () =>
+  api.delete('/profile/account').then(r => r.data);
+
 // Water — GET uses date path param, POST to /water/
 export const fetchWater = () =>
   api.get(`/water/${today()}`).then(r => r.data);

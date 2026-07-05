@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Switch, Alert, Linking, ScrollView,
+  View, Text, StyleSheet, TouchableOpacity, Switch, Alert, Linking, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { deleteAccount } from '../api/client';
 import { cancelAll, initNotifications } from '../notifications';
 
 const NOTIF_KEY = '@notifications_enabled';
@@ -52,6 +53,36 @@ export default function SettingsScreen({ navigation }) {
       { text: 'ביטול', style: 'cancel' },
       { text: 'התנתק', style: 'destructive', onPress: logout },
     ]);
+  };
+
+  const [deleting, setDeleting] = useState(false);
+
+  const reallyDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      await logout();
+    } catch {
+      setDeleting(false);
+      Alert.alert('שגיאה', 'מחיקת החשבון נכשלה. נסה שוב או פנה לתמיכה.');
+    }
+  };
+
+  const doDeleteAccount = () => {
+    Alert.alert(
+      'מחיקת חשבון',
+      'פעולה זו תמחק לצמיתות את החשבון וכל הנתונים שלך — יומן אכילה, משקל, תפריטים ואימונים. לא ניתן לשחזר.',
+      [
+        { text: 'ביטול', style: 'cancel' },
+        {
+          text: 'המשך למחיקה', style: 'destructive', onPress: () =>
+            Alert.alert('בטוח לגמרי?', 'זו הזדמנות אחרונה — המחיקה סופית.', [
+              { text: 'ביטול', style: 'cancel' },
+              { text: 'כן, מחק לצמיתות', style: 'destructive', onPress: reallyDelete },
+            ]),
+        },
+      ],
+    );
   };
 
   const Row = ({ icon, label, color, children, onPress, danger }) => (
@@ -101,6 +132,14 @@ export default function SettingsScreen({ navigation }) {
           <Row icon="mail" label="צור קשר" color="#3a7a4a" onPress={contact} />
           <View style={styles.sep} />
           <Row icon="log-out-outline" label="התנתקות" danger onPress={doLogout} />
+        </View>
+
+        <Text style={styles.section}>חשבון</Text>
+        <View style={styles.card}>
+          <Row icon="trash-outline" label={deleting ? 'מוחק חשבון…' : 'מחיקת חשבון'} danger
+               onPress={deleting ? undefined : doDeleteAccount}>
+            {deleting ? <ActivityIndicator size="small" color="#ef7d6c" /> : undefined}
+          </Row>
         </View>
 
         <Text style={styles.version}>NutriSmart · גרסה 1.0</Text>
