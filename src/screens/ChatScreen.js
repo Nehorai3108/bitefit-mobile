@@ -6,6 +6,19 @@ import {
 } from 'react-native';
 
 const CARD_W = Math.round(Dimensions.get('window').width * 0.72);
+
+// Scale the leading number in a household-unit string ("3 כפות אורז" ->
+// "2 כפות אורז") so a reduced meal keeps physical units instead of grams.
+const scaleDisplayHe = (disp, factor) => {
+  if (!disp || !factor || factor === 1) return disp;
+  const m = disp.match(/\d+(?:\.\d+)?/);
+  if (!m) return disp;
+  const orig = parseFloat(m[0]);
+  let val = orig * factor;
+  val = val >= 10 ? Math.round(val) : Math.round(val * 2) / 2;
+  if (val < 1) val = Number.isInteger(orig) ? 1 : 0.5;
+  return disp.replace(m[0], String(val));
+};
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -88,7 +101,8 @@ async function reduceMenuMeal(mealType, calories) {
   const scaledN = {};
   ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
   const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
-    ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+    ? { ...ing, quantity: Math.round(ing.quantity * factor),
+        display_he: scaleDisplayHe(ing.display_he, factor) } : ing);
   slot.recipe = { ...r, total_nutrition: scaledN, ingredients: scaledIng, _reduced: true };
   const t = { calories: 0, protein: 0, carbs: 0, fat: 0 };
   Object.values(day.plan).forEach(m => {

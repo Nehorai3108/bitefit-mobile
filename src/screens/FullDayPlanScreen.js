@@ -11,6 +11,21 @@ import { fetchWeeklyPlan, swapMeal, searchMealRecipes, searchFoodNutrition, iden
 import { useTheme } from '../context/ThemeContext';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 
+// Scale the leading number inside a household-unit string ("3 כפות אורז" ->
+// "2 כפות אורז") so a reduced meal keeps its physical units instead of
+// falling back to grams. Strings with no leading number are left untouched.
+const scaleDisplayHe = (disp, factor) => {
+  if (!disp || !factor || factor === 1) return disp;
+  const m = disp.match(/\d+(?:\.\d+)?/);
+  if (!m) return disp;
+  const orig = parseFloat(m[0]);
+  let val = orig * factor;
+  val = val >= 10 ? Math.round(val) : Math.round(val * 2) / 2; // half-unit steps when small
+  if (val < 1) val = Number.isInteger(orig) ? 1 : 0.5;
+  const valStr = Number.isInteger(val) ? String(val) : String(val);
+  return disp.replace(m[0], valStr);
+};
+
 const planKey = () => {
   const d = new Date();
   return `@day_plan_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
@@ -472,7 +487,8 @@ export default function FullDayPlanScreen({ navigation, route }) {
     const scaledN = {};
     ['calories', 'protein', 'carbs', 'fat'].forEach(k => { scaledN[k] = Math.round((r.total_nutrition?.[k] ?? 0) * factor * 10) / 10; });
     const scaledIng = (r.ingredients ?? []).map(ing => ing.quantity
-      ? { ...ing, quantity: Math.round(ing.quantity * factor), display_he: undefined } : ing);
+      ? { ...ing, quantity: Math.round(ing.quantity * factor),
+          display_he: scaleDisplayHe(ing.display_he, factor) } : ing);
     return { ...p, [mealKey]: { ...meal, recipe: { ...r, total_nutrition: scaledN, ingredients: scaledIng, _reduced: true } } };
   });
 
