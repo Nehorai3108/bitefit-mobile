@@ -292,13 +292,14 @@ function LogEatenModal({ target, C, styles, onClose, onLogged }) {
   const [mode, setMode] = useState('choose');   // choose | manual | camera
   const [q, setQ] = useState('');
   const [grams, setGrams] = useState('100');
+  const [units, setUnits] = useState(1);
   const [food, setFood] = useState(null);
   const [busy, setBusy] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const camRef = useRef(null);
   if (!target) return null;
 
-  const reset = () => { setMode('choose'); setQ(''); setGrams('100'); setFood(null); setBusy(false); };
+  const reset = () => { setMode('choose'); setQ(''); setGrams('100'); setUnits(1); setFood(null); setBusy(false); };
   const close = () => { reset(); onClose(); };
 
   const search = async () => {
@@ -306,14 +307,16 @@ function LogEatenModal({ target, C, styles, onClose, onLogged }) {
     setBusy(true); setFood(null);
     try {
       const res = await searchFoodNutrition(q.trim());
-      if (res?.found) setFood(res); else Alert.alert('לא נמצא', 'נסה שם אחר');
+      if (res?.found) { setFood(res); setUnits(1); setGrams('100'); } else Alert.alert('לא נמצא', 'נסה שם אחר');
     } catch { Alert.alert('שגיאה', 'החיפוש נכשל'); }
     finally { setBusy(false); }
   };
 
   const saveManual = async () => {
     if (!food) return;
-    const g = parseFloat(grams) || 100;
+    const g = food.serving
+      ? Math.max(1, units) * food.serving.grams_per_unit
+      : (parseFloat(grams) || 100);
     const cal = Math.round((food.calories_per_100g ?? 0) * g / 100);
     setBusy(true);
     try {
@@ -349,8 +352,10 @@ function LogEatenModal({ target, C, styles, onClose, onLogged }) {
     } catch { Alert.alert('שגיאה', 'הצילום נכשל'); setBusy(false); }
   };
 
-  const g = parseFloat(grams) || 100;
-  const previewCal = food ? Math.round((food.calories_per_100g ?? 0) * g / 100) : 0;
+  const serving = food?.serving;
+  const effGrams = serving ? Math.max(1, units) * serving.grams_per_unit : (parseFloat(grams) || 100);
+  const previewCal = food ? Math.round((food.calories_per_100g ?? 0) * effGrams / 100) : 0;
+  const unitLabel = serving ? (units === 1 ? serving.unit_he : serving.unit_he_plural) : '';
 
   return (
     <Modal visible transparent animationType="slide" onRequestClose={close}>
@@ -387,11 +392,26 @@ function LogEatenModal({ target, C, styles, onClose, onLogged }) {
                   <Text style={styles.swapResultName}>{food.name_he}</Text>
                   <View style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', marginVertical: 10 }}>
                     <Text style={[styles.mealKcal, { fontSize: 20 }]}>{previewCal} קק"ל</Text>
-                    <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
-                      <TextInput style={[styles.swapInput, { width: 80, flex: 0 }]} value={grams}
-                        onChangeText={setGrams} keyboardType="numeric" textAlign="center" />
-                      <Text style={{ color: C.textMuted }}>גרם</Text>
-                    </View>
+                    {serving ? (
+                      <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 8 }}>
+                        <View style={styles.qtyStepper}>
+                          <TouchableOpacity style={styles.qtyStepBtn} onPress={() => setUnits(u => Math.max(1, u - 1))}>
+                            <Text style={styles.qtyStepTxt}>−</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.qtyStepVal}>{units}</Text>
+                          <TouchableOpacity style={styles.qtyStepBtn} onPress={() => setUnits(u => u + 1)}>
+                            <Text style={styles.qtyStepTxt}>+</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <Text style={{ color: C.textMuted }}>{unitLabel} · {Math.round(effGrams)}ג</Text>
+                      </View>
+                    ) : (
+                      <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 6 }}>
+                        <TextInput style={[styles.swapInput, { width: 80, flex: 0 }]} value={grams}
+                          onChangeText={setGrams} keyboardType="numeric" textAlign="center" />
+                        <Text style={{ color: C.textMuted }}>גרם</Text>
+                      </View>
+                    )}
                   </View>
                   <TouchableOpacity style={styles.genBtn} onPress={saveManual} disabled={busy}>
                     {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.genTxt}>רשום וקזז מהמנה</Text>}
@@ -713,6 +733,11 @@ const makeStyles = (C) => StyleSheet.create({
   swapSearchBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
   swapInput: { flex: 1, backgroundColor: C.surface, borderRadius: 12, paddingHorizontal: 14,
     paddingVertical: 12, color: C.text, fontSize: 15, borderWidth: 1, borderColor: C.border },
+  qtyStepper: { flexDirection: 'row-reverse', alignItems: 'center', backgroundColor: C.surface,
+    borderRadius: 20, borderWidth: 1, borderColor: C.border },
+  qtyStepBtn: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center' },
+  qtyStepTxt: { fontSize: 20, fontWeight: '800', color: '#3a7a4a' },
+  qtyStepVal: { minWidth: 30, textAlign: 'center', fontSize: 16, fontWeight: '800', color: C.text },
   swapResult: { flexDirection: 'row-reverse', alignItems: 'center', gap: 12, paddingVertical: 10,
     borderBottomWidth: 1, borderBottomColor: C.border },
   swapThumb: { width: 46, height: 46, borderRadius: 10 },
