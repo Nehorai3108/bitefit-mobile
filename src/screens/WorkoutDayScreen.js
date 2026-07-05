@@ -197,8 +197,6 @@ export default function WorkoutDayScreen({ day, onClose }) {
   return (
     <View style={{ flex: 1 }}>
     <View style={[styles.container, { backgroundColor: C.bg }]}>
-      {/* אזור החלקה בקצה שמאל — החלק ימינה לחזרה */}
-      <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 40, zIndex: 50 }} {...edgeSwipe.panHandlers} />
       {/* Header */}
       <View style={[styles.header, { backgroundColor: color }]}>
         <TouchableOpacity style={styles.backBtn} onPress={onClose}>
@@ -260,6 +258,12 @@ export default function WorkoutDayScreen({ day, onClose }) {
           <Text style={styles.doneTxt}>{done ? 'האימון הושלם ✓' : 'ביצעתי את האימון'}</Text>
         </TouchableOpacity>
       </View>
+
+      {/* אזור החלקה בקצה שמאל — החלק ימינה לחזרה (נצבע אחרון = הכי למעלה) */}
+      <View
+        style={{ position: 'absolute', left: 0, top: 90, bottom: 90, width: 44 }}
+        {...edgeSwipe.panHandlers}
+      />
     </View>
     </View>
   );
