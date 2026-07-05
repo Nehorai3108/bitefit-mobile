@@ -184,11 +184,11 @@ export default function WorkoutDayScreen({ day, onClose }) {
     onClose?.();
   };
 
-  // swipe-right to go back to the workouts page (like the other screens)
+  // swipe-right to go back — exact same pattern as the working tab swipe (no capture)
   const swipeBack = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: (_, g) => g.dx > 22 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
-    onMoveShouldSetPanResponderCapture: (_, g) => g.dx > 45 && Math.abs(g.dx) > Math.abs(g.dy) * 2.5,
-    onPanResponderRelease: (_, g) => { if (g.dx > 55) onClose?.(); },
+    onMoveShouldSetPanResponder: (_, gs) =>
+      Math.abs(gs.dx) > 25 && Math.abs(gs.dx) > Math.abs(gs.dy) * 2.5,
+    onPanResponderRelease: (_, gs) => { if (gs.dx > 60) onClose?.(); },
   })).current;
 
   if (!day) return null;
