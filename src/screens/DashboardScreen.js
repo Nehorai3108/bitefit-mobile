@@ -185,7 +185,11 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
           )}
           <View style={styles.logInfo}>
             <Text style={styles.logName} numberOfLines={1}>{entry.food_name}</Text>
-            {time ? <Text style={styles.logMeal}>{time}</Text> : null}
+            {(entry.display_he || time) ? (
+              <Text style={styles.logMeal} numberOfLines={1}>
+                {[entry.display_he, time].filter(Boolean).join(' · ')}
+              </Text>
+            ) : null}
           </View>
           <View style={styles.logCalWrap}>
             <Text style={[styles.logCal, { color: mealColor }]}>{Math.round(entry.calories ?? 0)}</Text>
@@ -205,7 +209,7 @@ function FoodLogRow({ entry, onDelete, readOnly }) {
       {expanded && (
         <View style={styles.macroPanel}>
           <View style={styles.macroBox}>
-            <Text style={styles.macroVal}>{Math.round(entry.grams ?? 0)}g</Text>
+            <Text style={styles.macroVal}>{entry.display_he || `${Math.round(entry.grams ?? 0)}g`}</Text>
             <Text style={styles.macroLbl}>כמות</Text>
           </View>
           {MACROS.map(m => (
