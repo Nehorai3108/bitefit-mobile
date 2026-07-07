@@ -143,6 +143,13 @@ export const saveProfile = (data) =>
 export const deleteAccount = () =>
   api.delete('/profile/account').then(r => r.data);
 
+// Weight tracking — synced to the cloud so it survives a device change.
+export const fetchWeightLog = () =>
+  api.get('/weight-log/').then(r => r.data);
+
+export const addWeightEntry = (date, kg) =>
+  api.post('/weight-log/', { date, kg }).then(r => r.data);
+
 // Water — GET uses date path param, POST to /water/
 export const fetchWater = () =>
   api.get(`/water/${today()}`).then(r => r.data);

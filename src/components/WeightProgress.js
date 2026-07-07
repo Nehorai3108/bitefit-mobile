@@ -9,7 +9,7 @@ import Svg, {
 } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchProfile } from '../api/client';
+import { fetchProfile, fetchWeightLog, addWeightEntry } from '../api/client';
 import { useTheme } from '../context/ThemeContext';
 
 const KEY = '@weight_log_v1';
@@ -37,15 +37,22 @@ export default function WeightProgress() {
 
   const load = useCallback(async () => {
     try {
-      const raw = await AsyncStorage.getItem(KEY);
-      const arr = raw ? JSON.parse(raw) : [];
       const prof = await fetchProfile().catch(() => null);
       if (prof) {
         if (prof.target_weight) setGoal(+prof.target_weight);
         if (prof.weight_kg)     setStart(+prof.weight_kg);
         if (prof.weeks_to_goal) setWeeks(+prof.weeks_to_goal);
       }
-      setLog(arr);   // log = real weigh-ins only; starting weight comes from the profile
+      // Cloud is the source of truth (survives a device change); fall back to
+      // the local cache when offline.
+      const server = await fetchWeightLog().catch(() => null);
+      if (server?.log) {
+        setLog(server.log);
+        await AsyncStorage.setItem(KEY, JSON.stringify(server.log)).catch(() => {});
+      } else {
+        const raw = await AsyncStorage.getItem(KEY);
+        setLog(raw ? JSON.parse(raw) : []);
+      }
     } catch (_) {}
   }, []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -58,7 +65,8 @@ export default function WeightProgress() {
     if (next.length && isoWeek(next[next.length - 1].date) === isoWeek(today)) next[next.length - 1] = { date: today, kg };
     else next.push({ date: today, kg });
     setLog(next);
-    await AsyncStorage.setItem(KEY, JSON.stringify(next));
+    await AsyncStorage.setItem(KEY, JSON.stringify(next));   // optimistic local cache
+    addWeightEntry(today, kg).catch(() => {});               // sync to cloud
     setInput(''); setModal(false);
   };
 
