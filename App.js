@@ -30,6 +30,10 @@ import WorkoutScreen   from './src/screens/WorkoutScreen';
 import ProfileScreen   from './src/screens/ProfileScreen';
 import { isWaking, onWakingChange } from './src/serverWaking';
 import { initNotifications } from './src/notifications';
+import { initPurchases, PURCHASES_ENABLED, isPro } from './src/purchases';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const PAYWALL_SEEN_KEY = '@bitefit_paywall_seen';
 import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode, fetchRecentFoods } from './src/api/client';
 
 const Tab = createBottomTabNavigator();
@@ -934,6 +938,44 @@ function RootNavigator() {
 
   if (!token)      return <AuthNavigator />;
   if (!onboarded)  return <OnboardingScreen />;
+  return <PostOnboardingGate />;
+}
+
+// After onboarding, show the paywall once (Cal AI style) before entering the
+// app — unless payments aren't configured, the user is already Pro, or they've
+// already seen it. Then the paywall is only reachable from Profile/Settings.
+function PostOnboardingGate() {
+  const [decided, setDecided]         = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        if (!PURCHASES_ENABLED) { if (alive) setDecided(true); return; }
+        const seen = await AsyncStorage.getItem(PAYWALL_SEEN_KEY);
+        if (seen === 'true') { if (alive) setDecided(true); return; }
+        const pro = await isPro();
+        if (pro) { await AsyncStorage.setItem(PAYWALL_SEEN_KEY, 'true'); if (alive) setDecided(true); return; }
+        if (alive) { setShowPaywall(true); setDecided(true); }
+      } catch { if (alive) setDecided(true); }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const dismissPaywall = async () => {
+    try { await AsyncStorage.setItem(PAYWALL_SEEN_KEY, 'true'); } catch {}
+    setShowPaywall(false);
+  };
+
+  if (!decided) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0c1622', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#3a7a4a" />
+      </View>
+    );
+  }
+  if (showPaywall) return <PaywallScreen firstRun onClose={dismissPaywall} />;
   return <MainWithTutorial />;
 }
 
@@ -973,7 +1015,7 @@ if (_SENTRY_DSN) {
 }
 
 function App() {
-  useEffect(() => { initNotifications(); }, []);
+  useEffect(() => { initNotifications(); initPurchases(); }, []);
   return (
     <ErrorBoundary>
     <ThemeProvider>

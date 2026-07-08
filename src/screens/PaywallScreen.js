@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { PURCHASES_ENABLED, getPackages, purchase, restore } from '../purchases';
 
 const GREEN = '#3a7a4a';
 const GOLD = '#e0a800';
@@ -21,25 +22,68 @@ const PLANS = {
   monthly: { label: 'חודשי', price: '₪29',  per: 'לחודש', best: false },
 };
 
-export default function PaywallScreen({ navigation }) {
+export default function PaywallScreen({ navigation, firstRun, onClose }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
-  const [plan, setPlan] = useState('annual');
+  const [plan, setPlan]   = useState('annual');
+  const [pkgs, setPkgs]   = useState({});   // { annual: pkg, monthly: pkg }
+  const [busy, setBusy]   = useState(false);
 
-  const startTrial = () => {
-    // No real payment yet — this is where RevenueCat's purchase flow will go.
-    Alert.alert(
-      'בקרוב 🚀',
-      'התשלום עדיין לא מחובר. כאן ייפתח חלון התשלום של ' +
-        (Platform.OS === 'ios' ? 'App Store' : 'Google Play') +
-        ' עם 7 ימי ניסיון חינם.',
-    );
+  // The static prices are the fallback shown until RevenueCat prices load
+  // (or when payments aren't configured yet).
+  const priceOf = (key) => pkgs[key]?.product?.priceString || PLANS[key].price;
+
+  const close = () => {
+    if (firstRun && onClose) onClose();
+    else navigation?.goBack?.();
+  };
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (!PURCHASES_ENABLED) return;
+      const list = await getPackages();
+      if (!alive) return;
+      const map = {};
+      for (const p of list) {
+        const t = (p.packageType || '').toUpperCase();
+        if (t === 'ANNUAL') map.annual = p;
+        else if (t === 'MONTHLY') map.monthly = p;
+      }
+      setPkgs(map);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const startTrial = async () => {
+    if (!PURCHASES_ENABLED) {
+      Alert.alert('בקרוב 🚀', 'התשלום עדיין לא מחובר. כאן ייפתח חלון התשלום של '
+        + (Platform.OS === 'ios' ? 'App Store' : 'Google Play') + '.');
+      return;
+    }
+    const pkg = pkgs[plan];
+    if (!pkg) { Alert.alert('שגיאה', 'המנוי אינו זמין כרגע. נסה שוב מאוחר יותר.'); return; }
+    setBusy(true);
+    const res = await purchase(pkg);
+    setBusy(false);
+    if (res.ok && res.pro) { Alert.alert('ברוך הבא ל-Pro! 🎉', 'המנוי פעיל.', [{ text: 'יאללה', onPress: close }]); }
+    else if (res.cancelled) { /* user backed out — do nothing */ }
+    else Alert.alert('הרכישה נכשלה', res.error || 'נסה שוב.');
+  };
+
+  const doRestore = async () => {
+    if (!PURCHASES_ENABLED) { Alert.alert('שחזור רכישות', 'יחובר עם מערכת התשלום.'); return; }
+    setBusy(true);
+    const res = await restore();
+    setBusy(false);
+    if (res.pro) Alert.alert('שוחזר ✓', 'המנוי שלך פעיל.', [{ text: 'יופי', onPress: close }]);
+    else Alert.alert('לא נמצא מנוי', 'לא נמצאה רכישה קודמת לשחזור.');
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <TouchableOpacity style={styles.close} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.close} onPress={close}>
           <Ionicons name="close" size={26} color={C.textMuted} />
         </TouchableOpacity>
 
@@ -81,22 +125,28 @@ export default function PaywallScreen({ navigation }) {
                   </View>
                   <Text style={styles.planLabel}>{p.label}</Text>
                 </View>
-                <Text style={styles.planPrice}>{p.price} <Text style={styles.planPer}>{p.per}</Text></Text>
+                <Text style={styles.planPrice}>{priceOf(key)} <Text style={styles.planPer}>{p.per}</Text></Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <TouchableOpacity style={styles.cta} onPress={startTrial} activeOpacity={0.9}>
-          <Text style={styles.ctaTxt}>התחל 7 ימים חינם</Text>
+        <TouchableOpacity style={[styles.cta, busy && { opacity: 0.6 }]} onPress={startTrial} disabled={busy} activeOpacity={0.9}>
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>התחל 7 ימים חינם</Text>}
         </TouchableOpacity>
         <Text style={styles.ctaSub}>
-          ניסיון חינם ל-7 ימים, ואז {PLANS[plan].price} {PLANS[plan].per}. ביטול בכל עת.
+          ניסיון חינם ל-7 ימים, ואז {priceOf(plan)} {PLANS[plan].per}. ביטול בכל עת.
         </Text>
 
-        <TouchableOpacity onPress={() => Alert.alert('שחזור רכישות', 'יחובר עם מערכת התשלום.')}>
+        <TouchableOpacity onPress={doRestore} disabled={busy}>
           <Text style={styles.restore}>שחזור רכישה</Text>
         </TouchableOpacity>
+
+        {firstRun && (
+          <TouchableOpacity onPress={close} disabled={busy} style={{ marginTop: 14 }}>
+            <Text style={styles.skip}>המשך בחינם</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     </View>
   );
@@ -137,4 +187,5 @@ const makeStyles = (C) => StyleSheet.create({
   ctaSub: { fontSize: 12, color: C.textMuted, textAlign: 'center', marginTop: 10, lineHeight: 18 },
   restore: { fontSize: 13, color: C.textMuted, textAlign: 'center', marginTop: 16,
     textDecorationLine: 'underline' },
+  skip: { fontSize: 14, color: C.textMuted, textAlign: 'center', fontWeight: '600' },
 });
