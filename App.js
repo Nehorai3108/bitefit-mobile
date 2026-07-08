@@ -10,6 +10,7 @@ import {
   Animated, PanResponder,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -350,25 +351,24 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
       if (presetMeal) setMeal(presetMeal); }
   }, [visible, presetMeal]);
 
-  const takePhoto = async () => {
-    if (!cameraRef.current) return;
+  // Identify food from a photo URI — shared by the camera and the gallery.
+  const processImage = async (uri) => {
+    setPhase('processing');
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9, base64: false });
-      setPhase('processing');
-      // Build an embedded thumbnail (data URI) of the captured photo. A data URI
-      // always renders in <Image> — no file system, no server, no 404 — so the
-      // exact shot is stored on the entry and shown in the diary, reliably.
+      // Build an embedded thumbnail (data URI) of the photo. A data URI always
+      // renders in <Image> — no file system, no server, no 404 — so the exact
+      // shot is stored on the entry and shown in the diary, reliably.
       // 800px @ 0.6 keeps it crisp on the results card + retina thumbnails.
       let dataUri = null;
       try {
         const thumb = await manipulateAsync(
-          photo.uri, [{ resize: { width: 800 } }],
+          uri, [{ resize: { width: 800 } }],
           { compress: 0.6, format: SaveFormat.JPEG, base64: true },
         );
         if (thumb.base64) dataUri = `data:image/jpeg;base64,${thumb.base64}`;
       } catch {}
-      const r = await identifyFood(photo.uri);
-      setPhotoUrl(dataUri ?? photo.uri);   // embedded thumbnail (preferred) or local URI
+      const r = await identifyFood(uri);
+      setPhotoUrl(dataUri ?? uri);   // embedded thumbnail (preferred) or local URI
       setSavedImageUrl(r.image_url ?? null);
       if (r.items?.length > 0) {
         // Keep the AI's original values as a base so editing grams scales cleanly.
@@ -386,8 +386,31 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
         setPhase('camera');
       }
     } catch (e) {
-      Alert.alert('שגיאה', 'לא ניתן לצלם או לנתח');
+      Alert.alert('שגיאה', 'לא ניתן לנתח את התמונה');
       setPhase('camera');
+    }
+  };
+
+  const takePhoto = async () => {
+    if (!cameraRef.current) return;
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.9, base64: false });
+      await processImage(photo.uri);
+    } catch (e) {
+      Alert.alert('שגיאה', 'לא ניתן לצלם');
+      setPhase('camera');
+    }
+  };
+
+  // Pick an existing photo from the gallery instead of taking one.
+  const pickFromGallery = async () => {
+    try {
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'], quality: 0.9,
+      });
+      if (!res.canceled && res.assets?.[0]?.uri) await processImage(res.assets[0].uri);
+    } catch {
+      Alert.alert('שגיאה', 'לא ניתן לפתוח את הגלריה');
     }
   };
 
@@ -444,6 +467,12 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
       return isNaN(g) ? it : scaleItem(it, Math.max(1, g));
     }));
   const removeItem = (i) => setItems(prev => prev.filter((_, idx) => idx !== i));
+
+  // Add a food the AI missed. Starts blank; typing a name + relookup fills values.
+  const addBlankItem = () => setItems(prev => [...prev, {
+    name_he: '', grams: 100, calories: 0, protein: 0, carbs: 0, fat: 0,
+    baseGrams: 100, baseCal: 0, baseProt: 0, baseCarbs: 0, baseFat: 0,
+  }]);
 
   // עריכת שם מאכל שזוהה לא נכון (למשל מלפפון שזוהה כמלון)
   const editName = (i, text) =>
@@ -504,7 +533,12 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
                 <View style={s.shutterInner} />
               </TouchableOpacity>
             )}
-            <Text style={s.cameraHint}>כוון למנה ולחץ לצילום</Text>
+            {/* Gallery button — pick an existing photo instead of shooting */}
+            <TouchableOpacity style={s.galleryBtn} onPress={pickFromGallery}>
+              <Ionicons name="images-outline" size={24} color="#fff" />
+              <Text style={s.galleryTxt}>גלריה</Text>
+            </TouchableOpacity>
+            <Text style={s.cameraHint}>כוון למנה ולחץ לצילום · או בחר מהגלריה</Text>
           </>
         )}
 
@@ -588,8 +622,16 @@ function CameraPhotoModal({ visible, onClose, presetMeal, onLogged }) {
             ))}
 
             {items.length === 0 && (
-              <Text style={{ color: C.textMuted, textAlign: 'center', marginVertical: 20 }}>אין פריטים. צלם שוב.</Text>
+              <Text style={{ color: C.textMuted, textAlign: 'center', marginVertical: 20 }}>אין פריטים. הוסף מאכל או צלם שוב.</Text>
             )}
+
+            {/* Add a food the AI missed */}
+            <TouchableOpacity onPress={addBlankItem}
+              style={{ flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6,
+                borderWidth: 1, borderColor: C.border, borderStyle: 'dashed', borderRadius: 14, paddingVertical: 12, marginBottom: 14 }}>
+              <Ionicons name="add" size={18} color="#3a7a4a" />
+              <Text style={{ color: '#3a7a4a', fontSize: 14, fontWeight: '700' }}>הוסף מאכל</Text>
+            </TouchableOpacity>
 
             <View style={{ marginTop: 4 }}>
               <MealChips value={meal} onChange={setMeal} />
@@ -1037,4 +1079,6 @@ const s = StyleSheet.create({
   shutterBtn:   { position: 'absolute', bottom: 48, alignSelf: 'center', width: 72, height: 72, borderRadius: 36, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
   shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff' },
   cameraHint:   { position: 'absolute', bottom: 130, alignSelf: 'center', color: 'rgba(255,255,255,0.7)', fontSize: 13 },
+  galleryBtn:   { position: 'absolute', bottom: 60, right: 32, alignItems: 'center', gap: 3 },
+  galleryTxt:   { color: '#fff', fontSize: 11, fontWeight: '600' },
 });
