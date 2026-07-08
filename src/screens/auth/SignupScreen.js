@@ -31,8 +31,14 @@ export default function SignupScreen({ navigation }) {
     }
     setLoading(true);
     try {
-      await signup(email.trim().toLowerCase(), password, name.trim());
-      // App.js will render Onboarding automatically after token is set
+      const res = await signup(email.trim().toLowerCase(), password, name.trim());
+      // Email confirmation required → no session yet. Tell the user and send
+      // them to login (App.js only auto-advances once a token is set).
+      if (res?.needs_confirmation) {
+        Alert.alert('כמעט סיימנו', 'שלחנו קישור אימות לאימייל שלך. אשר אותו ואז התחבר.',
+          [{ text: 'הבנתי', onPress: () => navigation.navigate('Login') }]);
+      }
+      // Otherwise App.js will render Onboarding automatically after token is set.
     } catch (e) {
       // הצג את השגיאה האמיתית לצורך אבחון
       let msg;

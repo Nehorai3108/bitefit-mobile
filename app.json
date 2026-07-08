@@ -60,7 +60,7 @@
       "@sentry/react-native"
     ],
     "extra": {
-      "sentryDsn": "",
+      "sentryDsn": "https://d5735fe16d1f010e3a29a4c3eb3f1fea@o4511699428442112.ingest.de.sentry.io/4511699466649680",
       "eas": {
         "projectId": "cad4d55a-f90b-400c-b7f0-9e5c26ecea25"
       }

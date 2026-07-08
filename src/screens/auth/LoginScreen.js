@@ -10,10 +10,23 @@ import { useTheme } from '../../context/ThemeContext';
 export default function LoginScreen({ navigation }) {
   const { C } = useTheme();
   const s = useMemo(() => makeS(C), [C]);
-  const { login } = useAuth();
+  const { login, resetPassword } = useAuth();
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [loading,  setLoading]  = useState(false);
+
+  const handleForgot = async () => {
+    const mail = email.trim().toLowerCase();
+    if (!mail) {
+      Alert.alert('שכחת סיסמה?', 'הקלד את האימייל שלך בשדה למעלה ואז לחץ שוב על "שכחתי סיסמה".');
+      return;
+    }
+    try {
+      await resetPassword(mail);
+    } catch (_) {}
+    // Always the same message — never reveal whether the email exists.
+    Alert.alert('נשלח קישור', 'אם קיים חשבון עם האימייל הזה, שלחנו אליו קישור לאיפוס הסיסמה.');
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
@@ -81,6 +94,10 @@ export default function LoginScreen({ navigation }) {
               : <Text style={s.btnText}>כניסה</Text>
             }
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleForgot} style={{ marginTop: 14 }}>
+            <Text style={s.forgot}>שכחתי סיסמה</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Switch to signup */}
@@ -122,6 +139,7 @@ const makeS = (C) => StyleSheet.create({
   },
   btnDisabled: { opacity: 0.6 },
   btnText:    { color: '#000', fontSize: 16, fontWeight: '700' },
+  forgot:     { color: C.textMuted, fontSize: 14, textAlign: 'center', textDecorationLine: 'underline' },
 
   switchRow:  { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   switchText: { color: C.textMuted, fontSize: 14 },

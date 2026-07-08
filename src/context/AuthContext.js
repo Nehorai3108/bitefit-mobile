@@ -44,8 +44,16 @@ export function AuthProvider({ children }) {
 
   const signup = async (email, password, name) => {
     const res = await api.post('/auth/signup', { email, password, name });
-    await _persist(res.data.access_token, res.data.refresh_token, { id: res.data.user_id, email: res.data.email });
+    // When the project requires email confirmation there's no session yet —
+    // don't persist a null token; the screen tells the user to check their mail.
+    if (res.data.access_token) {
+      await _persist(res.data.access_token, res.data.refresh_token, { id: res.data.user_id, email: res.data.email });
+    }
     return res.data;
+  };
+
+  const resetPassword = async (email) => {
+    await api.post('/auth/reset-password', { email });
   };
 
   const markOnboarded = async () => {
@@ -71,7 +79,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, onboarded, isLoading, login, signup, logout, markOnboarded }}>
+    <AuthContext.Provider value={{ token, user, onboarded, isLoading, login, signup, resetPassword, logout, markOnboarded }}>
       {children}
     </AuthContext.Provider>
   );
