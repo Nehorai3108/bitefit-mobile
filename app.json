@@ -56,9 +56,11 @@
       "expo-font",
       "@react-native-community/datetimepicker",
       "expo-audio",
-      "expo-asset"
+      "expo-asset",
+      "@sentry/react-native"
     ],
     "extra": {
+      "sentryDsn": "",
       "eas": {
         "projectId": "cad4d55a-f90b-400c-b7f0-9e5c26ecea25"
       }

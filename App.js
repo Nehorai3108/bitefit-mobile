@@ -9,6 +9,8 @@ import {
   ScrollView, KeyboardAvoidingView, Platform, Image,
   Animated, PanResponder,
 } from 'react-native';
+import Constants from 'expo-constants';
+import * as Sentry from '@sentry/react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
@@ -959,7 +961,18 @@ function WakingBanner() {
   );
 }
 
-export default function App() {
+// Crash + error reporting. No-ops until a DSN is set in app.json → extra.sentryDsn,
+// so builds without a Sentry project behave exactly as before.
+const _SENTRY_DSN = Constants.expoConfig?.extra?.sentryDsn || '';
+if (_SENTRY_DSN) {
+  Sentry.init({
+    dsn: _SENTRY_DSN,
+    tracesSampleRate: 0.2,
+    enableNativeCrashHandling: true,
+  });
+}
+
+function App() {
   useEffect(() => { initNotifications(); }, []);
   return (
     <ErrorBoundary>
@@ -974,6 +987,8 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+export default _SENTRY_DSN ? Sentry.wrap(App) : App;
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const s = StyleSheet.create({

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 
 // Surfaces launch/render errors on screen instead of a white screen or crash,
 // so we can see the real cause in a production (TestFlight) build.
@@ -11,6 +12,7 @@ export default class ErrorBoundary extends React.Component {
     if (global.ErrorUtils && global.ErrorUtils.setGlobalHandler) {
       const prev = global.ErrorUtils.getGlobalHandler && global.ErrorUtils.getGlobalHandler();
       global.ErrorUtils.setGlobalHandler((e, isFatal) => {
+        try { Sentry.captureException(e); } catch (_) {}
         try { this.setState({ error: e }); } catch (_) {}
         if (prev) try { prev(e, isFatal); } catch (_) {}
       });
@@ -22,6 +24,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
+    try { Sentry.captureException(error); } catch (_) {}
     this.setState({ error, info });
   }
 
