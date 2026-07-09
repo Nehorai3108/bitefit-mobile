@@ -119,9 +119,6 @@ export default function SettingsScreen({ navigation }) {
 
         <Text style={styles.section}>מנוי</Text>
         <View style={styles.card}>
-          <Row icon="star" label="שדרג ל-NutriSmart Pro" color="#e0a800"
-               onPress={() => navigation.navigate('Paywall')} />
-          <View style={styles.sep} />
           <Row icon="close-circle-outline" label="ביטול מנוי" onPress={cancelSub} />
         </View>
 

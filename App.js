@@ -31,9 +31,6 @@ import ProfileScreen   from './src/screens/ProfileScreen';
 import { isWaking, onWakingChange } from './src/serverWaking';
 import { initNotifications } from './src/notifications';
 import { initPurchases, PURCHASES_ENABLED, isPro } from './src/purchases';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const PAYWALL_SEEN_KEY = '@bitefit_paywall_seen';
 import { searchFoodNutrition, addFoodEntry, identifyFood, lookupBarcode, fetchRecentFoods } from './src/api/client';
 
 const Tab = createBottomTabNavigator();
@@ -941,9 +938,11 @@ function RootNavigator() {
   return <PostOnboardingGate />;
 }
 
-// After onboarding, show the paywall once (Cal AI style) before entering the
-// app — unless payments aren't configured, the user is already Pro, or they've
-// already seen it. Then the paywall is only reachable from Profile/Settings.
+// MANDATORY paywall: after onboarding the app requires an active Pro
+// subscription. The paywall is re-checked every launch (no "seen" bypass) and
+// can ONLY be dismissed by a successful purchase/restore. When payments aren't
+// configured yet (no RevenueCat key) we let the user in, so a misconfiguration
+// can never brick the live app.
 function PostOnboardingGate() {
   const [decided, setDecided]         = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -953,20 +952,15 @@ function PostOnboardingGate() {
     (async () => {
       try {
         if (!PURCHASES_ENABLED) { if (alive) setDecided(true); return; }
-        const seen = await AsyncStorage.getItem(PAYWALL_SEEN_KEY);
-        if (seen === 'true') { if (alive) setDecided(true); return; }
         const pro = await isPro();
-        if (pro) { await AsyncStorage.setItem(PAYWALL_SEEN_KEY, 'true'); if (alive) setDecided(true); return; }
-        if (alive) { setShowPaywall(true); setDecided(true); }
+        if (alive) { setShowPaywall(!pro); setDecided(true); }
       } catch { if (alive) setDecided(true); }
     })();
     return () => { alive = false; };
   }, []);
 
-  const dismissPaywall = async () => {
-    try { await AsyncStorage.setItem(PAYWALL_SEEN_KEY, 'true'); } catch {}
-    setShowPaywall(false);
-  };
+  // Only called after a successful purchase/restore (Pro is now active).
+  const onSubscribed = () => setShowPaywall(false);
 
   if (!decided) {
     return (
@@ -975,7 +969,7 @@ function PostOnboardingGate() {
       </View>
     );
   }
-  if (showPaywall) return <PaywallScreen firstRun onClose={dismissPaywall} />;
+  if (showPaywall) return <PaywallScreen mandatory onClose={onSubscribed} />;
   return <MainWithTutorial />;
 }
 

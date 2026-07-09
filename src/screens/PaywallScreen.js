@@ -22,7 +22,7 @@ const PLANS = {
   monthly: { label: 'חודשי', price: '₪29',  per: 'לחודש', best: false },
 };
 
-export default function PaywallScreen({ navigation, firstRun, onClose }) {
+export default function PaywallScreen({ navigation, mandatory, onClose }) {
   const { C } = useTheme();
   const styles = useMemo(() => makeStyles(C), [C]);
   const [plan, setPlan]   = useState('annual');
@@ -33,8 +33,10 @@ export default function PaywallScreen({ navigation, firstRun, onClose }) {
   // (or when payments aren't configured yet).
   const priceOf = (key) => pkgs[key]?.product?.priceString || PLANS[key].price;
 
+  // In mandatory mode there's no free exit — close() only runs after a
+  // successful purchase/restore, which unlocks the app via onClose.
   const close = () => {
-    if (firstRun && onClose) onClose();
+    if (onClose) onClose();
     else navigation?.goBack?.();
   };
 
@@ -83,9 +85,12 @@ export default function PaywallScreen({ navigation, firstRun, onClose }) {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <TouchableOpacity style={styles.close} onPress={close}>
-          <Ionicons name="close" size={26} color={C.textMuted} />
-        </TouchableOpacity>
+        {/* No close button in mandatory mode — a subscription is required. */}
+        {!mandatory && (
+          <TouchableOpacity style={styles.close} onPress={close}>
+            <Ionicons name="close" size={26} color={C.textMuted} />
+          </TouchableOpacity>
+        )}
 
         <View style={styles.crown}>
           <Ionicons name="star" size={30} color={GOLD} />
@@ -138,15 +143,10 @@ export default function PaywallScreen({ navigation, firstRun, onClose }) {
           ניסיון חינם ל-7 ימים, ואז {priceOf(plan)} {PLANS[plan].per}. ביטול בכל עת.
         </Text>
 
+        {/* Apple requires a visible restore action even on a hard paywall. */}
         <TouchableOpacity onPress={doRestore} disabled={busy}>
           <Text style={styles.restore}>שחזור רכישה</Text>
         </TouchableOpacity>
-
-        {firstRun && (
-          <TouchableOpacity onPress={close} disabled={busy} style={{ marginTop: 14 }}>
-            <Text style={styles.skip}>המשך בחינם</Text>
-          </TouchableOpacity>
-        )}
       </ScrollView>
     </View>
   );
