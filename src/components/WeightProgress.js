@@ -61,9 +61,12 @@ export default function WeightProgress() {
     const kg = parseFloat(input);
     if (!kg || kg < 30 || kg > 300) return;
     const today = new Date().toISOString().slice(0, 10);
-    const next = [...log];
-    if (next.length && isoWeek(next[next.length - 1].date) === isoWeek(today)) next[next.length - 1] = { date: today, kg };
-    else next.push({ date: today, kg });
+    // One weigh-in per DAY: update today's if it exists, otherwise add a new
+    // dated point so the graph grows over time (matches the server's per-date
+    // upsert). Keep the log sorted by date.
+    const next = log.filter(e => e.date !== today);
+    next.push({ date: today, kg });
+    next.sort((a, b) => a.date.localeCompare(b.date));
     setLog(next);
     await AsyncStorage.setItem(KEY, JSON.stringify(next));   // optimistic local cache
     addWeightEntry(today, kg).catch(() => {});               // sync to cloud
@@ -71,8 +74,16 @@ export default function WeightProgress() {
   };
 
   const today   = new Date().toISOString().slice(0, 10);
-  // Points to plot: real weigh-ins, or a single "current = starting weight" dot.
-  const points  = log.length ? log : (start != null ? [{ date: today, kg: start }] : []);
+  // Points to plot: the profile starting weight anchored as the first point,
+  // then every weigh-in (sorted by date). Anchoring the start means the line
+  // shows real progression from day one, instead of the start vanishing the
+  // moment the first weigh-in is logged.
+  const logSorted = [...log].sort((a, b) => a.date.localeCompare(b.date));
+  const showAnchor = start != null && !(logSorted.length && logSorted[0].kg === start);
+  const anchorDate = logSorted.length
+    ? new Date(new Date(logSorted[0].date).getTime() - 7 * DAY).toISOString().slice(0, 10)
+    : today;
+  const points = (showAnchor ? [{ date: anchorDate, kg: start }] : []).concat(logSorted);
   const current = points.length ? points[points.length - 1].kg : start;
   // Progress + delta are measured against the STARTING weight (from the profile).
   const delta   = (current != null && start != null) ? +(current - start).toFixed(1) : 0;
