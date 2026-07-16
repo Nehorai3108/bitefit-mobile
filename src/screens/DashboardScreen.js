@@ -14,6 +14,7 @@ import {
 import { onDataChanged } from '../refreshBus';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import WeightProgress from '../components/WeightProgress';
+import HealthActivity from '../components/HealthActivity';
 import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
@@ -391,7 +392,10 @@ export default function DashboardScreen({ navigation }) {
           </TouchableOpacity>
         )}
 
-        {/* מאזן ארוחות — רק ליום הנוכחי */}
+        {/* פעילות מ-Apple Health (צעדים + קלוריות) — רק ליום הנוכחי */}
+        {isToday && <HealthActivity />}
+
+        {/* מעקב משקל — רק ליום הנוכחי */}
         {isToday && <WeightProgress />}
 
         {/* יומן אכילה */}

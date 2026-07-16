@@ -57,7 +57,15 @@
       "@react-native-community/datetimepicker",
       "expo-audio",
       "expo-asset",
-      "@sentry/react-native"
+      "@sentry/react-native",
+      [
+        "react-native-health",
+        {
+          "isClinicalDataEnabled": false,
+          "healthSharePermission": "NutriSmart קורא נתוני בריאות (משקל, צעדים, קלוריות ואימונים) כדי לעדכן את המעקב שלך אוטומטית.",
+          "healthUpdatePermission": "NutriSmart יכול לכתוב משקל ל-Apple Health כדי לשמור על סנכרון."
+        }
+      ]
     ],
     "extra": {
       "sentryDsn": "https://d5735fe16d1f010e3a29a4c3eb3f1fea@o4511699428442112.ingest.de.sentry.io/4511699466649680",

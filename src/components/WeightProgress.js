@@ -10,6 +10,7 @@ import Svg, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { fetchProfile, fetchWeightLog, addWeightEntry } from '../api/client';
+import { HEALTH_AVAILABLE, getLatestWeightKg, saveWeightKg } from '../health';
 import { useTheme } from '../context/ThemeContext';
 
 const KEY = '@weight_log_v1';
@@ -46,13 +47,25 @@ export default function WeightProgress() {
       // Cloud is the source of truth (survives a device change); fall back to
       // the local cache when offline.
       const server = await fetchWeightLog().catch(() => null);
-      if (server?.log) {
-        setLog(server.log);
-        await AsyncStorage.setItem(KEY, JSON.stringify(server.log)).catch(() => {});
-      } else {
+      let logArr = server?.log;
+      if (!logArr) {
         const raw = await AsyncStorage.getItem(KEY);
-        setLog(raw ? JSON.parse(raw) : []);
+        logArr = raw ? JSON.parse(raw) : [];
       }
+      // Auto-import the latest weight from Apple Health (e.g. a smart scale /
+      // Watch) as today's weigh-in — but only if the user hasn't logged today.
+      if (HEALTH_AVAILABLE) {
+        const today = new Date().toISOString().slice(0, 10);
+        if (!logArr.some(e => e.date === today)) {
+          const hw = await getLatestWeightKg().catch(() => null);
+          if (hw && hw >= 30 && hw <= 300) {
+            logArr = [...logArr, { date: today, kg: hw }].sort((a, b) => a.date.localeCompare(b.date));
+            addWeightEntry(today, hw).catch(() => {});   // persist the imported value
+          }
+        }
+      }
+      setLog(logArr);
+      await AsyncStorage.setItem(KEY, JSON.stringify(logArr)).catch(() => {});
     } catch (_) {}
   }, []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
@@ -70,6 +83,7 @@ export default function WeightProgress() {
     setLog(next);
     await AsyncStorage.setItem(KEY, JSON.stringify(next));   // optimistic local cache
     addWeightEntry(today, kg).catch(() => {});               // sync to cloud
+    if (HEALTH_AVAILABLE) saveWeightKg(kg).catch(() => {});  // keep Apple Health in sync
     setInput(''); setModal(false);
   };
 

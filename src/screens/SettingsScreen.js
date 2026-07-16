@@ -8,8 +8,10 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { deleteAccount } from '../api/client';
 import { cancelAll, initNotifications } from '../notifications';
+import { HEALTH_AVAILABLE, connectHealth } from '../health';
 
 const NOTIF_KEY = '@notifications_enabled';
+const HEALTH_KEY = '@health_connected';
 const TUTORIAL_KEY = '@tutorial_seen_v1';
 const SUPPORT_EMAIL = 'dviryona8@gmail.com';
 
@@ -19,9 +21,22 @@ export default function SettingsScreen({ navigation }) {
   const styles = useMemo(() => makeStyles(C), [C]);
 
   const [notif, setNotif] = useState(true);
+  const [healthOn, setHealthOn] = useState(false);
   useEffect(() => {
     AsyncStorage.getItem(NOTIF_KEY).then(v => setNotif(v !== 'false')).catch(() => {});
+    AsyncStorage.getItem(HEALTH_KEY).then(v => setHealthOn(v === 'true')).catch(() => {});
   }, []);
+
+  const connectAppleHealth = async () => {
+    const ok = await connectHealth();
+    setHealthOn(ok);
+    try { await AsyncStorage.setItem(HEALTH_KEY, ok ? 'true' : 'false'); } catch {}
+    Alert.alert(
+      ok ? 'מחובר ל-Apple Health ✓' : 'לא ניתן להתחבר',
+      ok ? 'משקל, צעדים, קלוריות ואימונים מהשעון יסונכרנו אוטומטית.'
+         : 'אפשר לאשר גישה מ: הגדרות → פרטיות → בריאות → NutriSmart.',
+    );
+  };
 
   const toggleNotif = async (val) => {
     setNotif(val);
@@ -116,6 +131,18 @@ export default function SettingsScreen({ navigation }) {
             <Switch value={notif} onValueChange={toggleNotif} trackColor={{ true: '#3a7a4a' }} />
           </Row>
         </View>
+
+        {HEALTH_AVAILABLE && (
+          <>
+            <Text style={styles.section}>בריאות</Text>
+            <View style={styles.card}>
+              <Row icon="heart" label={healthOn ? 'Apple Health · מחובר' : 'חבר ל-Apple Health'}
+                   color="#e0245e" onPress={connectAppleHealth}>
+                {healthOn ? <Ionicons name="checkmark-circle" size={20} color="#3a7a4a" /> : undefined}
+              </Row>
+            </View>
+          </>
+        )}
 
         <Text style={styles.section}>מנוי</Text>
         <View style={styles.card}>
