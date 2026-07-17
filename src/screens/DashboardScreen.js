@@ -15,6 +15,7 @@ import { onDataChanged } from '../refreshBus';
 import { useSwipeNav } from '../hooks/useSwipeNav';
 import WeightProgress from '../components/WeightProgress';
 import HealthActivity from '../components/HealthActivity';
+import { HEALTH_AVAILABLE, getTodayActiveEnergy } from '../health';
 import { useTheme } from '../context/ThemeContext';
 
 const MEAL_LABELS = {
@@ -239,6 +240,7 @@ export default function DashboardScreen({ navigation }) {
   const [loading, setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [burned, setBurned] = useState(0);
+  const [healthActive, setHealthActive] = useState(0);
   const [showConsumed, setShowConsumed] = useState(false);
 
   const panHandlers = useSwipeNav(navigation, 'בית');
@@ -246,13 +248,14 @@ export default function DashboardScreen({ navigation }) {
   const load = useCallback(async () => {
     const d = selectedDateRef.current;
     try {
-      const [s, t, logData, ws] = await Promise.all([
+      const [s, t, logData, ws, ha] = await Promise.all([
         fetchFoodLogSummaryByDate(d).catch(() => ({ calories: 0, protein: 0, carbs: 0, fat: 0, entries: 0 })),
         fetchProfileTargets().catch(() => ({ calories: 2000, protein: 150, carbs: 250, fat: 67 })),
         fetchFoodLogByDate(d).catch(() => ({ entries: [] })),
         fetchWorkoutSummary().catch(() => ({ calories_burned: 0 })),
+        HEALTH_AVAILABLE ? getTodayActiveEnergy().catch(() => 0) : Promise.resolve(0),
       ]);
-      setSummary(s); setTargets(t); setBurned(ws?.calories_burned ?? 0);
+      setSummary(s); setTargets(t); setBurned(ws?.calories_burned ?? 0); setHealthActive(ha || 0);
       const entries = logData?.entries ?? [];
       const sorted  = [...entries].sort((a, b) =>
         new Date(b.timestamp ?? 0) - new Date(a.timestamp ?? 0)
@@ -275,7 +278,11 @@ export default function DashboardScreen({ navigation }) {
   useEffect(() => {
     const iso = toIso(new Date());
     if (selectedDate !== iso) return;
-    const tgt = (targets?.calories ?? 2000) + burned;
+    // Activity bonus adds burned calories back to the budget. Use the larger of
+    // logged workouts vs Apple Health active energy (Health already includes
+    // logged workouts, so max() avoids double-counting).
+    const activityBonus = Math.max(burned, HEALTH_AVAILABLE ? healthActive : 0);
+    const tgt = (targets?.calories ?? 2000) + activityBonus;
     const ov = Math.round((summary?.calories ?? 0) - tgt);
     if (ov <= 0) return;
     const key = `@overage_alert_${iso}`;
@@ -288,7 +295,7 @@ export default function DashboardScreen({ navigation }) {
         [{ text: 'הבנתי' }]
       );
     })();
-  }, [summary, targets, burned, selectedDate]);
+  }, [summary, targets, burned, healthActive, selectedDate]);
 
   if (loading) return <View style={styles.center}><ActivityIndicator size="large" color="#3a7a4a" /></View>;
 
@@ -298,7 +305,8 @@ export default function DashboardScreen({ navigation }) {
 
   const cal           = summary?.calories ?? 0;
   const calTarget     = targets?.calories ?? 2000;
-  const adjustedTarget = isToday ? calTarget + burned : calTarget;
+  const activityBonus = Math.max(burned, HEALTH_AVAILABLE ? healthActive : 0);
+  const adjustedTarget = isToday ? calTarget + activityBonus : calTarget;
   const calLeft       = Math.max(adjustedTarget - cal, 0);
   const calPct        = adjustedTarget > 0 ? Math.min(cal / adjustedTarget, 1) : 0;
   const overage       = isToday ? Math.max(0, Math.round(cal - adjustedTarget)) : 0;
@@ -364,7 +372,7 @@ export default function DashboardScreen({ navigation }) {
               </View>
               {isToday && (
                 <View style={styles.calItem}>
-                  <Text style={[styles.calVal, { color: '#ef7d6c' }]}>{burned.toLocaleString()}</Text>
+                  <Text style={[styles.calVal, { color: '#ef7d6c' }]}>{activityBonus.toLocaleString()}</Text>
                   <Text style={styles.calSub}>שרפת</Text>
                 </View>
               )}
